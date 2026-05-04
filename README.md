@@ -1,25 +1,22 @@
 # AI Automation Projects
 
-This repository contains real-world AI-powered automation systems built using n8n, APIs, and AI integrations to solve business problems and automate operations.
+This repository showcases real-world AI-powered automation systems built using n8n, APIs, and chatbot integrations to reduce manual work and improve operational efficiency.
 
 ---
 
 ## Project: HR Email Automation System
 
 ### Overview
-An automation system designed to process HR emails, classify requests, extract structured employee data, and generate standardized outputs for internal operations.
+Processes HR emails, classifies requests, extracts structured employee data, and generates standardized outputs.
 
----
+### How It Works
+1. Receives incoming HR emails  
+2. Classifies request using AI  
+3. Extracts employee data  
+4. Sends data to Google Sheets  
+5. Generates formatted output  
 
-### Key Features
-- AI-based email classification  
-- Extraction of structured data from unstructured email content  
-- Automated email formatting for IT and operations teams  
-- Integration with Google Sheets for tracking and reporting  
-
----
-
-### Technologies Used
+### Tech Stack
 - n8n  
 - OpenAI API  
 - Gmail API  
@@ -27,30 +24,19 @@ An automation system designed to process HR emails, classify requests, extract s
 
 ---
 
-### Impact
-- Reduced manual email handling  
-- Improved operational efficiency  
-- Standardized internal communication workflows  
-
----
-
 ## Project: Technical Support Chatbot (Telegram Bot)
 
 ### Overview
-An AI-powered chatbot designed to handle internal technical support requests through Telegram. The system collects structured data, guides users through a defined flow, and automates request logging.
+Handles internal technical support requests using a Telegram chatbot powered by AI.
 
----
+### How It Works
+1. User sends request via Telegram  
+2. Bot collects structured data  
+3. AI processes and classifies request  
+4. Data is sent to Google Sheets  
+5. Output is generated automatically  
 
-### Key Features
-- Conversational data collection  
-- Arabic and English language support  
-- Structured JSON output generation  
-- Integration with Google Sheets for logging  
-- Automated request classification  
-
----
-
-### Technologies Used
+### Tech Stack
 - n8n  
 - OpenAI API  
 - Telegram Bot API  
@@ -58,47 +44,25 @@ An AI-powered chatbot designed to handle internal technical support requests thr
 
 ---
 
-### Impact
-- Reduced manual communication between employees and IT  
-- Standardized request submission process  
-- Improved response time and request tracking  
-
----
-
 ## Project: AI Logistics News Automation System
 
 ### Overview
-An AI-powered automation system that collects logistics news from multiple sources, filters relevant articles, analyzes importance using AI, and delivers structured summaries via Telegram.
+Collects and processes logistics news using AI and generates structured insights.
 
----
+### How It Works
+1. Fetches news from APIs  
+2. Filters relevant content  
+3. Processes text using AI  
+4. Generates structured output  
+5. Sends results for reporting  
 
-### Key Features
-- Aggregates news from multiple RSS sources  
-- Filters logistics-related content using keyword logic  
-- Intelligent prioritization of high-impact news  
-- AI-based selection and summarization  
-- Automated daily reporting via Telegram  
-
----
-
-### Technologies Used
+### Tech Stack
 - n8n  
 - OpenAI API  
-- RSS Feeds  
-- Telegram API  
-
----
-
-### Impact
-- Automated daily logistics intelligence reporting  
-- Reduced manual research effort  
-- Delivered structured and high-value insights  
+- HTTP APIs  
 
 ---
 
 ## Author
-Mohamed Mamdouh Ismail  
+Mohamed Mamdouh  
 AI & Automation Specialist  
-
-Email: mohammeddo7aa@gmail.com  
-Location: Giza, Egypt  
