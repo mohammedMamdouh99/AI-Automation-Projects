@@ -1,6 +1,6 @@
 # AI Automation Projects
 
-This repository contains real-world AI-powered automation systems built using n8n, APIs, and chatbot integrations.
+This repository contains real-world AI-powered automation systems built using n8n, APIs, and AI integrations to solve business problems and automate operations.
 
 ---
 
@@ -62,6 +62,37 @@ An AI-powered chatbot designed to handle internal technical support requests thr
 - Reduced manual communication between employees and IT  
 - Standardized request submission process  
 - Improved response time and request tracking  
+
+---
+
+## Project: AI Logistics News Automation System
+
+### Overview
+An AI-powered automation system that collects logistics news from multiple sources, filters relevant articles, analyzes importance using AI, and delivers structured summaries via Telegram.
+
+---
+
+### Key Features
+- Aggregates news from multiple RSS sources  
+- Filters logistics-related content using keyword logic  
+- Intelligent prioritization of high-impact news  
+- AI-based selection and summarization  
+- Automated daily reporting via Telegram  
+
+---
+
+### Technologies Used
+- n8n  
+- OpenAI API  
+- RSS Feeds  
+- Telegram API  
+
+---
+
+### Impact
+- Automated daily logistics intelligence reporting  
+- Reduced manual research effort  
+- Delivered structured and high-value insights  
 
 ---
 
