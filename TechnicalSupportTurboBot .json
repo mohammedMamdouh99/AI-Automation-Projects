@@ -1,0 +1,1929 @@
+{
+  "name": "TechnicalSupportTurboBot",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message",
+          "callback_query"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -320,
+        -240
+      ],
+      "id": "d4714ddc-2e79-4af8-b849-d4a141836e52",
+      "name": "Telegram Trigger",
+      "webhookId": "c737a86c-a126-4686-8aa3-2283b29c1b5c",
+      "credentials": {
+        "telegramApi": {
+          "id": "rlqgyBdOG3RVdfUp",
+          "name": "IT Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=أنت شات بوت دعم فني واستقبال طلبات داخل شركة يمكنك فهم اللغة العربية المصرية والانجليزية.\n{{ $json.user_message }}\nقواعد صارمة:\n- اسأل سؤال واحد فقط في كل رسالة\n- لا تكرر أي سؤال تم الرد عليه\n- إذا كان اسم الموظف موجود بالفعل لا تسأل عنه مرة أخرى تحت أي ظرف.\n- استخدم الذاكرة لمعرفة ما تم جمعه\n- الرد يكون بالعربية فقط\n- كن مختصر وواضح\n- لا تعيد السؤال \n- اذا تم ارسال المعلومات كلها فى رسالة واحدة خدها وقم بتسجيل الطلب\n\nتسلسل الحوار:\n1) اطلب اسم الموظف\n2) اطلب اسم القسم\n3) اسأل: هل هذه مشكلة أم طلب؟\n4) إذا مشكلة:\n   - اسأل عن نوع المشكلة (إنترنت، كمبيوتر، بريد إلكتروني، أخرى)\nلو اخرى شوف اية هي المشكلة وسجلها \n5) إذا طلب:\n   - اسأل عن نوع الطلب (سماعة، فأرة، لابتوب، بريد إلكتروني، أخرى)\nلو اخرى شوف اية هو الطلب وسجله \nاهم نقطة تحتفظ بال chat id بتاع كل شات وتسجله في الشيت المتسجل فيه \n6) اسأل: هل تحب تضيف أي تفاصيل أخرى؟ (اكتب \"لا\" لو مفيش)\nلو ضاف تفاصيل سجلها \nولو حد بعتلك كل البيانات فى رسالة واحدة سجلها بالترتيب وسجل الطلب\nعند اكتمال كل البيانات:\nقل: \"جاري تسجيل طلبك الآن ✅\" وبعدها مباشرة في نفس الرسالة ضع الـ JSON:\n\n{\"status\": \"completed\", \"name\": \"اسم الموظف\", \"department\": \"اسم القسم\", \"request_type\": \"مشكلة أو طلب\", \"category\": \"النوع\", \"details\": \"التفاصيل\"}\n\nمثال للرد النهائي:\nجاري تسجيل طلبك الآن ✅\n{\"status\": \"completed\", \"name\": \"أحمد\", \"department\": \"المبيعات\", \"request_type\": \"طلب\", \"category\": \"سماعة\", \"details\": \"جديدة\"}\nانا عايزك وانت بتسجل فى جوجل شيت تراعي الصفوف يعني تبدا من اول صف وبعدين تحتيه وهكذا ..\nلا تكرر المعلومات التي قالها المستخدم، فقط اسأل السؤال التالي مباشرة",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1072,
+        -48
+      ],
+      "id": "69178592-b4aa-41fe-bd23-0279add3858e",
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6c299b11-e957-4aa5-a5f6-61d8f98fccd7",
+              "leftValue": "={{ $json.ready_for_trello == true || $json.ready_for_trello == 'true' }}",
+              "rightValue": {},
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1632,
+        -48
+      ],
+      "id": "b0ab7efc-ecde-49b0-912a-2a585a6bd45f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// استخراج وتنظيف البيانات من الـ AI Agent\n// ============================================\n\n// 1. جيب الرد من الـ AI Agent\nlet response = '';\ntry {\n  // جرب تجيب الـ output من الـ AI Agent\n  const aiData = $('AI Agent').item.json;\n  response = aiData.output || aiData.text || aiData.content || JSON.stringify(aiData);\n} catch (e) {\n  // لو فشل، جرب من الـ input الحالي\n  response = $json.output || $json.text || $json.content || JSON.stringify($json);\n}\n\nif (typeof response !== 'string') {\n  response = JSON.stringify(response);\n}\n\n// 2. جيب الـ Memory\nlet memory = [];\ntry {\n  memory = $('AI Agent').item.json.memory || [];\n} catch (e) {\n  console.log('⚠️ No memory available');\n}\n\n// 3. جيب Chat ID\nlet chatId = 'unknown';\ntry {\n  chatId = $('Telegram Trigger').item.json.message?.chat?.id || \n           $('AI Agent').item.json.chatId ||\n           $json.chatId ||\n           'unknown';\n} catch (e) {\n  console.log('⚠️ No chat ID found');\n}\n\nconsole.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━');\nconsole.log('📥 INPUT DATA');\nconsole.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━');\nconsole.log('Chat ID:', chatId);\nconsole.log('Response:', response.substring(0, 200));\nconsole.log('Memory Length:', memory.length);\n\n// ============================================\n// دالة البحث عن JSON\n// ============================================\nfunction findJSON(text) {\n  if (!text || typeof text !== 'string') return null;\n  \n  const patterns = [\n    /\\{\\s*\"status\"\\s*:\\s*\"completed\"[^}]*\"name\"[^}]*\"department\"[^}]*\"request_type\"[^}]*\"category\"[^}]*\\}/gi,\n    /\\{[^}]*\"status\"\\s*:\\s*\"completed\"[^}]*\\}/gi,\n    /\\{[^}]*\"name\"[^}]*\"department\"[^}]*\"request_type\"[^}]*\"category\"[^}]*\\}/gi\n  ];\n  \n  for (const pattern of patterns) {\n    const matches = text.match(pattern);\n    if (matches) {\n      for (const match of matches) {\n        try {\n          const cleanMatch = match.replace(/[\\u0000-\\u001F\\u007F-\\u009F]/g, '').trim();\n          const parsed = JSON.parse(cleanMatch);\n          if (parsed.status === 'completed' || (parsed.name && parsed.department)) {\n            return parsed;\n          }\n        } catch (e) {\n          continue;\n        }\n      }\n    }\n  }\n  return null;\n}\n\n// ============================================\n// ابحث عن البيانات\n// ============================================\nlet extractedData = null;\nlet dataSource = 'none';\n\n// في الرد الحالي\nconsole.log('🔍 Searching current response...');\nextractedData = findJSON(response);\nif (extractedData) {\n  dataSource = 'current_response';\n  console.log('✅ Found in response');\n}\n\n// في الـ Memory\nif (!extractedData && memory.length > 0) {\n  console.log('🔍 Searching memory...');\n  for (let i = memory.length - 1; i >= 0; i--) {\n    const content = memory[i].content || memory[i].text || '';\n    extractedData = findJSON(content);\n    if (extractedData) {\n      dataSource = `memory[${i}]`;\n      console.log(`✅ Found in memory[${i}]`);\n      break;\n    }\n  }\n}\n\n// ============================================\n// نضّف وتحقق من البيانات\n// ============================================\nif (extractedData) {\n  console.log('📦 Raw data:', JSON.stringify(extractedData, null, 2));\n  \n  const cleanData = {\n    status: 'completed',\n    name: (extractedData.name || '').trim(),\n    department: (extractedData.department || '').trim(),\n    request_type: (extractedData.request_type || '').trim(),\n    category: (extractedData.category || '').trim(),\n    details: (extractedData.details || extractedData.description || 'لا يوجد').trim()\n  };\n  \n  // نضّف التفاصيل الفارغة\n  if (!cleanData.details || \n      cleanData.details === '' || \n      cleanData.details.toLowerCase() === 'none' ||\n      cleanData.details === 'null') {\n    cleanData.details = 'لا يوجد';\n  }\n  \n  // تحقق من الحقول\n  const requiredFields = ['name', 'department', 'request_type', 'category'];\n  const missingFields = requiredFields.filter(f => !cleanData[f] || cleanData[f].length === 0);\n  const isValid = missingFields.length === 0;\n  \n  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━');\n  console.log('✨ CLEAN DATA');\n  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━');\n  console.log('Valid:', isValid);\n  console.log('Missing:', missingFields.join(', ') || 'none');\n  console.log('Data:', JSON.stringify(cleanData, null, 2));\n  \n  if (isValid) {\n    cleanData.chat_id = chatId;\n    cleanData.timestamp = new Date().toISOString();\n    cleanData.date = new Date().toLocaleString('ar-EG', { timeZone: 'Africa/Cairo' });\n    cleanData.data_source = dataSource;\n    \n    console.log('✅ READY TO SAVE');\n    \n    return [{\n      json: {\n        ...cleanData,\n        ready_for_sheet: true,\n        ready_for_trello: true\n      }\n    }];\n  } else {\n    console.log('❌ INCOMPLETE');\n    return [{\n      json: {\n        status: 'incomplete',\n        ready_for_sheet: false,\n        ready_for_trello: false,\n        extracted_data: cleanData,\n        missing_fields: missingFields,\n        output: response\n      }\n    }];\n  }\n}\n\n// ============================================\n// لسه بيكلم المستخدم\n// ============================================\nconsole.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━');\nconsole.log('💬 STILL CHATTING');\nconsole.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━');\n\nreturn [{\n  json: {\n    status: 'chatting',\n    ready_for_sheet: false,\n    ready_for_trello: false,\n    output: response,\n    chat_id: chatId\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        -48
+      ],
+      "id": "5517c277-4ce4-4a37-a4f7-553631bff052",
+      "name": "decide"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fef486da-9a81-49cf-b8c2-71e8b6dcb606",
+              "name": "name",
+              "value": "={{ $('decide').item.json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "2e09ac62-e903-4ed4-9a36-8c60f9f53e02",
+              "name": "type",
+              "value": "={{ $('decide').item.json.request_type }}",
+              "type": "string"
+            },
+            {
+              "id": "50eebcbe-0e96-4417-a775-369f88cd8afd",
+              "name": "category",
+              "value": "={{ $('decide').item.json.category }}",
+              "type": "string"
+            },
+            {
+              "id": "2e7e2a01-7203-46b0-b834-53a5fee954b1",
+              "name": "details",
+              "value": "={{ $('decide').item.json.details }}",
+              "type": "string"
+            },
+            {
+              "id": "f830f07b-3a4c-44a0-b344-19dcadda959b",
+              "name": "department",
+              "value": "={{ $('decide').item.json.department }}",
+              "type": "string"
+            },
+            {
+              "id": "1a0e1ec3-a25c-4a9b-b8ad-9feb83973409",
+              "name": "لينك التاسك",
+              "value": "={{ $('Code in JavaScript6').item.json.task_url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2512,
+        -224
+      ],
+      "id": "93e4de2c-d090-48c7-a167-f5a6c5c144e8",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const cb = $json.callback_query || $json;\n\nconsole.log('callback data string:', cb.data);\n\nif (!cb || !cb.data) {\n  console.log('مفيش callback_query!');\n  return [];\n}\n\nconst parts = cb.data.split('_');\nconst rating = Number(parts[1]);\nconst cardId = parts.slice(2).join('_');\n\nreturn {\n  json: {\n    rating,\n    cardId,\n    chatId: cb.message?.chat?.id || cb.chat?.id,\n    messageId: cb.message?.message_id, // ← ضيف message ID\n    callbackQueryId: cb.id,\n    user: cb.from?.username || cb.from?.first_name,\n    timestamp: new Date().toISOString(),\n    Rating_sent: 'TRUE'\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -496
+      ],
+      "id": "53c5bc8c-c6a8-4710-8741-7386b92e82c0",
+      "name": "Code Rate",
+      "alwaysOutputData": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $json;\n\nconst chatId =\n  item.message?.chat?.id ??\n  item.callback_query?.message?.chat?.id ??\n  null;\n\nconst user_message =\n  item.message?.text ??\n  item.callback_query?.data ??\n  \"\";\n\nreturn [{\n  json: {\n    chatId,\n    user_message\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        96,
+        -64
+      ],
+      "id": "4dcdc4c6-1620-4e02-8cd8-774555b52a37",
+      "name": "Code 1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2259fe37-9448-404d-9abb-63c4c69f9a99",
+              "leftValue": "={{$json.callback_query}} ",
+              "rightValue": true,
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "fa52c08f-3cfe-42df-b346-c63d03916f7a",
+              "leftValue": "={{$json.message.text}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -64,
+        -256
+      ],
+      "id": "f46faec9-8d5f-41cd-8da5-d527382a8ef2",
+      "name": "IF NODE"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.chatId }}",
+        "contextWindowLength": 30
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1168,
+        192
+      ],
+      "id": "ec441a9a-e352-4049-935e-818f159e99fe",
+      "name": "Simple"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all();\nconst userMessage = $('Telegram Trigger').first().json.message?.text;\nconst chatId = $('Telegram Trigger').first().json.message?.chat?.id;\n\nif (rows.length === 0) {\n  return [{\n    json: {\n      route: 'ai_agent',\n      chatId,\n      user_message: userMessage\n    }\n  }];\n}\n\n// نجيب أحدث صف فقط\nrows.sort((a, b) => b.json.row_number - a.json.row_number);\nconst latest = rows[0];\n\n// تنظيف القيم\nconst waiting = String(latest.json['Waiting_feedback'] || '')\n  .trim()\n  .toLowerCase();\n\nconst ratingRaw = latest.json['التقييم'];\nconst rate =\n  ratingRaw !== undefined && ratingRaw !== ''\n    ? Number(ratingRaw)\n    : null;\n\n// الشرط الآمن\nif (waiting === 'pending' && rate !== null && rate < 4) {\n  return [{\n    json: {\n      route: 'save_feedback',\n      chatId,\n      Cardid: latest.json['Cardid'],\n      feedback: userMessage\n    }\n  }];\n}\n\n// غير كده → رسالة عادية\nreturn [{\n  json: {\n    route: 'ai_agent',\n    chatId,\n    user_message: userMessage\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        544,
+        -64
+      ],
+      "id": "7d636547-dc2a-44c4-a19b-107a25f0391e",
+      "name": "Filter for Feedback"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('If route').item.json.chatId }}",
+        "text": "شكراً على رأيك! 🙏 هنحاول نحسن الخدمة بناءً على ملاحظاتك",
+        "replyMarkup": "forceReply",
+        "forceReply": {},
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1376,
+        -240
+      ],
+      "id": "e74df8b9-c1cf-43d3-ae2e-493791a2b546",
+      "name": "Last Send",
+      "webhookId": "7a9cf5e3-7122-465c-b676-79506a8965d2",
+      "credentials": {
+        "telegramApi": {
+          "id": "rlqgyBdOG3RVdfUp",
+          "name": "IT Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "edc830b5-016c-4cd2-b8b2-85f7e199a98f",
+              "leftValue": "={{ $json.route === 'save_feedback' }}",
+              "rightValue": "save_feedback",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        768,
+        -48
+      ],
+      "id": "1b010780-a0a4-4d7c-94b1-9a360eed6bd1",
+      "name": "If route"
+    },
+    {
+      "parameters": {
+        "chatId": "={{$json.chatId}}",
+        "text": "شكراً على تقييمك! 🙏  ممكن تقولنا إيه اللي ممكن نحسنه عشان نخدمك بشكل أفضل؟",
+        "replyMarkup": "forceReply",
+        "forceReply": {},
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        720,
+        -592
+      ],
+      "id": "37c27f93-4751-49f6-a250-d4187c1ae39c",
+      "name": "Message less than 4",
+      "webhookId": "7fd843d4-4217-4dbc-a15c-48cd96e30b24",
+      "credentials": {
+        "telegramApi": {
+          "id": "rlqgyBdOG3RVdfUp",
+          "name": "IT Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1H6Tz0E71Y1BUJbkP94wDAB0UpawSSDUR7xE-Uak66vw",
+          "mode": "list",
+          "cachedResultName": "Technical Support Report 2024",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1H6Tz0E71Y1BUJbkP94wDAB0UpawSSDUR7xE-Uak66vw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 375062564,
+          "mode": "list",
+          "cachedResultName": "تقرير العمل",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1H6Tz0E71Y1BUJbkP94wDAB0UpawSSDUR7xE-Uak66vw/edit#gid=375062564"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "التقييم": "={{ $json.rating }}",
+            "Cardid": "={{ String($json.cardId).trim().toLowerCase() }}",
+            "Chatid": "={{ $json.chatId }}",
+            "Waiting_feedback": "Pending",
+            "Rating_sent": "TRUE"
+          },
+          "matchingColumns": [
+            "Cardid"
+          ],
+          "schema": [
+            {
+              "id": "م",
+              "displayName": "م",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "تاريخ بداية الطلب",
+              "displayName": "تاريخ بداية الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "طبيعة الطلب",
+              "displayName": "طبيعة الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "المكان",
+              "displayName": "المكان",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "القسم",
+              "displayName": "القسم",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "المشكلة",
+              "displayName": "المشكلة",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "صاحب الطلب",
+              "displayName": "صاحب الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "الجهاز",
+              "displayName": "الجهاز",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "نوع الطلب",
+              "displayName": "نوع الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "اسم الفني",
+              "displayName": "اسم الفني",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "التاريخ الفعلي لتنفيذ الطلب",
+              "displayName": "التاريخ الفعلي لتنفيذ الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "تاريخ انتهاء الطلب",
+              "displayName": "تاريخ انتهاء الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "لينك تريللو",
+              "displayName": "لينك تريللو",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "التقييم",
+              "displayName": "التقييم",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "feedback",
+              "displayName": "feedback",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "مدة الحل",
+              "displayName": "مدة الحل",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "TU-IT-P01-F12",
+              "displayName": "TU-IT-P01-F12",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Chatid",
+              "displayName": "Chatid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Cardid",
+              "displayName": "Cardid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Rating_sent",
+              "displayName": "Rating_sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Waiting_feedback",
+              "displayName": "Waiting_feedback",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1120,
+        -592
+      ],
+      "id": "9325363b-848e-44cf-88fc-97b393c3014b",
+      "name": "sheet less than 4",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "vho9Wgw8JoSylDNG",
+          "name": "Google"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "editMessageText",
+        "chatId": "={{ $('Code Rate').item.json.chatId }}",
+        "messageId": "={{ $('Code Rate').item.json.messageId }}",
+        "text": "شكراً لتقييمك ❤️",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        720,
+        -432
+      ],
+      "id": "942ec025-b4b1-4f7f-9ea1-8a3d2e2ec173",
+      "name": "Message 5/4 rate",
+      "webhookId": "04d4bb28-761d-4376-a744-f70a466f8735",
+      "credentials": {
+        "telegramApi": {
+          "id": "rlqgyBdOG3RVdfUp",
+          "name": "IT Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1H6Tz0E71Y1BUJbkP94wDAB0UpawSSDUR7xE-Uak66vw",
+          "mode": "list",
+          "cachedResultName": "Technical Support Report 2024",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1H6Tz0E71Y1BUJbkP94wDAB0UpawSSDUR7xE-Uak66vw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 375062564,
+          "mode": "list",
+          "cachedResultName": "تقرير العمل",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1H6Tz0E71Y1BUJbkP94wDAB0UpawSSDUR7xE-Uak66vw/edit#gid=375062564"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Cardid": "={{ $('If for rate').item.json.cardId }}",
+            "Chatid": "={{ $json.result.chat.id }}",
+            "التقييم": "={{ $('If for rate').item.json.rating }}",
+            "Waiting_feedback": "Done",
+            "Rating_sent": "TRUE"
+          },
+          "matchingColumns": [
+            "Cardid"
+          ],
+          "schema": [
+            {
+              "id": "م",
+              "displayName": "م",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "تاريخ بداية الطلب",
+              "displayName": "تاريخ بداية الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "طبيعة الطلب",
+              "displayName": "طبيعة الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "المكان",
+              "displayName": "المكان",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "القسم",
+              "displayName": "القسم",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "المشكلة",
+              "displayName": "المشكلة",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "صاحب الطلب",
+              "displayName": "صاحب الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "الجهاز",
+              "displayName": "الجهاز",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "نوع الطلب",
+              "displayName": "نوع الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "اسم الفني",
+              "displayName": "اسم الفني",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "التاريخ الفعلي لتنفيذ الطلب",
+              "displayName": "التاريخ الفعلي لتنفيذ الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "تاريخ انتهاء الطلب",
+              "displayName": "تاريخ انتهاء الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "لينك تريللو",
+              "displayName": "لينك تريللو",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "التقييم",
+              "displayName": "التقييم",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "feedback",
+              "displayName": "feedback",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "مدة الحل",
+              "displayName": "مدة الحل",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TU-IT-P01-F12",
+              "displayName": "TU-IT-P01-F12",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Chatid",
+              "displayName": "Chatid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Cardid",
+              "displayName": "Cardid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Rating_sent",
+              "displayName": "Rating_sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Waiting_feedback",
+              "displayName": "Waiting_feedback",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        896,
+        -432
+      ],
+      "id": "e094c437-3ff8-4643-a0c2-c8370e46aad3",
+      "name": "Sheet for 4/5 rate",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "vho9Wgw8JoSylDNG",
+          "name": "Google"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "36dccf5c-a357-4bf2-8faa-8e1a9674148d",
+              "leftValue": "={{$json.rating}}",
+              "rightValue": 4,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        528,
+        -496
+      ],
+      "id": "d49009f5-f239-4423-9b84-6ae0c53f858e",
+      "name": "If for rate"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $node[\"Telegram Trigger\"].json.message.chat.id }}",
+        "text": "=تم تسجيل طلبك بنجاح ✅\n{{ $('Filter code').item.json.request_type }} {{ $('Filter code').item.json.category }} {{ $('Filter code').item.json.department }} \n\nلينك التاسك \n{{ $json.task_url }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2336,
+        -192
+      ],
+      "id": "f80f563b-b61c-448e-9237-365282e1e4f2",
+      "name": "Message supmited",
+      "webhookId": "a624a751-41ea-4c2c-b9ab-4d9a849c22ea",
+      "credentials": {
+        "telegramApi": {
+          "id": "rlqgyBdOG3RVdfUp",
+          "name": "IT Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $node[\"Telegram Trigger\"].json.message.chat.id }}",
+        "text": "={{ $('AI Agent').item.json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1856,
+        96
+      ],
+      "id": "e9e56167-a40f-41f9-a32e-5f232e9ab659",
+      "name": "Ai Message",
+      "webhookId": "eb184d68-e0df-4756-86c4-4786124f8a7e",
+      "credentials": {
+        "telegramApi": {
+          "id": "rlqgyBdOG3RVdfUp",
+          "name": "IT Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1H6Tz0E71Y1BUJbkP94wDAB0UpawSSDUR7xE-Uak66vw",
+          "mode": "list",
+          "cachedResultName": "Technical Support Report 2024",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1H6Tz0E71Y1BUJbkP94wDAB0UpawSSDUR7xE-Uak66vw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 375062564,
+          "mode": "list",
+          "cachedResultName": "تقرير العمل",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1H6Tz0E71Y1BUJbkP94wDAB0UpawSSDUR7xE-Uak66vw/edit#gid=375062564"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "تاريخ بداية الطلب": "={{ $('If').item.json.start_date }}",
+            "طبيعة الطلب": "={{ $json.type }}",
+            "القسم": "={{ $json.department }}",
+            "المشكلة": "={{ $json.name  }} | {{ $json.department }} | {{ $json.type }} | {{ $json.category }} | {{ $json.details }} ",
+            "صاحب الطلب": "={{ $json.name }}",
+            "لينك تريللو": "={{ $('Code in JavaScript6').item.json.task_url }}",
+            "التاريخ الفعلي لتنفيذ الطلب": "={{ $('If').item.json.start_date }}",
+            "Chatid": "={{ $('Filter code').item.json.chatId }}",
+            "Cardid": "={{ $('Create Card').item.json.data.id }}",
+            "تاريخ انتهاء الطلب": "=",
+            "الجهاز": "={{ $json.category }}",
+            "م": "==ROW()-1"
+          },
+          "matchingColumns": [
+            "Cardid"
+          ],
+          "schema": [
+            {
+              "id": "م",
+              "displayName": "م",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "تاريخ بداية الطلب",
+              "displayName": "تاريخ بداية الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "طبيعة الطلب",
+              "displayName": "طبيعة الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "المكان",
+              "displayName": "المكان",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "القسم",
+              "displayName": "القسم",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "المشكلة",
+              "displayName": "المشكلة",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "صاحب الطلب",
+              "displayName": "صاحب الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "الجهاز",
+              "displayName": "الجهاز",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "نوع الطلب",
+              "displayName": "نوع الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "اسم الفني",
+              "displayName": "اسم الفني",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "التاريخ الفعلي لتنفيذ الطلب",
+              "displayName": "التاريخ الفعلي لتنفيذ الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "تاريخ انتهاء الطلب",
+              "displayName": "تاريخ انتهاء الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "لينك تريللو",
+              "displayName": "لينك تريللو",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "التقييم",
+              "displayName": "التقييم",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "feedback",
+              "displayName": "feedback",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "مدة الحل",
+              "displayName": "مدة الحل",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TU-IT-P01-F12",
+              "displayName": "TU-IT-P01-F12",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Chatid",
+              "displayName": "Chatid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Cardid",
+              "displayName": "Cardid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Rating_sent",
+              "displayName": "Rating_sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Waiting_feedback",
+              "displayName": "Waiting_feedback",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2736,
+        -224
+      ],
+      "id": "a505e494-f64e-4bd8-a3e2-f66d301ac49e",
+      "name": "Sup Sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "vho9Wgw8JoSylDNG",
+          "name": "Google"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1H6Tz0E71Y1BUJbkP94wDAB0UpawSSDUR7xE-Uak66vw",
+          "mode": "list",
+          "cachedResultName": "Technical Support Report 2024",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1H6Tz0E71Y1BUJbkP94wDAB0UpawSSDUR7xE-Uak66vw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 375062564,
+          "mode": "list",
+          "cachedResultName": "تقرير العمل",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1H6Tz0E71Y1BUJbkP94wDAB0UpawSSDUR7xE-Uak66vw/edit#gid=375062564"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Cardid": "={{ $json.Cardid }}",
+            "Waiting_feedback": "Done",
+            "feedback": "={{ $json.feedback }}"
+          },
+          "matchingColumns": [
+            "Cardid"
+          ],
+          "schema": [
+            {
+              "id": "م",
+              "displayName": "م",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "تاريخ بداية الطلب",
+              "displayName": "تاريخ بداية الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "طبيعة الطلب",
+              "displayName": "طبيعة الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "المكان",
+              "displayName": "المكان",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "القسم",
+              "displayName": "القسم",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "المشكلة",
+              "displayName": "المشكلة",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "صاحب الطلب",
+              "displayName": "صاحب الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "الجهاز",
+              "displayName": "الجهاز",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "نوع الطلب",
+              "displayName": "نوع الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "اسم الفني",
+              "displayName": "اسم الفني",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "التاريخ الفعلي لتنفيذ الطلب",
+              "displayName": "التاريخ الفعلي لتنفيذ الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "تاريخ انتهاء الطلب",
+              "displayName": "تاريخ انتهاء الطلب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "لينك تريللو",
+              "displayName": "لينك تريللو",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "التقييم",
+              "displayName": "التقييم",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "feedback",
+              "displayName": "feedback",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "مدة الحل",
+              "displayName": "مدة الحل",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "TU-IT-P01-F12",
+              "displayName": "TU-IT-P01-F12",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Chatid",
+              "displayName": "Chatid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Cardid",
+              "displayName": "Cardid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Rating_sent",
+              "displayName": "Rating_sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Waiting_feedback",
+              "displayName": "Waiting_feedback",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1136,
+        -240
+      ],
+      "id": "c53a8f4e-817d-4228-9b68-85a299aee972",
+      "name": "Feedback Sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "vho9Wgw8JoSylDNG",
+          "name": "Google"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $json;\n\n// ===============================\n// بيانات المستخدم من Telegram Trigger\n// ===============================\nconst tg = $items('Telegram Trigger')[0].json.message;\n\nconst chatId = tg.chat.id;\nconst firstName = tg.chat.first_name || '';\nconst lastName = tg.chat.last_name || '';\nconst userName = tg.chat.username\n  ? `@${tg.chat.username}`\n  : `${firstName} ${lastName}`;\n\n// ===============================\n// تاريخ بداية الطلب (تاريخ فقط)\n// فورمات: 14/Jan/2026\n// ===============================\nconst start_date = new Date().toLocaleDateString('en-GB', {\n  timeZone: 'Africa/Cairo',\n  day: '2-digit',\n  month: 'short',\n  year: 'numeric',\n}).replace(/ /g, '/');\n\n// ===============================\n// 1️⃣ Description لتريلو (زي الصورة)\n// ===============================\nconst trello_description = `\n${data.name}\n${data.department}\nIssue: ${data.request_type}\n${data.details}\n\nChat ID : @${chatId}\nFirst Name : ${firstName}\nLast Name : ${lastName}\nUser Name : ${userName}\n`.trim();\n\n// ===============================\n// 2️⃣ شكل البيانات لجوجل شيت\n// ===============================\nconst sheet_issue = `Chat ID : @${chatId} | ${data.department} | Issue: ${data.request_type}`;\n\n// ===============================\n// Output النهائي\n// ===============================\nreturn [\n  {\n    json: {\n      // مشترك\n      name: data.name,\n      department: data.department,\n      request_type: data.request_type,\n      category: data.category,\n      details: data.details,\n      ready_for_trello: data.ready_for_trello,\n\n      // ✅ تاريخ بداية الطلب\n      start_date,\n\n      // Trello\n      trello_description,\n\n      // Google Sheet\n      sheet_issue,\n      sheet_owner: data.name,\n\n      // Telegram\n      chatId,\n      firstName,\n      lastName,\n      userName,\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1488,
+        -48
+      ],
+      "id": "88bacdf3-0647-4954-9952-e8cff988cd06",
+      "name": "Filter code"
+    },
+    {
+      "parameters": {
+        "jsCode": "// نرجع البيانات عادي\nreturn [{\n  json: {\n    chatId: $('Code Rate').item.json.chatId,\n    cardId: $('Code Rate').item.json.cardId,\n    rating: $('Code Rate').item.json.rating\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        912,
+        -592
+      ],
+      "id": "a928b6d4-dfdb-4501-b1a8-b99345023cd1",
+      "name": "Sup Coded"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        864,
+        208
+      ],
+      "id": "b8f87fa7-0c8c-4b99-bb55-bc17ffa3ab1a",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ABrrjVVx22morxnN",
+          "name": "Turbo Tokens"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1H6Tz0E71Y1BUJbkP94wDAB0UpawSSDUR7xE-Uak66vw",
+          "mode": "list",
+          "cachedResultName": "Technical Support Report 2024",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1H6Tz0E71Y1BUJbkP94wDAB0UpawSSDUR7xE-Uak66vw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 375062564,
+          "mode": "list",
+          "cachedResultName": "تقرير العمل",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1H6Tz0E71Y1BUJbkP94wDAB0UpawSSDUR7xE-Uak66vw/edit#gid=375062564"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Chatid",
+              "lookupValue": "={{ $json.chatId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        304,
+        -64
+      ],
+      "id": "d62d7c34-1e95-47ce-a4f3-8c65471d2fe6",
+      "name": "Get row(s) first",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "vho9Wgw8JoSylDNG",
+          "name": "Google"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/login",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "email",
+              "value": "bassant1997.mohamed123@gmail.com"
+            },
+            {
+              "name": "password",
+              "value": "123456789"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1696,
+        -304
+      ],
+      "id": "3f828196-5d00-43db-b21c-0c821e0a91ea",
+      "name": "Login",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-cards/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "=  {{ $('Filter code').item.json.request_type }} {{ $('Filter code').item.json.category }} –  {{ $('Filter code').item.json.department }}"
+            },
+            {
+              "name": "board_id",
+              "value": "79"
+            },
+            {
+              "name": "list_id",
+              "value": "1126"
+            },
+            {
+              "name": "description",
+              "value": "=Name:\n {{ $('Filter code').item.json.name }}\n\nDepartment:\n {{ $('Filter code').item.json.department }}\n\nRequest:\n {{ $('Filter code').item.json.request_type }} {{ $('Filter code').item.json.category }}\n\nDetails:\n {{ $('Filter code').item.json.details }}\n\n📌 Chat Info\nChat ID: @ {{ $('Filter code').item.json.chatId }}\nFirst Name:  {{ $('Filter code').item.json.firstName }}\nLast Name:  {{ $('Filter code').item.json.lastName }}\nUser Name:  {{ $('Filter code').item.json.userName }}"
+            },
+            {
+              "name": "user_code",
+              "value": "12514"
+            },
+            {
+              "name": "members[]",
+              "value": "12514"
+            },
+            {
+              "name": "checklist_name",
+              "value": "Main Checklist"
+            },
+            {
+              "name": "checklist_due_date",
+              "value": "={{ new Date($json.start_date).toISOString().split('T')[0] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1968,
+        -144
+      ],
+      "id": "2ed71626-061e-476a-a7be-2cce4cb158ec",
+      "name": "Create Card"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $json.data;\n\nreturn [{\n  json: {\n    ...$json,\n    task_url: `https://platform.turbo.info/admin/task-boards/${data.board_id}?card=${data.id}`\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2160,
+        -160
+      ],
+      "id": "e1156498-da1f-4c3e-a023-3909e5406fe4",
+      "name": "Code in JavaScript6"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "IF NODE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "decide",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Create Card",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ai Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "decide": {
+      "main": [
+        [
+          {
+            "node": "Filter code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Sup Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Rate": {
+      "main": [
+        [
+          {
+            "node": "If for rate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code 1": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) first",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF NODE": {
+      "main": [
+        [
+          {
+            "node": "Code Rate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter for Feedback": {
+      "main": [
+        [
+          {
+            "node": "If route",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If route": {
+      "main": [
+        [
+          {
+            "node": "Feedback Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message less than 4": {
+      "main": [
+        [
+          {
+            "node": "Sup Coded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message 5/4 rate": {
+      "main": [
+        [
+          {
+            "node": "Sheet for 4/5 rate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If for rate": {
+      "main": [
+        [
+          {
+            "node": "Message less than 4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Message 5/4 rate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message supmited": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Feedback Sheet": {
+      "main": [
+        [
+          {
+            "node": "Last Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter code": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sup Coded": {
+      "main": [
+        [
+          {
+            "node": "sheet less than 4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) first": {
+      "main": [
+        [
+          {
+            "node": "Filter for Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Login": {
+      "main": [
+        []
+      ]
+    },
+    "Create Card": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript6": {
+      "main": [
+        [
+          {
+            "node": "Message supmited",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "5da4de53-68c5-475d-b3f8-888f061c0b5f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "789898b22df5490ee7fee9adc686abf4348ff76dd7521b6ae2563557f413c71d"
+  },
+  "id": "IlsZHC4Rcp7LNlk6",
+  "tags": []
+}
