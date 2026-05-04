@@ -1,0 +1,4441 @@
+{
+  "name": "HR Email",
+  "nodes": [
+    {
+      "parameters": {
+        "inputText": "= {{ $json.subject }}\n\n{{ $json.text }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "department_transfer",
+              "description": "Emails where an employee requests to move from one department or section to another within the same company.  Examples: “I would like to transfer from the Sales department to HR.”"
+            },
+            {
+              "category": "resign",
+              "description": "Emails where an employee is ending their employment voluntarily. May include: انقطاع عن العمل , resignation letters, notice of leaving, or last working day.  Examples: “I am submitting my resignation effective at the end of this month.”"
+            },
+            {
+              "category": "robbery",
+              "description": "This category covers emails reporting the theft, robbery, loss, or disappearance of company or personal property related to the workplace. Such incidents may involve devices, equipment, cash, or other assets and usually require HR, security, or legal follow-up.  Keywords / Indicators: may include terms like “stolen”, “robbery”, “lost”, “مسروق”, “سرقة”, “ضياع”, or “عجز” (not always present, but can appear in reports of missing items or cash shortages).  Examples:  “My laptop was stolen from the office.”  “There was a robbery incident reported.”  “I lost my company phone at work.”  “تم الإبلاغ عن عجز في عهدة الكابتن.”"
+            },
+            {
+              "category": "recruitment ",
+              "description": "Emails about hiring new staff — applications from candidates, CV/resume submissions, job postings, or manager requests to open a vacancy.  Examples: “Attached is my CV for the marketing position.” / “Please open a requisition for 2 engineers.”"
+            },
+            {
+              "category": "promotion",
+              "description": "Emails requesting or announcing a higher role, rank, or grade for an employee.  Examples: “I would like to request promotion to Senior Analyst.” / “This is to confirm your promotion effective next month.”"
+            },
+            {
+              "category": "shifting_job",
+              "description": "Emails about changing job title, duties, or role inside the company without leaving. Different from transfer (which is between departments).  Examples: “Please change my title from Assistant Manager to Deputy Manager.” / “I want to shift my role from customer support to training.”"
+            },
+            {
+              "category": "investigation",
+              "description": " Emails requesting investigation in a certain case "
+            },
+            {
+              "category": "advance_request",
+              "description": "Emails where employees ask for a salary advance or early payment before payday.  Examples: “I would like an advance payment of my salary for this month.” / “Please approve a salary advance.”"
+            },
+            {
+              "category": "undefined",
+              "description": "Emails that don’t clearly match any of the above categories, or are general inquiries, ambiguous, or irrelevant.  Examples: “What are the office hours next week?” / “I have a question about policy.”"
+            },
+            {
+              "category": "Custody Request",
+              "description": "طلب عهدة هو طلب رسمي يقدمه الموظف للحصول على مبلغ مالي أو معدات أو أدوات من الشركة بغرض استخدامها في العمل. يشمل الطلب توضيح الغرض من العهدة وقيمتها أو مواصفاتها والمدة التي سيحتفظ بها الموظف بالعهدة."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        -368,
+        5344
+      ],
+      "id": "b12389a4-5053-4a26-9d4e-171b17a32652",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "labelIds": "=INBOX"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1312,
+        5424
+      ],
+      "id": "5f168330-cbfe-4d64-8ac1-afa537cb23e1",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aRoY8xk1j0jOUY6G",
+          "name": "HR Email"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1jnfbVS3A8lnjSVJ5XZC83hCqO3ssW8cLjAs6f75s8gs",
+          "mode": "list",
+          "cachedResultName": "شيت العجوزات",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jnfbVS3A8lnjSVJ5XZC83hCqO3ssW8cLjAs6f75s8gs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1248150878,
+          "mode": "list",
+          "cachedResultName": "Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jnfbVS3A8lnjSVJ5XZC83hCqO3ssW8cLjAs6f75s8gs/edit#gid=1248150878"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "الاسم": "={{ $json.output.employee_name }}",
+            "التصنيف": "={{ $json.output.all_columns.Classification }}",
+            "القسم": "={{ $json.output.all_columns.Section }}",
+            "الادارة": "={{ $json.output.all_columns.Department }}",
+            "تاريخ التعيين": "={{ $json.output.all_columns['Start Date'] }}",
+            "رقم البطاقة": "={{ $json.output.national_id }}",
+            "الفرع": "={{ $json.output.all_columns.Section }}",
+            "الوظيفة": "={{ $json.output.all_columns.Position }}",
+            "مبلغ العجز": "={{ $json.output.shortage_amount }}",
+            "التاريخ": "={{ $now.format('dd/MM/yyyy') }}",
+            "كود العجز": "={{ $json.next_shortage_code }}",
+            "الكود الوظيفى": "={{ $json.output.job_code }}",
+            "نوع العجز": "={{ $json.output.shortage_type }}",
+            "Trello link HR": "={{ $('Code in JavaScript10').first().json.task_url }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "نوع العجز",
+              "displayName": "نوع العجز",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "التاريخ",
+              "displayName": "التاريخ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "كود العجز",
+              "displayName": "كود العجز",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "الكود الوظيفى",
+              "displayName": "الكود الوظيفى",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "الاسم",
+              "displayName": "الاسم",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "الفرع",
+              "displayName": "الفرع",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "نوع الفرع",
+              "displayName": "نوع الفرع",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "الوظيفة",
+              "displayName": "الوظيفة",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "مبلغ العجز",
+              "displayName": "مبلغ العجز",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ما تم الاتفاق على سداده",
+              "displayName": "ما تم الاتفاق على سداده",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ما تم سداده حتى الان",
+              "displayName": "ما تم سداده حتى الان",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "المتبقي",
+              "displayName": "المتبقي",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "تاريخ السداد",
+              "displayName": "تاريخ السداد",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "تاريخ اول سداد",
+              "displayName": "تاريخ اول سداد",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "تاريخ اخر سداد",
+              "displayName": "تاريخ اخر سداد",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Trello link Cash collection",
+              "displayName": "Trello link Cash collection",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "تاريخ القرار",
+              "displayName": "تاريخ القرار",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "نتيجة القرار",
+              "displayName": "نتيجة القرار",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "الحالة الوظيفية",
+              "displayName": "الحالة الوظيفية",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ملاحظات الكاش كولكشن",
+              "displayName": "ملاحظات الكاش كولكشن",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "عدد مرات العجز",
+              "displayName": "عدد مرات العجز",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "التصنيف",
+              "displayName": "التصنيف",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "القسم",
+              "displayName": "القسم",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "الادارة",
+              "displayName": "الادارة",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "تاريخ التعيين",
+              "displayName": "تاريخ التعيين",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "مسئول الاستعلام",
+              "displayName": "مسئول الاستعلام",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "رقم البطاقة",
+              "displayName": "رقم البطاقة",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ملاحظات الاتش ار",
+              "displayName": "ملاحظات الاتش ار",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Trello link HR",
+              "displayName": "Trello link HR",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "دفعة واحدة",
+              "displayName": "دفعة واحدة",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Column 31",
+              "displayName": "Column 31",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Column 32",
+              "displayName": "Column 32",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Column 33",
+              "displayName": "Column 33",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Column 34",
+              "displayName": "Column 34",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Column 35",
+              "displayName": "Column 35",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Column 36",
+              "displayName": "Column 36",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Column 37",
+              "displayName": "Column 37",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Column 38",
+              "displayName": "Column 38",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Column 39",
+              "displayName": "Column 39",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TU-FN-P01-F176",
+              "displayName": "TU-FN-P01-F176",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2624,
+        2416
+      ],
+      "id": "b6a81ee1-3d93-4043-ac3c-61d222d2b56b",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "vho9Wgw8JoSylDNG",
+          "name": "Google"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $node[\"Gmail Trigger\"].json.text }}",
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"captain\": { \"type\": \"string\" },\n    \"branch\": { \"type\": \"string\" },\n    \"date\": { \"type\": \"string\" },\n    \"shortage\": { \"type\": \"string\" },\n    \"reason\": { \"type\": \"string\" },\n    \"shortage_type\": { \"type\": \"string\" },\n    \"job_code\": { \"type\": \"string\" }\n  },\n  \"required\": [\n    \"captain\",\n    \"branch\",\n    \"date\",\n    \"shortage\",\n    \"reason\",\n    \"shortage_type\",\n    \"msg_id\"\n  ]\n}",
+        "options": {
+          "systemPromptTemplate": "You are an information extraction assistant.\n\nExtract the following fields from the text.\n\nFor \"shortage_type\":\nClassify the shortage reason into ONE of these exact Arabic values only:\n\nفقد\nعدم توريد\nسرقة\nغير محدد\n\nRules:\n- If reason contains words like (فقد، مفقود، ضياع) → return \"فقد\"\n- If reason contains (عدم توريد، لم يتم توريد، توريد ناقص) → return \"عدم توريد\"\n- If reason contains (سرقة، اختلاس، استيلاء) → return \"سرقة\"\n- Otherwise return \"غير محدد\"\n\nReturn only valid JSON matching the schema.\nDo not invent new categories.\nDo not return explanations."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        1280,
+        2640
+      ],
+      "id": "8fdc2b59-c0fd-4a4c-9c24-d0500f4be0d1",
+      "name": "Information Extractor1"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"email_body\": { \"type\": \"string\" },\n    \"employee_name\": { \"type\": \"string\" },\n    \"job_code\": { \"type\": \"string\" },\n    \"national_id\": { \"type\": \"string\" },\n    \"phone_number\": { \"type\": \"string\" },\n    \"shortage_amount\": { \"type\": \"string\" },\n    \"shortage_type\": { \"type\": \"string\" },\n    \"all_columns\": { \"type\": \"object\" }\n  },\n  \"required\": [\n    \"email_body\",\n    \"employee_name\",\n    \"job_code\",\n    \"national_id\",\n    \"phone_number\",\n    \"shortage_amount\",\n    \"shortage_type\",\n    \"all_columns\"\n  ]\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2000,
+        2752
+      ],
+      "id": "66a1fe18-e2ff-4933-b35b-a0b8f43837bd",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "emailType": "text",
+        "message": "={{ $json.formatted_email }}",
+        "options": {
+          "ccList": "={{ $('Gmail Trigger').item.json.cc.value.map(c => c.address).join(',') }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2752,
+        2688
+      ],
+      "id": "83d645ff-0da5-4d9e-9d7a-bbd1bae46edd",
+      "name": "Reply to a message10",
+      "webhookId": "7d3a2ef4-1692-4d01-bcd1-7e5240a0cdda",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aRoY8xk1j0jOUY6G",
+          "name": "HR Email"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {
+          "ccList": "={{ $('Gmail Trigger').item.json.cc ? $('Gmail Trigger').item.json.cc.value.map(c => c.address).join(',') : '' }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1632,
+        3104
+      ],
+      "id": "61dc643b-5cab-4539-ac65-5cbd2d3b22ed",
+      "name": "Reply to a message11",
+      "webhookId": "9615a357-d00b-4663-9a29-108268d7f0f1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aRoY8xk1j0jOUY6G",
+          "name": "HR Email"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1_Ff7SczFyjbbereq5HSLhvtAmlvh8uKraVI5l4xwUOc",
+          "mode": "list",
+          "cachedResultName": "administrative investigations",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_Ff7SczFyjbbereq5HSLhvtAmlvh8uKraVI5l4xwUOc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1215878899,
+          "mode": "list",
+          "cachedResultName": "administrative investigations",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_Ff7SczFyjbbereq5HSLhvtAmlvh8uKraVI5l4xwUOc/edit#gid=1215878899"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        2352,
+        6560
+      ],
+      "id": "830afda3-a8bb-464c-bdb0-3be8e3dce92f",
+      "name": "Investigation Examples",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "vho9Wgw8JoSylDNG",
+          "name": "Google"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Mail Message:\n{{ $('Gmail Trigger').item.json.subject }}\n\n{{ $('Gmail Trigger').item.json.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a meticulous data-extraction and Sheets-writing assistant for HR Investigations.\nYou receive the full email text (Arabic or English, sometimes mixed).\nYour goal: parse the email, normalize fields, validate, then write a single row into a Google Sheet tool named “investigation sheet” with these exact columns:\n\nالتاريخ\n\nالتصنيف\n\nالكود\n\nالاسم\n\nالادارة\n\nالقسم\n\nالوظيفة\n\nموضوع التحقيق\n\nسبب التحقيق\n\nالقائم بالابلاغ\n\nملخص التحقيق\n\nالقرار\n\nتاريخ الواقعة\n\nبواسطة\n\nالنوع\n\nTools you can use\n\ninvestigation sheet.getRows(query?) → fetch existing rows for examples or dedup checks.\n\ninvestigation sheet.appendRow(rowObject) → add a new row.\n\ninvestigation sheet.updateRow(rowId, rowObject) → update an existing row if this email is a continuation/amendment.\n\nAlways prefer appendRow unless you’re clearly updating a previously logged case (same الكود + تاريخ الواقعة + موضوع التحقيق, or explicit “update”/“amendment” phrasing).\n\nOutput contract\n\nReturn only JSON in this wrapper structure:\n\n{\n  \"action\": \"append\" | \"update\" | \"none\",\n  \"reason\": \"short explanation\",\n  \"row\": {\n    \"التاريخ\": \"dd-mm-yyyy\",\n    \"التصنيف\": \"blue collar|white collar|غير ذلك\",\n    \"الكود\": \"string\",\n    \"الاسم\": \"string\",\n    \"الادارة\": \"string\",\n    \"القسم\": \"string\",\n    \"الوظيفة\": \"string\",\n    \"موضوع التحقيق\": \"string\",\n    \"سبب التحقيق\": \"string\",\n    \"القائم بالابلاغ\": \"string\",\n    \"ملخص التحقيق\": \"string\",\n    \"القرار\": \"string\",\n    \"تاريخ الواقعة\": \"dd-mm-yyyy\",\n    \"بواسطة\": \"string\",\n    \"النوع\": \"string\"\n  },\n  \"dedupe_key\": \"string\",\n  \"tool_invocations\": [\n    {\n      \"tool\": \"investigation sheet.appendRow\" | \"investigation sheet.updateRow\" | \"investigation sheet.getRows\",\n      \"args\": {}\n    }\n  ]\n}\n\n\nNever include explanations outside this JSON.\n\nIf you cannot confidently fill a field, set it to \"—\" (em dash).\n\nLanguage & normalization\n\nIf the email is Arabic, return Arabic values where appropriate.\n\nIf English, you may return English for free-text fields, but keep date formats and categorical values consistent.\n\nDates: Normalize to dd-mm-yyyy. Accept and convert inputs like 2025/08/31, 31-8-25, 31 Aug 2025, ١٥/٠٧/٢٠٢٥.\n\nIf incident date is missing → \"—\".\n\nالتاريخ defaults to today if not provided.\n\nDigits: Convert Arabic-Indic digits (٠١٢٣٤٥٦٧٨٩) to Western (0-9).\n\nWhitespace & punctuation: Trim extras; remove trailing punctuation.\n\nField mapping rules\n\nالتصنيف (Category):\n\nIf the employee belongs to couriers or warehouse coordinators, set \"blue collar\".\n\nFor all other employees, set \"white collar\".\n\nIf unclear or unrelated, set \"غير ذلك\".\n\nالكود: Employee/staff code if present. Otherwise \"—\".\n\nالاسم / الادارة / القسم / الوظيفة: Extract if present, else \"—\".\n\nموضوع التحقيق: Short, specific subject.\n\nسبب التحقيق: One sentence describing the trigger/reason.\n\nالقائم بالابلاغ: Who reported the issue.\n\nملخص التحقيق: 2–4 concise factual lines.\n\nالقرار: Only if explicitly stated (e.g., “تم الانتهاء”, “Closed”, “تنبيه”). Otherwise \"—\".\n\nتاريخ الواقعة: Date of event (normalize). If range → use start date and note range in ملخص التحقيق.\n\nبواسطة: Who performed the investigation, else \"—\".\n\nالنوع: Free text (e.g., “موظف داخلي”, “مورد خارجي”, “IT Asset”).\n\nDedupe & update policy\n\nBuild dedupe_key as:\n\n\"{الكود}|{تاريخ الواقعة}|{موضوع التحقيق}\".toLowerCase()\n\n\nReplace missing with \"—\".\n\nOptionally call investigation sheet.getRows to check duplicates.\n\nIf an update, set \"action\": \"update\"; else \"append\".\n\nValidation checklist\n\nDates are dd-mm-yyyy.\n\nNo field is null/empty → use \"—\".\n\nالتصنيف is one of: \"blue collar\", \"white collar\", \"غير ذلك\".\n\nملخص التحقيق ≤ 4 lines, factual.\n\nالقرار present only if explicitly stated."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1920,
+        6432
+      ],
+      "id": "8c1fba2e-9aa5-4425-a309-6fd9ddacd190",
+      "name": "Investigation report"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        2016,
+        6592
+      ],
+      "id": "d4dbee03-ba58-499a-9283-fe286dd173d9",
+      "name": "Auto-fixing Output Parser"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1_Ff7SczFyjbbereq5HSLhvtAmlvh8uKraVI5l4xwUOc",
+          "mode": "list",
+          "cachedResultName": "administrative investigations",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_Ff7SczFyjbbereq5HSLhvtAmlvh8uKraVI5l4xwUOc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1215878899,
+          "mode": "list",
+          "cachedResultName": "administrative investigations",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_Ff7SczFyjbbereq5HSLhvtAmlvh8uKraVI5l4xwUOc/edit#gid=1215878899"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "التاريخ": "={{ $json.output.row['التاريخ'] }}",
+            "التصنيف": "={{ $json.output.row['التصنيف'] }}",
+            "الكود": "={{ $json.output.row['الكود'] }}",
+            "الاسم": "={{ $json.output.row['الاسم'] }}",
+            "الادارة": "={{ $json.output.row['الادارة'] }}",
+            "القسم": "={{ $json.output.row['القسم'] }}",
+            "الوظيفة": "={{ $json.output.row['الوظيفة'] }}",
+            "موضوع التحقيق": "={{ $json.output.row['موضوع التحقيق'] }}",
+            "سبب التحقيق": "={{ $json.output.row['سبب التحقيق'] }}",
+            "القائم بالابلاغ": "={{ $json.output.row['القائم بالابلاغ'] }}",
+            "ملخص التحقيق": "={{ $json.output.row['ملخص التحقيق'] }}",
+            "القرار": "={{ $json.output.row['القرار'] }}",
+            "تاريخ الواقعة": "={{ $json.output.row['تاريخ الواقعة'] }}",
+            "بواسطة": "={{ $json.output.row['بواسطة'] }}",
+            "النوع": "={{ $json.output.row['النوع'] }}"
+          },
+          "matchingColumns": [
+            "التاريخ"
+          ],
+          "schema": [
+            {
+              "id": "التاريخ",
+              "displayName": "التاريخ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "التصنيف",
+              "displayName": "التصنيف",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "الكود",
+              "displayName": "الكود",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "الاسم",
+              "displayName": "الاسم",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "الادارة",
+              "displayName": "الادارة",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "القسم",
+              "displayName": "القسم",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "الوظيفة",
+              "displayName": "الوظيفة",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "موضوع التحقيق",
+              "displayName": "موضوع التحقيق",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "سبب التحقيق",
+              "displayName": "سبب التحقيق",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "القائم بالابلاغ",
+              "displayName": "القائم بالابلاغ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ملخص التحقيق",
+              "displayName": "ملخص التحقيق",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "القرار",
+              "displayName": "القرار",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "تاريخ الواقعة",
+              "displayName": "تاريخ الواقعة",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "بواسطة",
+              "displayName": "بواسطة",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "النوع",
+              "displayName": "النوع",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TU-HR-P01-F47",
+              "displayName": "TU-HR-P01-F47",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2336,
+        6336
+      ],
+      "id": "7d4b7181-11cb-4b1d-a1d3-198b5d989b2d",
+      "name": "Investigation Fill Out",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "vho9Wgw8JoSylDNG",
+          "name": "Google"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"action\": \"append\",\n  \"reason\": \"New investigation entry parsed from email\",\n  \"row\": {\n    \"التاريخ\": \"31-08-2025\",\n    \"التصنيف\": \"تحقيق\",\n    \"الكود\": \"EMP-1023\",\n    \"الاسم\": \"محمد علي\",\n    \"الادارة\": \"الموارد البشرية\",\n    \"القسم\": \"التوظيف\",\n    \"الوظيفة\": \"أخصائي موارد بشرية\",\n    \"موضوع التحقيق\": \"تأخير في تسليم العهدة\",\n    \"سبب التحقيق\": \"تم التبليغ عن تأخير في تسليم جهاز الحاسب للموظف\",\n    \"القائم بالابلاغ\": \"أحمد سالم\",\n    \"ملخص التحقيق\": \"تمت مراجعة الموظف وإدارة IT، وتأكدنا أن الجهاز سُلِّم بعد الموعد المحدد بيوم واحد.\",\n    \"القرار\": \"تنبيه الموظف كتابيًا\",\n    \"تاريخ الواقعة\": \"29-08-2025\",\n    \"بواسطة\": \"إدارة IT\",\n    \"النوع\": \"موظف داخلي\"\n  },\n  \"dedupe_key\": \"emp-1023|29-08-2025|تأخير في تسليم العهدة\",\n  \"tool_invocations\": [\n    {\n      \"tool\": \"investigation sheet.appendRow\",\n      \"args\": {\n        \"row\": {\n          \"التاريخ\": \"31-08-2025\",\n          \"التصنيف\": \"تحقيق\",\n          \"الكود\": \"EMP-1023\",\n          \"الاسم\": \"محمد علي\",\n          \"الادارة\": \"الموارد البشرية\",\n          \"القسم\": \"التوظيف\",\n          \"الوظيفة\": \"أخصائي موارد بشرية\",\n          \"موضوع التحقيق\": \"تأخير في تسليم العهدة\",\n          \"سبب التحقيق\": \"تم التبليغ عن تأخير في تسليم جهاز الحاسب للموظف\",\n          \"القائم بالابلاغ\": \"أحمد سالم\",\n          \"ملخص التحقيق\": \"تمت مراجعة الموظف وإدارة IT، وتأكدنا أن الجهاز سُلِّم بعد الموعد المحدد بيوم واحد.\",\n          \"القرار\": \"تنبيه الموظف كتابيًا\",\n          \"تاريخ الواقعة\": \"29-08-2025\",\n          \"بواسطة\": \"إدارة IT\",\n          \"النوع\": \"موظف داخلي\"\n        }\n      }\n    }\n  ]\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2096,
+        6752
+      ],
+      "id": "bd5fa335-60ce-472a-abd6-81af56053c56",
+      "name": "Structured Output Parser10"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=email:{{ $('Gmail Trigger').item.json.text }}\n\ncard link: {{ $json.task_url }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an HR assistant that replies to job-related emails.\n\n- If the incoming email is written in Arabic, write the reply fully in Arabic.\n- If the incoming email is written in English, write the reply fully in English.\n- The reply should always confirm receipt of the request, notify the sender that it has been logged in the system, and include the tracking link.\n- Keep the tone polite and professional.\n\nUse the following template for the reply:\n[Arabic Example]\nتم تسجيل طلبك\nتم استلام طلبك بنجاح وتم تسجيله في نظامنا.\nيمكنك متابعة حالة الطلب من خلال الرابط التالي: {{ $json.task_url }}\nمع خالص التحية، فريق الموارد البشرية\n\n[English Exampl\n your request has been noted\nYour request has been successfully received and recorded in our system.\nYou can track the status of your request using the following link: {{ $json.task_url }}\nBest regards, HR Team\n\n\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        992,
+        1456
+      ],
+      "id": "c8f9f182-5ba1-4197-893a-d8a657cc1a2c",
+      "name": "AI Agent10"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1424,
+        1472
+      ],
+      "id": "10aea30d-2cf1-47f3-bf6c-fa598ed8463e",
+      "name": "Reply to a message17",
+      "webhookId": "9615a357-d00b-4663-9a29-108268d7f0f1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aRoY8xk1j0jOUY6G",
+          "name": "HR Email"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=email:{{ $('Gmail Trigger').item.json.text }}\n\n{{ $json.task_url }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an HR assistant that replies to job-related emails.\n\n- If the incoming email is written in Arabic, write the reply fully in Arabic.\n- If the incoming email is written in English, write the reply fully in English.\n- The reply should always confirm receipt of the request, notify the sender that it has been logged in the system, and include the tracking link.\n- Keep the tone polite and professional.\n\nUse the following template for the reply:\n[Arabic Example]\nتم تسجيل طلبك\nتم استلام طلبك بنجاح وتم تسجيله في نظامنا.\nيمكنك متابعة طلبك {{ $json.task_url }}\nمع خالص التحية، فريق الموارد البشرية\n\n[English Exampl\n your request has been noted\nYour request has been successfully received and recorded in our system.\nBest regards, HR Team\n\n\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        912,
+        176
+      ],
+      "id": "ed96b558-16bf-449b-af43-98de3338e902",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1296,
+        208
+      ],
+      "id": "6a400b56-cd6b-4770-8a47-45ee797860a4",
+      "name": "Reply to a message18",
+      "webhookId": "9615a357-d00b-4663-9a29-108268d7f0f1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aRoY8xk1j0jOUY6G",
+          "name": "HR Email"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        6000,
+        5376
+      ],
+      "id": "bd122b5b-6904-42f4-81e7-1d8941769ad2",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ABrrjVVx22morxnN",
+          "name": "Turbo Tokens"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        6096
+      ],
+      "id": "df4b6188-6981-43fd-a7e6-0aaa452f9958",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "ABrrjVVx22morxnN",
+          "name": "Turbo Tokens"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1792,
+        6656
+      ],
+      "id": "643a44ed-032f-4178-a31d-6cbeb3a53a24",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "ABrrjVVx22morxnN",
+          "name": "Turbo Tokens"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const checklist_id = $input.first().json.data.checklist_id;\n\nconst items = [\n  \"Send the clearance email and copy the relevant departments...\",\n  \"Attach the Card link to the clearance email.\",\n  \"Receive the Offboarding Card link...\",\n  \"Move the employee's record...\",\n  \"Verify full completion...\",\n  \"Delete the fingerprint account...\",\n  \"Direct manager must receive...\",\n  \"Return the laptop/assets...\",\n  \"Verify that all system access...\",\n  \"Ensure the employee is removed...\",\n  \"Review any financial dues...\",\n  \"Have the employee sign...\",\n  \"Obtain the clearance form signatures...\",\n  \"Hand over all employee documents...\"\n];\n\nreturn items.map(name => ({\n  json: {\n    checklist_id,\n    name\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        1712
+      ],
+      "id": "29106466-0461-40f6-9238-8c6b0f8e3796",
+      "name": "Code Clearance & Offboarding"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This Function node prepares checklist items for Trello\n// Make sure you already have \"idChecklist\" from the Create Checklist node\n\nconst idChecklist = $json.idChecklist;   // map from Create Checklist output\n\nconst items = [\n  \"The HR department must be officially notified of any case of resignation, absence, termination, or dismissal by either party.\",\n  \"The resigning employee must comply with the notice period specified in the contract.\",\n  \"Employee dues will not be released until all company property is returned in full and clearance is obtained from all relevant departments.\",\n  \"An Exit Interview must be conducted for the employee by HR.\",\n  \"Any company-related data must be deleted from the employee’s devices, and all access permissions must be revoked.\",\n  \"An experience certificate, if applicable, must be issued within a maximum of 7 days from the employee’s last working day.\"\n\n];\n\n// Return each item as a separate n8n item\nreturn items.map(name => ({\n  json: {\n    idChecklist,\n    name\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        1952
+      ],
+      "id": "1e249776-97cb-4340-8ab7-832d9720286f",
+      "name": "Code Rules & Policies"
+    },
+    {
+      "parameters": {
+        "jsCode": "const checklistId = $('HTTP Request checklist Rules HTTP Request checklist Steps').item.json.data.checklist_id;\n\n// Rules\nconst rules = [\n  \"Transfer must be based on an administrative need or the employee’s request, with mutual agreement of both parties.\",\n  \"A suitable position must be available in terms of job description and qualifications.\",\n  \"Transfer is not permitted without completing at least 6 months in the current position.\",\n  \"Transfer must be coordinated between the current manager, future manager, and HR.\",\n  \"Transfer will be on the same salary if the job grade matches.\",\n  \"The transfer effective date should be at the beginning of the month.\"\n];\n\n// Steps\nconst steps = [\n  \"Receive a transfer request email from the department’s direct manager.\",\n  \"Schedule an HR interview with the employee.\",\n  \"Conduct department assessment.\",\n  \"Schedule a technical interview with the new manager.\",\n  \"Inform all parties via transfer email about the final decision.\",\n  \"Announce department direct manager that the start date will be on the 21st of the month.\",\n  \"Receive offboarding card link via mail from the old manager.\",\n  \"Receive onboarding card link via mail from the new manager.\",\n  \"Delete the employee from all channels for his old department and add him to the channels for the new one.\",\n  \"Mention Payroll team to change employee department and job title in payroll sheet.\",\n  \"Mention Personnel team to edit job title and department.\",\n  \"Edit permissions on system account.\",\n  \"Mention OD to update job description.\",\n  \"Mention Performance team to update KPIs.\",\n  \"Update assets records.\"\n];\n\nconst allItems = [\n  ...rules.map(name => ({ checklist_id: checklistId, name })),\n  ...steps.map(name => ({ checklist_id: checklistId, name }))\n];\n\nreturn allItems.map(item => ({ json: item }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        848,
+        -32
+      ],
+      "id": "a063e911-4007-44c3-93f6-febaffd4171f",
+      "name": "Code Transfer Rules"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ JSON.stringify($json.output) }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an HR assistant that processes disciplinary cases.\n\nInput:\nYou will always receive a JSON object from the previous node with the following structure:\n\n{\n  \"captain\": \"employee name\",\n  \"branch\": \"branch name\",\n  \"date\": \"YYYY-MM-DD\",\n  \"shortage\": \"amount as text\",\n  \"reason\": \"reason text\",\n  \"shortage_type\": \"classified shortage type\"\n}\n\n--------------------------------------------------\nDATA SOURCE (Google Sheet)\n\nThe sheet uses the following EXACT column headers:\n\n- \"id\"              → this is the JOB CODE (example: 3175)\n- \"id number\"       → this is the NATIONAL ID\n- \"phone number\"    → employee phone\n- \"Names in Arabic\" → employee name\n- \"Position\"\n- \"Department\"\n- \"Section\"\n- \"Classification\"\n- \"hire_date\"\n- \"Team / Branch\"\n\nIMPORTANT:\n- \"id\" and \"id number\" are TWO DIFFERENT columns.\n- NEVER use row_number.\n- NEVER use any column named \"ID\" (capital).\n- ONLY use the column exactly named: id\n- ONLY use the column exactly named: id number\n\n--------------------------------------------------\nMATCHING RULES\n\nMatch the employee using BOTH:\n\n- Names in Arabic = captain\n- Team / Branch = branch\n\nMatching must be:\n- case insensitive\n- trimmed (ignore extra spaces)\n- exact text match after trimming\n\nIf multiple matches exist, use BOTH fields together to select the correct row.\n\n--------------------------------------------------\nFIELD EXTRACTION RULES\n\nFrom the matched row extract EXACTLY:\n\nemployee_name  ← from column \"Names in Arabic\"\njob_code       ← from column \"id\"\nnational_id    ← from column \"id number\"\nphone_number   ← from column \"phone number\"\njob_title      ← from column \"Position\"\nbranch         ← from column \"Team / Branch\"\nhire_date      ← from column \"hire_date\"\nsection        ← from column \"Section\"\nclassification ← from column \"Classification\"\ndepartment     ← from column \"Department\"\n\nIMPORTANT:\n- job_code MUST be taken ONLY from column \"id\".\n- national_id MUST be taken ONLY from column \"id number\".\n- Do NOT swap them.\n- Do NOT reuse the same value.\n- Do NOT use row_number.\n- Do NOT modify national ID.\n- Do NOT modify phone number.\n\n--------------------------------------------------\nINPUT FIELD MAPPING\n\nshortage_date   ← input \"date\"\nshortage_amount ← numeric value of input \"shortage\" (remove any non-digit characters)\nreason          ← input \"reason\"\nshortage_type   ← input \"shortage_type\" (must be returned exactly as received)\n\nDo NOT reclassify shortage_type.\nDo NOT invent new values.\n\n--------------------------------------------------\nEMAIL FORMAT (MUST MATCH EXACTLY)\n\nتحية طيبة و بعد\n\nاليكم التفاصيل التالية تجاه الموظف:-  \nالاسم : {employee_name}  \nالكود الوظيفي : {{ $json.output.job_code }}\nرقم البطاقة : {national_id}  \nالوظيفة : {job_title}  \nالفرع : {branch}  \nتاريخ التعيين : {hire_date}  \nتاريخ العجز : {shortage_date}  \nعجز بقيمة : {shortage_amount}  \nنوع العجز : {shortage_type}  \nالسبب : {reason}  \nرقم الهاتف : {phone_number}  \n\nThe full Arabic text above must be assigned entirely to:\n\n\"email_body\"\n\nemail_body must NEVER be empty if a match is found.\n\n--------------------------------------------------\nOUTPUT RULES\n\nReturn ONE JSON object only.\nDo NOT wrap inside an \"output\" object.\n\nReturn EXACTLY this structure:\n\n{\n  \"email_body\": \"...\",\n  \"employee_name\": \"...\",\n  \"job_code\": \"...\",\n  \"national_id\": \"...\",\n  \"phone_number\": \"...\",\n  \"job_title\": \"...\",\n  \"branch\": \"...\",\n  \"hire_date\": \"...\",\n  \"shortage_date\": \"...\",\n  \"shortage_amount\": \"...\",\n  \"shortage_type\": \"...\",\n  \"reason\": \"...\",\n  \"all_columns\": { ... }\n}\n\n--------------------------------------------------\nALL_COLUMNS REQUIREMENT\n\nAlso return:\n\n\"all_columns\"\n\nThis must contain EVERY column from the matched row.\n\nRules:\n- Key must match column header EXACTLY.\n- Preserve Arabic text.\n- Preserve case.\n- Preserve spacing.\n- Do NOT modify values."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        1808,
+        2496
+      ],
+      "id": "6be96a1e-e2aa-4f22-a37f-0ef4d7aa444c",
+      "name": "AI Agent Process Case & Prepare HR Output"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json.output;\n\nif (!data.email_body || data.email_body.trim().length === 0) {\n  return [];\n}\n\nreturn [\n  {\n    json: {\n      ...data,\n      formatted_email: data.email_body\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2496,
+        2656
+      ],
+      "id": "651e2cbd-f22c-4945-ba69-b6d89fabcc3b",
+      "name": "Format Reply Email Body"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This Function node prepares checklist items for Trello\n// Make sure you already have \"idChecklist\" from the Create Checklist node\n\nconst idChecklist = $json.idChecklist;   // map from Create Checklist output\n\nconst items = [\n   \"استلام ميل رسمى من المدير المباشر أو الحسابات بتفاصيل الواقعة مع توضيح الإجراءات المتبعة في مثل هذه الحالات\",\n  \"إخطار بنفس الميل: الحسابات والمدير المباشر ومدير الكاش كولكشن والشئون القانونية ومساعد المدير العام\",\n  \"الرد على الميل بالتالي: الاسم - الكود الوظيفي - الوظيفة - تاريخ التعيين - المرتب - تقرير بالسلف - تقرير تاريخه المهني بالشركة\",\n  \"إيقاف الكابتن عن العمل - إذا كان العجز 3000ج أو أكثر\",\n  \"يقوم المدعي بتحرير محضر بواقعة السرقة أو العجز في قسم الشرطة التابع له الحادث\",\n  \"تصفية ما معه من عهدة أو طرود أو أي متعلقات خاصة بالشركة من خلال المدير المباشر\",\n  \"استلام تقرير التحقيق عبر الميل المفتوح للواقعة\",\n  \"استلام تقرير التحقيق الورقي\",\n  \"استلام نتيجة التحقيق عبر الميل المفتوح للواقعة\",\n  \"تنفيذ القرار\"\n\n];\n\n// Return each item as a separate n8n item\nreturn items.map(name => ({\n  json: {\n    idChecklist,\n    name\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1264,
+        2832
+      ],
+      "id": "0ba995a2-7088-4f60-9985-60aea7f962c4",
+      "name": "Code Theft"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=email:{{ $('Gmail Trigger').item.json.text }}\n\ncard link:{{ $json.task_url }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an HR assistant that replies to job-related emails.\n\n- If the incoming email is written in Arabic, write the reply fully in Arabic.\n- If the incoming email is written in English, write the reply fully in English.\n- The reply should always confirm receipt of the request, notify the sender that it has been logged in the system, and include the tracking link.\n- Keep the tone polite and professional.\n\nUse the following template for the reply:\n[Arabic Example]\nتم تسجيل طلبك\nتم استلام طلبك بنجاح وتم تسجيله في نظامنا.\nيمكنك متابعة حالة الطلب من خلال الرابط التالي: {{ $json.task_url }}\nمع خالص التحية، فريق الموارد البشرية\n\n[English Exampl\n your request has been noted\nYour request has been successfully received and recorded in our system.\nYou can track the status of your request using the following link: {{ $json.task_url }} \nBest regards, HR Team\n\n\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1232,
+        3088
+      ],
+      "id": "7497cec6-752d-4963-a254-64db444caf78",
+      "name": "AI Agent Auto Reply (Case Received)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This Function node prepares checklist items for Trello\n// Make sure you already have \"idChecklist\" from the Create Checklist node\n\nconst idChecklist = $json.idChecklist;   // map from Create Checklist output\n\nconst items = [\n  \"Receive Request\",\n  \"Add Card on Trello\",\n  \"Approved by CEO for the special request\",\n  \"ارسال طلب بتوفير العهدة\",\n  \"Job Post\",\n  \"Screening & filter\",\n  \"Check Blacklist and Leaving Sheets\",\n  \"Schedule calls for selected applicants\",\n  \"Schedule an appointment for HR interview via email\"\n\n];\n\n// Return each item as a separate n8n item\nreturn items.map(name => ({\n  json: {\n    idChecklist,\n    name\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1056,
+        3856
+      ],
+      "id": "49fcb3a9-8e27-4cae-b4c3-0a9b43644b8a",
+      "name": "Prepare Recruitment Intake Steps"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=email:{{ $('Gmail Trigger').item.json.text }}\n\ncard link:{{ $json.task_url }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an HR assistant that replies to job-related emails.\n\n- If the incoming email is written in Arabic, write the reply fully in Arabic.\n- If the incoming email is written in English, write the reply fully in English.\n- The reply should always confirm receipt of the request, notify the sender that it has been logged in the system, and include the tracking link.\n- Keep the tone polite and professional.\n\nUse the following template for the reply:\n[Arabic Example]\nتم تسجيل طلبك\nتم استلام طلبك بنجاح وتم تسجيله في نظامنا.\nيمكنك متابعة حالة الطلب من خلال الرابط التالي: {{ $json.task_url }}\nمع خالص التحية، فريق الموارد البشرية\n\n[English Exampl\n your request has been noted\nYour request has been successfully received and recorded in our system.\nYou can track the status of your request using the following link:  {{ $json.task_url }}\nBest regards, HR Team\n\n\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        4064
+      ],
+      "id": "d74c027a-b04e-44ea-84c1-38b227740b61",
+      "name": "Send Acknowledgement Reply"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1456,
+        4096
+      ],
+      "id": "6299b586-1096-45b1-93ea-eb6789fafc61",
+      "name": "Send Confirmation Email",
+      "webhookId": "9615a357-d00b-4663-9a29-108268d7f0f1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aRoY8xk1j0jOUY6G",
+          "name": "HR Email"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// This Function node prepares checklist items for Trello\n// Make sure you already have \"idChecklist\" from the Create Checklist node\n\nconst idChecklist = $json.idChecklist;   // map from Create Checklist output\n\nconst items = [\n   \"HR Interview\",\n  \"Data entry for the application in RTS sheet (IF New)\",\n  \"Schedule the second interview with the Technical Interviewer via email (for accepted only)\",\n  \"Follow up with the technical interviewer for the final results (Rejection Reasons)\",\n  \"Queries (الاستعلام) (IF New) (بورد الاستعلام)\",\n  \"Data entry for rejection reasons in RTS sheet\"\n\n];\n\n// Return each item as a separate n8n item\nreturn items.map(name => ({\n  json: {\n    idChecklist,\n    name\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1104,
+        4400
+      ],
+      "id": "c77a30e8-212b-4283-8d3d-b981902c3979",
+      "name": "Prepare Hiring Process Steps"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This Function node prepares checklist items for Trello\n// Make sure you already have \"idChecklist\" from the Create Checklist node\n\nconst idChecklist = $json.idChecklist;   // map from Create Checklist output\n\nconst items = [\n   \"Job offer for the accepted candidates & sending hiring documents via email مع وضع مسئول ال personnel + Payroll + line manager\",\n  \"Schedule a date to sign a contract, & after queries for preparing documents\",\n  \"Assign Personnel to create Onboarding Card and link it with Hiring Card\",\n  \"Update on the RTS sheet for the final state\",\n  \"Confirmation call with candidate if he starts working\"\n\n];\n\n// Return each item as a separate n8n item\nreturn items.map(name => ({\n  json: {\n    idChecklist,\n    name\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1056,
+        4592
+      ],
+      "id": "d81cb74d-996d-4544-bcac-7443c3649e44",
+      "name": "Prepare Recruitment Rules"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This Function node prepares checklist items for Trello\n// Make sure you already have \"idChecklist\" from the Create Checklist node\n\nconst idChecklist = $json.idChecklist;   // map from Create Checklist output\n\nconst items = [\n   \"Receive a recommendation email from the department’s direct manager.\",\n  \"Schedule an HR interview with the employee.\",\n  \"Attach last year’s performance evaluation from the HR Performance Officer and from the direct manager.\",\n  \"Review the employee’s file to ensure it is free of serious violations related to integrity, honesty, or gross misconduct.\",\n  \"In case of HR rejection: document the justification and inform both the manager and the employee.\",\n  \"In case of HR approval: send an email to top management (GM) for promotion approval.\",\n  \"If top management approves: issue the promotion decision via email and inform the employee of the date to sign the contract for the new position.\",\n  \"Notify the department’s direct manager that the start date will be on the 21st of the month.\",\n  \"Receive the (new position) onboarding card link via email from the new manager.\",\n  \"Mention Payroll team to change the employee’s department and job title in the payroll sheet.\",\n  \"Mention Personnel team to edit the job title and department in the database & file location on Drive.\",\n  \"Edit the authorities/permissions on the employee’s system account.\",\n  \"Mention OD to update the employee’s job title and job description in anything related to the company’s organizational structure.\",\n  \"Mention Performance team to update the employee’s KPIs elements and the new main amount.\",\n  \"Determine the status of the assets (custodies) in accordance with the new department and position, and update assets records.\"\n\n];\n\n// Return each item as a separate n8n item\nreturn items.map(name => ({\n  json: {\n    idChecklist,\n    name\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        4976
+      ],
+      "id": "4cdb7b63-1be1-4ab8-b648-3113b792d83b",
+      "name": "Prepare Promotion Review Steps"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This Function node prepares checklist items for Trello\n// Make sure you already have \"idChecklist\" from the Create Checklist node\n\nconst idChecklist = $json.idChecklist;   // map from Create Checklist output\n\nconst items = [\n  \"The employee must have completed at least one full year in their current position.\",\n  \"Promotion depends on performance evaluation, level of commitment, and the availability of a higher position.\",\n  \"Promotion is not granted automatically upon completion of the required period; it is based on competence and actual business needs.\",\n  \"The promotion effective date should be at the beginning of the month (Turbo: 21st of the month) to avoid any payroll issues.\"\n];\n\n// Return each item as a separate n8n item\nreturn items.map(name => ({\n  json: {\n    idChecklist,\n    name\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        928,
+        5536
+      ],
+      "id": "e24ddda1-04ed-4a1e-8409-8e195e50ae71",
+      "name": "Prepare Promotion Rules"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=email:{{ $('Gmail Trigger').item.json.text }}\n\ncard link:{{ $json.task_url }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an HR assistant that replies to job-related emails.\n\n- If the incoming email is written in Arabic, write the reply fully in Arabic.\n- If the incoming email is written in English, write the reply fully in English.\n- The reply should always confirm receipt of the request, notify the sender that it has been logged in the system, and include the tracking link.\n- Keep the tone polite and professional.\n\nUse the following template for the reply:\n[Arabic Example]\nتم تسجيل طلبك\nتم استلام طلبك بنجاح وتم تسجيله في نظامنا.\nيمكنك متابعة حالة الطلب من خلال الرابط التالي:{{ $json.task_url }}\nمع خالص التحية، فريق الموارد البشرية\n\n[English Exampl\n your request has been noted\nYour request has been successfully received and recorded in our system.\nYou can track the status of your request using the following link: {{ $json.task_url }}\nBest regards, HR Team\n\n\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        5248
+      ],
+      "id": "9bee3854-f91a-40a8-9681-096b09da1578",
+      "name": "Generate Promotion Confirmation Reply"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1472,
+        5200
+      ],
+      "id": "e0cd416d-54bc-4d41-8938-c53c0cbd3ad5",
+      "name": "Send Promotion Confirmation Email",
+      "webhookId": "9615a357-d00b-4663-9a29-108268d7f0f1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aRoY8xk1j0jOUY6G",
+          "name": "HR Email"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=email:{{ $('Gmail Trigger').item.json.text }}\n\ncard link: {{ $json.task_url }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an HR assistant that replies to job-related emails.\n\n- If the incoming email is written in Arabic, write the reply fully in Arabic.\n- If the incoming email is written in English, write the reply fully in English.\n- The reply should always confirm receipt of the request, notify the sender that it has been logged in the system, and include the tracking link.\n- Keep the tone polite and professional.\n\nUse the following template for the reply:\n[Arabic Example]\nتم تسجيل طلبك\nتم استلام طلبك بنجاح وتم تسجيله في نظامنا.\nيمكنك متابعة حالة الطلب من خلال الرابط التالي:{{ $json.task_url }}\nمع خالص التحية، فريق الموارد البشرية\n\n[English Exampl\n your request has been noted\nYour request has been successfully received and recorded in our system.\nYou can track the status of your request using the following link: {{ $json.task_url }}\nBest regards, HR Team\n\n\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1408,
+        6176
+      ],
+      "id": "e34559a1-4a3e-4cc6-8bdb-e7edb89ee950",
+      "name": "AI Agent Generate Investigation Email Reply"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1872,
+        6160
+      ],
+      "id": "5b2c9bba-0493-4c7f-b8e6-70dfb20d057c",
+      "name": "Send Investigation Confirmation Email",
+      "webhookId": "9615a357-d00b-4663-9a29-108268d7f0f1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aRoY8xk1j0jOUY6G",
+          "name": "HR Email"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// This Function node prepares checklist items for Trello\n// Make sure you already have \"idChecklist\" from the Create Checklist node\n\nconst idChecklist = $json.idChecklist;   // map from Create Checklist output\n\nconst items = [\n  \"استقبال الطلب عن طريق الميل\",\n  \"مراجعة تيم البيرول لسجل الشخص من حيث الالتزام (الغيابات - التأخير - سلفة يتم تقسيطها).. فترة الاختبار و بادجت السلف\",\n  \"نسبة السلفة من مرتب الموظف (40%)\",\n  \"موافقة مدير الموارد البشرية\",\n  \"اضافة السلفة فى شيت السلف\",\n  \"إرسالها إلي الحسابات\"\n];\n\n// Return each item as a separate n8n item\nreturn items.map(name => ({\n  json: {\n    idChecklist,\n    name\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1744,
+        6912
+      ],
+      "id": "649e5637-5c4f-4b7a-8058-8680f02ab0e8",
+      "name": "Prepare Advance Request Steps"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=email:{{ $('Gmail Trigger').item.json.text }}\n\ncard link: {{ $json.task_url }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an HR assistant that replies to job-related emails.\n\n- If the incoming email is written in Arabic, write the reply fully in Arabic.\n- If the incoming email is written in English, write the reply fully in English.\n- The reply should always confirm receipt of the request, notify the sender that it has been logged in the system, and include the tracking link.\n- Keep the tone polite and professional.\n\nUse the following template for the reply:\n[Arabic Example]\nتم تسجيل طلبك\nتم استلام طلبك بنجاح وتم تسجيله في نظامنا.\nيمكنك متابعة حالة الطلب من خلال الرابط التالي: {{ $json.task_url }}\nمع خالص التحية، فريق الموارد البشرية\n\n[English Exampl\n your request has been noted\nYour request has been successfully received and recorded in our system.\nYou can track the status of your request using the following link: {{ $json.task_url }}\nBest regards, HR Team\n\n\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1536,
+        7168
+      ],
+      "id": "f0fb3285-d02b-4d42-a8c6-78e1fbfb8eaf",
+      "name": "AI Agent Generate Advance Request Confirmation"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1936,
+        7216
+      ],
+      "id": "5d819c1e-f96f-428b-95b7-c96ee1d5514d",
+      "name": "Send Advance Request Confirmation Email",
+      "webhookId": "9615a357-d00b-4663-9a29-108268d7f0f1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aRoY8xk1j0jOUY6G",
+          "name": "HR Email"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=email:{{ $('Gmail Trigger').item.json.text }}\n\ncard link: {{ $json.task_url }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an HR assistant that replies to job-related emails.\n\n- If the incoming email is written in Arabic, write the reply fully in Arabic.\n- If the incoming email is written in English, write the reply fully in English.\n- The reply should always confirm receipt of the request, notify the sender that it has been logged in the system, and include the tracking link.\n- Keep the tone polite and professional.\n\nUse the following template for the reply:\n[Arabic Example]\nتم تسجيل طلبك\nتم استلام طلبك بنجاح وتم تسجيله في نظامنا.\nيمكنك متابعة حالة الطلب من خلال الرابط التالي:{{ $json.task_url }}\nمع خالص التحية، فريق الموارد البشرية\n\n[English Exampl\n your request has been noted\nYour request has been successfully received and recorded in our system.\nYou can track the status of your request using the following link: {{ $json.task_url }}\nBest regards, HR Team\n\n\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1344,
+        7696
+      ],
+      "id": "28f9d649-8470-4507-9530-df8c743a68b2",
+      "name": "AI Agent undefined"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1648,
+        7696
+      ],
+      "id": "4b9faeac-dd45-4e65-926a-6a8818ff25cc",
+      "name": "Send a undefined  Message",
+      "webhookId": "9615a357-d00b-4663-9a29-108268d7f0f1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aRoY8xk1j0jOUY6G",
+          "name": "HR Email"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "91820936-e151-4542-98e5-801b494a6296",
+              "leftValue": "={{ $json.inReplyTo }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1008,
+        5440
+      ],
+      "id": "381b5852-5e0a-42a6-94a2-fd524beec7c8",
+      "name": "If New Mail"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "64a46ceb-6be7-45db-b43b-a2bade181ad7",
+              "leftValue": "={{ $json.from.value[0].address }}",
+              "rightValue": "turbo",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -736,
+        5424
+      ],
+      "id": "2a5fc786-6809-4964-ab83-6c41db0565f5",
+      "name": "If Turbo Mail"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "132nYWeOdqFQbg__HMstl_kN-1X42Lus7TuOlkDOE-dk",
+          "mode": "list",
+          "cachedResultName": "Employee Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/132nYWeOdqFQbg__HMstl_kN-1X42Lus7TuOlkDOE-dk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1207338438,
+          "mode": "list",
+          "cachedResultName": "Departments Details",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/132nYWeOdqFQbg__HMstl_kN-1X42Lus7TuOlkDOE-dk/edit#gid=1207338438"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        1904,
+        2688
+      ],
+      "id": "51ea4613-d2ce-4da5-a310-5d9744352ea6",
+      "name": "Get row(s) in sheet in Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "T0nA9lzHjdnCdRp4",
+          "name": "Hr Sheet"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1jnfbVS3A8lnjSVJ5XZC83hCqO3ssW8cLjAs6f75s8gs",
+          "mode": "list",
+          "cachedResultName": "شيت العجوزات",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jnfbVS3A8lnjSVJ5XZC83hCqO3ssW8cLjAs6f75s8gs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1248150878,
+          "mode": "list",
+          "cachedResultName": "Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jnfbVS3A8lnjSVJ5XZC83hCqO3ssW8cLjAs6f75s8gs/edit#gid=1248150878"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2144,
+        2384
+      ],
+      "id": "993115ef-4fa6-45e7-8e18-26c6597b16e1",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "T0nA9lzHjdnCdRp4",
+          "name": "Hr Sheet"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// =========================\n// 1) بيانات AI Agent\n// =========================\nconst aiData = $('AI Agent Process Case & Prepare HR Output').first().json;\n\n// =========================\n// 2) بيانات Extractor (الأهم)\n// =========================\nconst extractedData = $('Information Extractor1').first().json;\n\n// =========================\n// 3) حساب كود العجز الجديد\n// =========================\nconst rows = $('Get row(s) in sheet').all();\n\nlet maxCode = 0;\n\nfor (const row of rows) {\n  const value = parseInt(row.json[\"كود العجز\"]);\n  if (!isNaN(value) && value > maxCode) {\n    maxCode = value;\n  }\n}\n\nconst nextCode = maxCode + 1;\n\n// =========================\n// 4) استخراج نوع العجز\n// =========================\nlet shortageType = aiData.shortage_type;\n\nif (!shortageType) {\n  const text = (aiData.reason || \"\").toString();\n\n  if (\n    text.includes(\"فقد\") ||\n    text.includes(\"مفقود\") ||\n    text.includes(\"ضياع\")\n  ) {\n    shortageType = \"فقد\";\n  } \n  else if (\n    text.includes(\"عدم توريد\") ||\n    text.includes(\"لم يتم توريد\") ||\n    text.includes(\"توريد ناقص\")\n  ) {\n    shortageType = \"عدم توريد\";\n  } \n  else if (\n    text.includes(\"سرقة\") ||\n    text.includes(\"اختلاس\") ||\n    text.includes(\"استيلاء\")\n  ) {\n    shortageType = \"سرقة\";\n  } \n  else {\n    shortageType = \"غير محدد\";\n  }\n}\n\n// =========================\n// 5) استخراج job_code صح\n// =========================\nconst jobCode =\n  extractedData.job_code ||   // المصدر الأساسي\n  aiData.job_code ||          // fallback\n  extractedData.msg_id ||     // fallback احتياطي\n  aiData.msg_id ||            // fallback أخير\n  null;\n\n// =========================\n// 6) رجوع كل البيانات\n// =========================\nreturn [\n  {\n    json: {\n      ...aiData,\n\n      // أهم تعديل\n      job_code: jobCode,\n\n      // اختياري لو عايز تحتفظ بالمرجع\n      reference_id: extractedData.msg_id || aiData.msg_id,\n\n      next_shortage_code: nextCode,\n      shortage_type: shortageType\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2400,
+        2400
+      ],
+      "id": "851006ef-1412-452e-b3a9-9d5454396e46",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-cards/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $('Text Classifier').item.json.subject }}"
+            },
+            {
+              "name": "board_id",
+              "value": "43"
+            },
+            {
+              "name": "list_id",
+              "value": "919"
+            },
+            {
+              "name": "description",
+              "value": "={{ $('Gmail Trigger').item.json.subject }}\n\n{{ $('Gmail Trigger').item.json.from.value[0].address }}\n\n{{ $('Gmail Trigger').item.json.text }}"
+            },
+            {
+              "name": "Due Date",
+              "value": "={{ new Date(Date.now() + 7*24*60*60*1000).toISOString().split('T')[0] }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            },
+            {
+              "name": "members[]",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        192,
+        -16
+      ],
+      "id": "79cce2f1-95db-400d-bd20-dbb32857e316",
+      "name": "department_transfer createcard"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/items/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "checklist_id",
+              "value": "={{ $('HTTP Request checklist Rules HTTP Request checklist Steps').item.json.data.checklist_id }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $('department_transfer createcard').item.json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1136,
+        -32
+      ],
+      "id": "f16ea38b-a871-4649-897a-76e3713b6934",
+      "name": "add items"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $json.data;\n\nreturn [{\n  json: {\n    ...$json,\n    task_url: `https://platform.turbo.info/admin/task-boards/${data.board_id}?card=${data.id}`\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        208
+      ],
+      "id": "1b1388c9-a1cc-4cd5-ba8a-2002a29cbe76",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/store\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "steps"
+            },
+            {
+              "name": "card_id",
+              "value": "={{$node[\"department_transfer createcard\"].json[\"data\"][\"id\"]}}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        576,
+        -32
+      ],
+      "id": "95c27de6-1ac3-490a-9bf5-034d5733c43a",
+      "name": "HTTP Request checklist Rules HTTP Request checklist Steps"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/items/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "checklist_id",
+              "value": "={{ $json.checklist_id }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $('resign card1').item.json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1216,
+        1008
+      ],
+      "id": "d9d1ccea-92d5-4d68-8bff-9270b1cf3b88",
+      "name": "add items1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const checklist_id = $input.first().json.data.checklist_id;\n\nconst items = [\n  \"Officially receive the service termination request...\",\n  \"In cases of termination...\",\n  \"Open a job vacancy card...\",\n  \"Verify the last working day...\",\n  \"Record the employee...\",\n  \"Send the details to Payroll...\"\n];\n\nreturn items.map(name => ({\n  json: {\n    checklist_id,\n    name\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        976,
+        1008
+      ],
+      "id": "36da65b3-5d30-49ec-abc0-b9753ceed51b",
+      "name": "Code for Resignation1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const checklist_id = $input.first().json.data.checklist_id;\n\nconst items = [\n  \"Send the Exit Form to the employee.\",\n  \"Schedule the Exit Interview and discuss the reasons for their termination of service.\",\n  \"Document the responses in the HR file.\"\n];\n\nreturn items.map(name => ({\n  json: {\n    checklist_id,\n    name\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        1216
+      ],
+      "id": "acf6d335-3bc7-4ff3-a8ce-b833db83818f",
+      "name": "Code Exit Interview1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/items/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "checklist_id",
+              "value": "={{ $json.checklist_id }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $('resign card1').item.json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1312,
+        1200
+      ],
+      "id": "88edf39d-dc34-4942-abde-36240a3c6370",
+      "name": "add items2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-cards/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $('Text Classifier').item.json.subject }}"
+            },
+            {
+              "name": "board_id",
+              "value": "43"
+            },
+            {
+              "name": "list_id",
+              "value": "919"
+            },
+            {
+              "name": "description",
+              "value": "={{ $('Gmail Trigger').item.json.subject }}\n\n{{ $('Gmail Trigger').item.json.from.value[0].address }}\n\n{{ $('Gmail Trigger').item.json.text }}"
+            },
+            {
+              "name": "Due Date",
+              "value": "={{ new Date(Date.now() + 7*24*60*60*1000).toISOString().split('T')[0] }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            },
+            {
+              "name": "members[]",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        432,
+        1184
+      ],
+      "id": "549fefb3-c57c-4ab7-b002-2fea60dfed14",
+      "name": "resign card1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/store\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": " Receiving Request Steps"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        736,
+        1008
+      ],
+      "id": "551f2ffa-4799-403e-957c-013ad7f06d93",
+      "name": "Create a checklist Resignation1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/store\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "Exit Interview"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        752,
+        1216
+      ],
+      "id": "a5404068-28bc-4d60-9143-e7553a170c03",
+      "name": "checklist for Exit Interview1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $json.data;\n\nreturn [{\n  json: {\n    ...$json,\n    task_url: `https://platform.turbo.info/admin/task-boards/${data.board_id}?card=${data.id}`\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        7712
+      ],
+      "id": "3ae26acc-3f28-4c70-bcca-2736189db27d",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $json.data;\n\nreturn [{\n  json: {\n    ...$json,\n    task_url: `https://platform.turbo.info/admin/task-boards/${data.board_id}?card=${data.id}`\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        1424
+      ],
+      "id": "6fa1c2fe-be9a-446b-9e7c-080574d8ca6b",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/store\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "Clearance & Offboarding"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        704,
+        1648
+      ],
+      "id": "ed7c3dae-5e55-47ad-95e4-74f76fd8b787",
+      "name": "checklist for Exit Interview2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/items/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "checklist_id",
+              "value": "={{ $json.checklist_id }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $('resign card1').item.json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1280,
+        1712
+      ],
+      "id": "e9c606cc-af6b-4835-945c-240b053b0a64",
+      "name": "add items5"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/store\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "Rules & Policies"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        672,
+        1856
+      ],
+      "id": "d34d5da7-9f96-4b6b-bf12-8bbe25a8eb1c",
+      "name": "Rules & Policies"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/items/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "checklist_id",
+              "value": "={{ $('Rules & Policies').item.json.data.checklist_id }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $('resign card1').item.json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1280,
+        2000
+      ],
+      "id": "7aed2c98-1121-4861-9df6-7a2d9da0340e",
+      "name": "add items6"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-cards/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $('Text Classifier').item.json.subject }}"
+            },
+            {
+              "name": "board_id",
+              "value": "43"
+            },
+            {
+              "name": "list_id",
+              "value": "919"
+            },
+            {
+              "name": "description",
+              "value": "={{ $('Gmail Trigger').item.json.subject }}\n\n{{ $('Gmail Trigger').item.json.from.value[0].address }}\n\n{{ $('Gmail Trigger').item.json.text }}"
+            },
+            {
+              "name": "Due Date",
+              "value": "={{ new Date(Date.now() + 7*24*60*60*1000).toISOString().split('T')[0] }}"
+            },
+            {
+              "name": "user_code",
+              "value": "53254"
+            },
+            {
+              "name": "members[]",
+              "value": "53254"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        720,
+        2784
+      ],
+      "id": "e21cecad-0170-4fed-9676-be9a54625a03",
+      "name": "Robbery card",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/store\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "Theft & Shortage Procedures "
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "53254"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1072,
+        2832
+      ],
+      "id": "8f813d6d-4073-4e15-b2b4-6e1ecf6ebd69",
+      "name": "Create Theft & Shortage Procedures Checklist"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/items/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "checklist_id",
+              "value": "={{ $('Create Theft & Shortage Procedures Checklist').item.json.data.checklist_id }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $('Robbery card').item.json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "53254"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1504,
+        2848
+      ],
+      "id": "52fa823a-fefb-4cde-b127-74a91f611d52",
+      "name": "add items7"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $json.data;\n\nreturn [{\n  json: {\n    ...$json,\n    task_url: `https://platform.turbo.info/admin/task-boards/${data.board_id}?card=${data.id}`\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        944,
+        3008
+      ],
+      "id": "0240602a-d72f-4f1a-ac96-d82f4c019fc1",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-cards/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $('Text Classifier').item.json.subject }}"
+            },
+            {
+              "name": "board_id",
+              "value": "43"
+            },
+            {
+              "name": "list_id",
+              "value": "919"
+            },
+            {
+              "name": "description",
+              "value": "={{ $('Gmail Trigger').item.json.subject }}\n\n{{ $('Gmail Trigger').item.json.from.value[0].address }}\n\n{{ $('Gmail Trigger').item.json.text }}"
+            },
+            {
+              "name": "Due Date",
+              "value": "={{ new Date(Date.now() + 7*24*60*60*1000).toISOString().split('T')[0] }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            },
+            {
+              "name": "members[]",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        480,
+        4112
+      ],
+      "id": "fd9fa083-5002-48ee-bceb-3b41f224a77b",
+      "name": "recruitment card",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/items/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "checklist_id",
+              "value": "={{ $('Recruitment Intake Steps').item.json.data.checklist_id }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $('recruitment card').item.json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1328,
+        3792
+      ],
+      "id": "b1386788-8213-4a31-8bfd-cc033c328da7",
+      "name": "add items8"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $json.data;\n\nreturn [{\n  json: {\n    ...$json,\n    task_url: `https://platform.turbo.info/admin/task-boards/${data.board_id}?card=${data.id}`\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        4144
+      ],
+      "id": "187f69ac-a02f-40e4-b5af-95557cf9c763",
+      "name": "Code in JavaScript5"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/items/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "checklist_id",
+              "value": "={{ $('Hiring Process Steps').item.json.data.checklist_id }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $('recruitment card').item.json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1440,
+        4432
+      ],
+      "id": "6598f5b8-e456-4276-bcb4-0ef48e11c743",
+      "name": "add items9"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/items/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "checklist_id",
+              "value": "={{ $('Recruitment Rules').item.json.data.checklist_id }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $('recruitment card').item.json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1360,
+        4624
+      ],
+      "id": "ba4a5096-8b72-46fd-98e6-55ebbcb17477",
+      "name": "add items10"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/store\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "Recruitment Intake Steps"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        768,
+        3872
+      ],
+      "id": "6a0a99ef-c5bd-4269-9711-16fbe6400b9b",
+      "name": "Recruitment Intake Steps"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/store\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "Hiring Process Steps"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        800,
+        4336
+      ],
+      "id": "5651cd4a-761c-4d72-9255-6c982858de97",
+      "name": "Hiring Process Steps"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/store\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "Recruitment Rules"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        800,
+        4560
+      ],
+      "id": "75f538b4-2c8f-4a3f-8209-8e2c098f89d5",
+      "name": "Recruitment Rules"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/items/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "checklist_id",
+              "value": "={{ $('Promotion Review Steps').item.json.data.checklist_id }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $('Promtion card1').item.json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1152,
+        4944
+      ],
+      "id": "b9de1de2-26ca-4717-9ecb-e315f7d9ca1e",
+      "name": "add items11"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/store\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "Promotion Review Steps"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        656,
+        5008
+      ],
+      "id": "39819a57-3f94-4f53-99bf-d209dc043a9a",
+      "name": "Promotion Review Steps"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $json.data;\n\nreturn [{\n  json: {\n    ...$json,\n    task_url: `https://platform.turbo.info/admin/task-boards/${data.board_id}?card=${data.id}`\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        5248
+      ],
+      "id": "400ef527-b3ec-47bd-b6ce-1625cd3d9477",
+      "name": "Code in JavaScript6"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/store\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "Promotion Rules"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        640,
+        5536
+      ],
+      "id": "0e3cf862-e1de-43ea-a135-eff8900e6a68",
+      "name": "Promotion Rules"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/items/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "checklist_id",
+              "value": "={{ $('Promotion Rules').item.json.data.checklist_id }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $('Promtion card1').item.json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1344,
+        5632
+      ],
+      "id": "c4fa927f-392a-40ef-b05c-b62a59b1abac",
+      "name": "add items12"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-cards/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $('Text Classifier').item.json.subject }}"
+            },
+            {
+              "name": "board_id",
+              "value": "43"
+            },
+            {
+              "name": "list_id",
+              "value": "919"
+            },
+            {
+              "name": "description",
+              "value": "={{ $('Gmail Trigger').item.json.subject }}\n\n{{ $('Gmail Trigger').item.json.from.value[0].address }}\n\n{{ $('Gmail Trigger').item.json.text }}"
+            },
+            {
+              "name": "Due Date",
+              "value": "={{ new Date(Date.now() + 7*24*60*60*1000).toISOString().split('T')[0] }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            },
+            {
+              "name": "members[]",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        928,
+        7696
+      ],
+      "id": "6cbf67dc-70e0-4537-b388-9b0e252adeb9",
+      "name": "unfind"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-cards/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $('Text Classifier').item.json.subject }}"
+            },
+            {
+              "name": "board_id",
+              "value": "43"
+            },
+            {
+              "name": "list_id",
+              "value": "919"
+            },
+            {
+              "name": "description",
+              "value": "={{ $('Gmail Trigger').item.json.subject }}\n\n{{ $('Gmail Trigger').item.json.from.value[0].address }}\n\n{{ $('Gmail Trigger').item.json.text }}"
+            },
+            {
+              "name": "Due Date",
+              "value": "={{ new Date(Date.now() + 7*24*60*60*1000).toISOString().split('T')[0] }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            },
+            {
+              "name": "members[]",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        992,
+        5968
+      ],
+      "id": "f55c4cb2-f22f-4c83-9d9d-2a36d663df42",
+      "name": "recruitment card2",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/items/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "checklist_id",
+              "value": "={{ $('Investigation Checklist').item.json.data.checklist_id }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $('recruitment card2').item.json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1824,
+        5904
+      ],
+      "id": "1987ff02-6c15-40fa-b2ab-5855b9ebb3cf",
+      "name": "add items13"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $json.data;\n\nreturn [{\n  json: {\n    ...$json,\n    task_url: `https://platform.turbo.info/admin/task-boards/${data.board_id}?card=${data.id}`\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1232,
+        6192
+      ],
+      "id": "e225aa9b-b290-4c01-9c52-e860442c997a",
+      "name": "Code in JavaScript7"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This Function node prepares checklist items for Trello\n// Make sure you already have \"idChecklist\" from the Create Checklist node\n\nconst idChecklist = $json.idChecklist;   // map from Create Checklist output\n\nconst items = [\n   \"Receive the files from the direct manager\",\n  \"Send an email with the date of the investigation\",\n  \"Conduct the investigation\",\n  \"Validate the investigation result\",\n  \"Send the result via email\",\n  \"Mention Payroll team in case of financial deduction\",\n  \"Data entry\"\n];\n\n// Return each item as a separate n8n item\nreturn items.map(name => ({\n  json: {\n    idChecklist,\n    name\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        5920
+      ],
+      "id": "3532ea00-c85c-47f9-a87e-fcea0d63f0c6",
+      "name": "Prepare Investigation Checklist"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/store\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": " Investigation Checklist"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1280,
+        5952
+      ],
+      "id": "edaaf605-3d81-4d19-988f-abdc54a4cb15",
+      "name": "Investigation Checklist"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-cards/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $('Text Classifier').item.json.subject }}"
+            },
+            {
+              "name": "board_id",
+              "value": "43"
+            },
+            {
+              "name": "list_id",
+              "value": "919"
+            },
+            {
+              "name": "description",
+              "value": "={{ $('Gmail Trigger').item.json.subject }}\n\n{{ $('Gmail Trigger').item.json.from.value[0].address }}\n\n{{ $('Gmail Trigger').item.json.text }}"
+            },
+            {
+              "name": "Due Date",
+              "value": "={{ new Date(Date.now() + 7*24*60*60*1000).toISOString().split('T')[0] }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            },
+            {
+              "name": "members[]",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1088,
+        6800
+      ],
+      "id": "c19f9962-e69b-4ce7-9a6f-12636f70f091",
+      "name": "advance_request card1",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/items/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "checklist_id",
+              "value": "={{ $('advance_request Checklist1').item.json.data.checklist_id }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $('advance_request card1').item.json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2112,
+        6960
+      ],
+      "id": "9caa9995-9df7-4bcb-a110-f44787ecbd4f",
+      "name": "add items14"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $json.data;\n\nreturn [{\n  json: {\n    ...$json,\n    task_url: `https://platform.turbo.info/admin/task-boards/${data.board_id}?card=${data.id}`\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1328,
+        7008
+      ],
+      "id": "3a40ec7e-fe60-424f-89e8-343eecac9b6f",
+      "name": "Code in JavaScript8"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/store\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "advance_request "
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1424,
+        6784
+      ],
+      "id": "18a2381d-5ac9-4118-9ab2-aad4d101efac",
+      "name": "advance_request Checklist1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $json.data;\n\nreturn [{\n  json: {\n    ...$json,\n    task_url: `https://platform.turbo.info/admin/task-boards/${data.board_id}?card=${data.id}`\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        2576
+      ],
+      "id": "05d9883b-74fa-46ad-92fc-6d2a22a321f5",
+      "name": "Code in JavaScript10"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-cards/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "=c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $('Text Classifier').item.json.subject }}"
+            },
+            {
+              "name": "board_id",
+              "value": "43"
+            },
+            {
+              "name": "list_id",
+              "value": "919"
+            },
+            {
+              "name": "description",
+              "value": "={{ $('Gmail Trigger').item.json.subject }}\n\n{{ $('Gmail Trigger').item.json.from.value[0].address }}\n\n{{ $('Gmail Trigger').item.json.text }}"
+            },
+            {
+              "name": "Due Date",
+              "value": "={{ new Date(Date.now() + 7*24*60*60*1000).toISOString().split('T')[0] }}"
+            },
+            {
+              "name": "user_code",
+              "value": "48268"
+            },
+            {
+              "name": "members[]",
+              "value": "48268"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        352,
+        5264
+      ],
+      "id": "1a00e7b1-5c51-4202-95ca-ba4ccef0d8f4",
+      "name": "Promtion card1",
+      "alwaysOutputData": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "department_transfer createcard",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "resign card1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Robbery card",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "recruitment card",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Promtion card1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "recruitment card2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "advance_request card1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "unfind",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "If New Mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Process Case & Prepare HR Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent Process Case & Prepare HR Output",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Investigation Examples": {
+      "ai_tool": [
+        [
+          {
+            "node": "Investigation report",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Investigation report": {
+      "main": [
+        [
+          {
+            "node": "Investigation Fill Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Investigation report",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser10": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent10": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message17",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message18",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Promotion Confirmation Reply",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Send Acknowledgement Reply",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent Auto Reply (Case Received)",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Information Extractor1",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent Process Case & Prepare HR Output",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser1",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent10",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent Generate Investigation Email Reply",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent Generate Advance Request Confirmation",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent undefined",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Investigation report",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Clearance & Offboarding": {
+      "main": [
+        [
+          {
+            "node": "add items5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Rules & Policies": {
+      "main": [
+        [
+          {
+            "node": "add items6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Transfer Rules": {
+      "main": [
+        [
+          {
+            "node": "add items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Process Case & Prepare HR Output": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Format Reply Email Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Reply Email Body": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Theft": {
+      "main": [
+        [
+          {
+            "node": "add items7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Auto Reply (Case Received)": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Recruitment Intake Steps": {
+      "main": [
+        [
+          {
+            "node": "add items8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Acknowledgement Reply": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Hiring Process Steps": {
+      "main": [
+        [
+          {
+            "node": "add items9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Recruitment Rules": {
+      "main": [
+        [
+          {
+            "node": "add items10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Promotion Review Steps": {
+      "main": [
+        [
+          {
+            "node": "add items11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Promotion Rules": {
+      "main": [
+        [
+          {
+            "node": "add items12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Promotion Confirmation Reply": {
+      "main": [
+        [
+          {
+            "node": "Send Promotion Confirmation Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Generate Investigation Email Reply": {
+      "main": [
+        [
+          {
+            "node": "Send Investigation Confirmation Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Advance Request Steps": {
+      "main": [
+        [
+          {
+            "node": "add items14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Generate Advance Request Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Send Advance Request Confirmation Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent undefined": {
+      "main": [
+        [
+          {
+            "node": "Send a undefined  Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If New Mail": {
+      "main": [
+        [
+          {
+            "node": "If Turbo Mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Turbo Mail": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Process Case & Prepare HR Output",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "department_transfer createcard": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request checklist Rules HTTP Request checklist Steps",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request checklist Rules HTTP Request checklist Steps": {
+      "main": [
+        [
+          {
+            "node": "Code Transfer Rules",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Exit Interview1": {
+      "main": [
+        [
+          {
+            "node": "add items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code for Resignation1": {
+      "main": [
+        [
+          {
+            "node": "add items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "resign card1": {
+      "main": [
+        [
+          {
+            "node": "Create a checklist Resignation1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "checklist for Exit Interview1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "checklist for Exit Interview2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Rules & Policies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a checklist Resignation1": {
+      "main": [
+        [
+          {
+            "node": "Code for Resignation1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "checklist for Exit Interview1": {
+      "main": [
+        [
+          {
+            "node": "Code Exit Interview1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent undefined",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "AI Agent10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "checklist for Exit Interview2": {
+      "main": [
+        [
+          {
+            "node": "Code Clearance & Offboarding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rules & Policies": {
+      "main": [
+        [
+          {
+            "node": "Code Rules & Policies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Robbery card": {
+      "main": [
+        [
+          {
+            "node": "Create Theft & Shortage Procedures Checklist",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code in JavaScript10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Theft & Shortage Procedures Checklist": {
+      "main": [
+        [
+          {
+            "node": "Code Theft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Auto Reply (Case Received)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "recruitment card": {
+      "main": [
+        [
+          {
+            "node": "Recruitment Intake Steps",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code in JavaScript5",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Hiring Process Steps",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Recruitment Rules",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript5": {
+      "main": [
+        [
+          {
+            "node": "Send Acknowledgement Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recruitment Intake Steps": {
+      "main": [
+        [
+          {
+            "node": "Prepare Recruitment Intake Steps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hiring Process Steps": {
+      "main": [
+        [
+          {
+            "node": "Prepare Hiring Process Steps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recruitment Rules": {
+      "main": [
+        [
+          {
+            "node": "Prepare Recruitment Rules",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Promotion Review Steps": {
+      "main": [
+        [
+          {
+            "node": "Prepare Promotion Review Steps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript6": {
+      "main": [
+        [
+          {
+            "node": "Generate Promotion Confirmation Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Promotion Rules": {
+      "main": [
+        [
+          {
+            "node": "Prepare Promotion Rules",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "unfind": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "recruitment card2": {
+      "main": [
+        [
+          {
+            "node": "Investigation Checklist",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code in JavaScript7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript7": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Generate Investigation Email Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Investigation Checklist": {
+      "main": [
+        [
+          {
+            "node": "add items13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Investigation Checklist": {
+      "main": [
+        [
+          {
+            "node": "Prepare Investigation Checklist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "advance_request card1": {
+      "main": [
+        [
+          {
+            "node": "advance_request Checklist1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code in JavaScript8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript8": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Generate Advance Request Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "advance_request Checklist1": {
+      "main": [
+        [
+          {
+            "node": "Prepare Advance Request Steps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript10": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Promtion card1": {
+      "main": [
+        [
+          {
+            "node": "Promotion Review Steps",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code in JavaScript6",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Promotion Rules",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "0fd6286b-8f05-47a2-93f9-2d4534e4b1a9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "789898b22df5490ee7fee9adc686abf4348ff76dd7521b6ae2563557f413c71d"
+  },
+  "id": "vc8W5zVBIFaUtG6i",
+  "tags": []
+}
