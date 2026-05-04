@@ -69,5 +69,5 @@ An AI-powered chatbot designed to handle internal technical support requests thr
 Mohamed Mamdouh Ismail  
 AI & Automation Specialist  
 
-Email: mo.mamdouh.ismail@gmail.com  
+Email: mohammeddo7aa@gmail.com  
 Location: Giza, Egypt  
