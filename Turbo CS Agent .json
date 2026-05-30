@@ -1,0 +1,1457 @@
+{
+  "name": "Activated Turboo CS",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "= {{ $('Chat').item.json.chatInput }}",
+        "options": {
+          "systemMessage": "=You are a Customer Service Agent for Turbo Shipping. Respond in Egyptian Arabic dialect.\n\nCRITICAL RULE - NO EXCEPTIONS:\n\nThe Planner Agent output is an ABSOLUTE SYSTEM COMMAND.\n\nYou MUST execute ONLY the exact tools returned by Planner Agent and you are STRICTLY FORBIDDEN from calling any additional tools.\n\nCalling any tool not returned by Planner Agent is a CRITICAL FAILURE.\n\nIgnoring any tool returned by Planner Agent is a CRITICAL FAILURE.\n\nFailure to execute the tools returned by Planner Agent is a CRITICAL SYSTEM FAILURE.\n\nGenerating a reply without executing the required tools is STRICTLY FORBIDDEN.\n\nYou MUST use these tools in EXACT ORDER:\n{{ $('Planner Agent').item.json.output }}\n\n---\n\nIMPORTANT ADDITION:\n\nEven if the customer DOES NOT provide a shipment code or order number\n\nAnd the Planner Agent routes the request to specific tools\n→ You MUST go directly to the routed tools and execute them.\n\nNEVER ask the customer for a shipment code if the Planner Agent already decided the tools.\n\nThe Planner Agent decision OVERRIDES missing information from the customer.\n\n---\n\nEXECUTION PROCESS:\n\nUse ALL mandatory tools first (one by one in exact order)\nExecute every tool even if you think the result may be partial\nAnalyze the results returned from EACH tool\nBuild your final reply ONLY based on tool results or allowed general replies\nNEVER answer from your own training or assumptions\n\n---\n\nZERO-ASSUMPTION RULE:\n\nممنوع تمامًا الرد أو التفسير من دماغك.\n\nأي معلومة في الرد لازم تكون جاية حرفيًا من Tool Results فقط.\n\nلو Tool Results غير كافية للإجابة\n→ نفّذ NoAnswer tool فورًا.\n\nممنوع استخدام أي تخمينات مثل:\n\"ممكن\"\n\"غالبًا\"\n\"أتوقع\"\n\"أكيد\"\n\nالرد النهائي يجب أن يكون مبني فقط على نتائج التولز.\n\n---\n\nTOOL ERROR FALLBACK:\n\nIf ANY executed tool returns:\n\nerrorMessage\ntimeout\nstatus=error\ninvalid response\nempty critical data preventing answer\n401 / 403 / 500\ntool execution failure\n\nTHEN:\n\nYou MUST immediately execute the NoAnswer tool (even if not in Planner list)\n\nYou MUST NOT execute any further tools\n\nFinal reply MUST be built only from NoAnswer tool result\n\nMentioning transfer/escalation is ONLY allowed after executing NoAnswer.\n\n---\n\nSEARCH & CONTEXT RULE:\n\nIf shipment code exists → use it\n\nIf shipment code does NOT exist → search using any available context\n(phone, branch, status, captain, last update)\n\nTool execution is mandatory even with partial or missing inputs.\n\n---\n\nSESSION DETECTION & GREETING:\n\nCurrent Time: {{ $now }}\n\nNEW SESSION:\n\nMorning (6-11 AM):\n\"صباح النور، مع حضرتك فريق خدمة عملاء تربو للشحن\"\n\nAfternoon/Evening (12-23 PM):\n\"مساء النور، مع حضرتك فريق خدمة عملاء تربو للشحن\"\n\nNight (0-5 AM):\n\"أهلاً وسهلاً، مع حضرتك فريق خدمة عملاء تربو للشحن\"\n\nCONTINUING SESSION:\n\nRespond directly without greetings\nNo greeting starting from second message.\n\n---\n\nCOMMUNICATION STYLE:\n\nUse \"حضرتك\" and \"يا فندم\"\n\nUse masculine/neutral form: \"تقدر\"\n\nNEVER promise delivery dates\n\nNever use customer names\n\n---\n\n🚨 PROFESSIONAL CONDUCT RULE:\n\nThe agent must ALWAYS remain calm, polite, and professional.\n\nIf the customer becomes angry, insulting, aggressive, or says prayers such as:\n\n\"حسبي الله ونعم الوكيل\"\n\nTHEN:\n\n* Remain respectful and calm.\n* Do NOT repeat the same words used by the customer.\n* Do NOT respond with religious expressions or emotional reactions.\n* Do NOT use phrases such as:\n  \"حسبي الله ونعم الوكيل\"\n  or any similar expressions.\n\nAlways respond in a neutral professional tone.\n\nExample tone:\n\"تمام يا فندم، تم تحويل التذكرة للفريق المختص لمتابعة الموضوع.\"\n\n---\n\nTOOL RESULTS HANDLING:\n\nVectorStore → use returned info only\nShipmentInfo → shipment status / branch / captain / within_sla\nBranchInfo → branch info only\nUrgentShipment → acceleration request / push follow-up\nDelayedShipment → delay complaint\nNoAnswer → fallback / escalation messaging\n\n---\n\n🚨 CUSTOMER URGENT REQUEST RULE:\n\nIf the customer message contains ANY urgency request such as:\n\n\"مستعجل\"\n\"استعجلوا\"\n\"ضروري\"\n\"عاجل\"\n\"كان زمانه استلم\"\n\"ليه متأخر\"\n\"ليه مفيش حركة\"\n\"ليه لسه\"\n\"عايزه بسرعة\"\n\"مش هينفع يستنى\"\n\nAND ShipmentInfo result shows:\n\nwithin_sla = true\n\nTHEN:\n\n→ Execute UrgentShipment tool immediately\n→ Do NOT execute DelayedShipment\n→ Continue using tool results only\n\n---\n\nSHIPMENTINFO SLA HANDLING:\n\nIf ShipmentInfo result contains:\n\nwithin_sla = false\n\n→ Execute DelayedShipment tool\n→ THEN execute NoAnswer tool\n→ Confirm delay complaint registered\n→ Transfer case to Customer Service\n\nTransfer mention allowed ONLY after NoAnswer execution.\n\n---\n\nURGENT & SLA HANDLING:\n\nIf routed to UrgentShipment tool:\n\nExecute UrgentShipment tool.\n\nIf UrgentShipment result contains within_sla = false\n\n→ Execute DelayedShipment\n→ THEN execute NoAnswer\n\n---\n\nDELAYED SHIPMENT HANDLING:\n\nIf delayed and expected date < {{ $now }}:\n\nApologize clearly\nConfirm complaint registered\nSay shipment under tracking\n\nTransfer ONLY if NoAnswer executed.\n\nExample:\n\n\"أنا آسف يا فندم على التأخير، تم تسجيل شكوى بتأخير الشحنة وسيتم متابعة حركة الشحنة لحين التسليم إن شاء الله.\"\n\n---\n\nUNREACHABLE BRANCH / MANAGER:\n\nIf customer says:\n\nBranch not answering\nManager not answering\nPhone off\nNo response\n\nTHEN:\n\nExecute NoAnswer tool immediately\nTransfer to Customer Service\n\n---\n\nCONSISTENCY RULES:\n\nYou MUST execute ALL tools returned by Planner Agent.\n\nSkipping any tool = FAILURE.\n\nPlanner output is the source of truth.\n\nIf \"NoAnswer\" exists in Planner output:\n\n→ If NoAnswer is the ONLY tool in Planner output:\nexecute NoAnswer immediately and stop all tools.\n\n→ If NoAnswer appears AFTER other tools:\nexecute the previous tools first in exact order,\nTHEN execute NoAnswer last.\n\nIgnoring NoAnswer when returned by Planner Agent is a CRITICAL FAILURE.\n\nNoAnswer executed ONLY if:\n\n* Listed by Planner Agent\n* OR tool error occurs\n* OR ShipmentInfo within_sla=false\n* OR UrgentShipment within_sla=false\n* OR unreachable branch/manager\n\nIf you say escalation/transfer\n→ NoAnswer MUST be executed first.\n\n---\n\nABSOLUTE RESTRICTIONS:\n\nDo NOT ask for shipment code if Planner routed tools\nDo NOT stop after first tool\nDo NOT add extra tools\nDo NOT answer from knowledge outside tools\nFrom second message → no greeting\nZERO assumptions allowed.\n\n---\n\n🚨 VECTORSTORE EXECUTION LOCK:\n\nIf the Planner Agent output contains \"VectorStore\":\n\n→ You MUST execute the VectorStore tool BEFORE generating any reply.\n→ You are STRICTLY FORBIDDEN from answering without executing VectorStore first.\n→ Even if you already know the answer.\n→ Skipping VectorStore = CRITICAL FAILURE.\n→ Final response MUST include information retrieved from VectorStore results only.\n\nMANDATORY TOOLS:\n\n{{ $('Planner Agent').item.json.output }}\n",
+          "returnIntermediateSteps": true
+        }
+      },
+      "id": "aa745b96-54f2-482f-8e51-aa0ae7e4ad02",
+      "name": "Customer Service Agent L1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        3808,
+        3520
+      ],
+      "executeOnce": false,
+      "retryOnFail": false,
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d882a90b-1df6-474a-9a3b-435921602c0d",
+              "name": "sessionId",
+              "value": "={{ $('Chat').item.json.sessionId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3376,
+        3472
+      ],
+      "id": "70fda8f3-046c-4258-bde0-933f54f58e87",
+      "name": "Set SessionId3"
+    },
+    {
+      "parameters": {
+        "content": "# API Calls the current system",
+        "height": 448,
+        "width": 682,
+        "color": 3
+      },
+      "id": "fa470fb8-7aa2-4f21-b838-edc579f1741b",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4096,
+        3888
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.attach[0] }}",
+        "options": {}
+      },
+      "id": "175a729b-57f0-4a12-aa53-1678147c1890",
+      "name": "Download Voice1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1536,
+        3600
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const caption = $('Chat').first().json.chatInput;\nconst image_content = $input.first().json.content;\n\nreturn {\n  message: `${image_content}`\n}"
+      },
+      "id": "9a5cd657-7012-4486-b02b-932b8a21f579",
+      "name": "Format Transform1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2320,
+        3312
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  message: $input.first().json.text\n}"
+      },
+      "id": "62476e12-d51a-46b3-b33a-6fa6ccdcfd4b",
+      "name": "Format Transform ",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1984,
+        3600
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const caption = $('Telegram Trigger').first().json.message.caption;\nconst image_content = $input.first().json.output;\n\nreturn {\n  message: `Please answer user question: \"${caption}\" with following image description: ${image_content}`\n}"
+      },
+      "id": "31c6b0bd-7de5-4f97-b76f-8ae00148affa",
+      "name": "Format Transform 5",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2800,
+        2992
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "options": {}
+      },
+      "id": "e6b71a75-61b8-4be5-a5cb-afd03c1a892e",
+      "name": "OpenAI3",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.6,
+      "position": [
+        2144,
+        2992
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "ABrrjVVx22morxnN",
+          "name": "Turbo Tokens"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "assistant",
+        "operation": "create",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "name": "File Assistant",
+        "instructions": "You are a file assistant and will answer user question",
+        "knowledgeRetrieval": true,
+        "file_ids": "={{ $json.id }}",
+        "options": {}
+      },
+      "id": "2d29c77a-044c-4742-9f4b-6811bfcc7f1e",
+      "name": "OpenAI4",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.6,
+      "position": [
+        2304,
+        2992
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "ABrrjVVx22morxnN",
+          "name": "Turbo Tokens"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "assistant",
+        "assistantId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "prompt": "define",
+        "text": "=Describe all the information of the file in Arabic so that we can pass to another agent to handle the task.",
+        "options": {}
+      },
+      "id": "05e3d3bf-2cef-4d68-9af8-03862da591bc",
+      "name": "OpenAI5",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.6,
+      "position": [
+        2464,
+        2992
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "ABrrjVVx22morxnN",
+          "name": "Turbo Tokens"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "chatgpt-4o-latest",
+          "mode": "list",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "text": "=",
+        "inputType": "base64",
+        "options": {}
+      },
+      "id": "6dba3470-0ce2-4997-ae37-ee49d9df7800",
+      "name": "OpenAI Image Analyze1",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.6,
+      "position": [
+        2144,
+        3312
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "ABrrjVVx22morxnN",
+          "name": "Turbo Tokens"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "id": "3fd776f6-563c-470f-8dc5-7962582f1150",
+      "name": "OpenAI Transcribe1",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.6,
+      "position": [
+        1760,
+        3600
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "ABrrjVVx22morxnN",
+          "name": "Turbo Tokens"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## File message handler",
+        "height": 297,
+        "width": 1477,
+        "color": 7
+      },
+      "id": "7c7951c3-80a9-4407-b79d-744941391206",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        2912
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Image message handler",
+        "height": 277,
+        "width": 997,
+        "color": 5
+      },
+      "id": "7df5d870-6325-4380-b669-5fc50b3baf0a",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        3232
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Voice message handler",
+        "height": 217.2772064281918,
+        "width": 817.294025812465,
+        "color": 6
+      },
+      "id": "091e44f1-873a-495b-8275-9818e46592d9",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        3536
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "20852914-bbc0-4f9f-8a39-a610116698d8",
+                    "leftValue": "={{ $json.file }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "file"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.image }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "cd7f5251-23a7-41fe-9ece-4916b6b5359d",
+                    "leftValue": "={{ $json.voice }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "voice"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "text"
+        }
+      },
+      "id": "99526270-ae78-4f35-8c18-66364de90223",
+      "name": "Switch5",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1072,
+        3696
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": "=1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1792,
+        3296
+      ],
+      "id": "187d7d48-bc60-4ac2-9dac-24dea5ca9066",
+      "name": "Loop Over Items6"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "attach",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1536,
+        3296
+      ],
+      "id": "5064ea22-caeb-4276-8f53-573f07a774d2",
+      "name": "Split Out2"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "attach",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1536,
+        2976
+      ],
+      "id": "97d0346f-0180-4886-9a2b-ed41d155e554",
+      "name": "Split Out3"
+    },
+    {
+      "parameters": {
+        "batchSize": "=1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1792,
+        2976
+      ],
+      "id": "9ba0e25e-ce5c-47e8-84ff-19060be77923",
+      "name": "Loop Over Items7"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.attach }}",
+        "options": {}
+      },
+      "id": "9a16966b-3940-4640-bd01-712241065b0e",
+      "name": "Download Image1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1984,
+        3312
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.attach }}",
+        "options": {}
+      },
+      "id": "494fd083-ef6d-4b2f-8615-4d342d4ee006",
+      "name": "Download File5",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2000,
+        2992
+      ]
+    },
+    {
+      "parameters": {
+        "dataToSave": {
+          "values": [
+            {
+              "key": "ticketId",
+              "value": "={{ $('Chat').item.json.ticketId ?? \"test\" }}"
+            },
+            {
+              "key": "userId",
+              "value": "={{ $('Chat').item.json.userId ?? \"test\" }}"
+            },
+            {
+              "key": "sessionId",
+              "value": "={{ $('Chat').item.json.sessionId }}"
+            },
+            {
+              "key": "type",
+              "value": "ticket"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executionData",
+      "typeVersion": 1,
+      "position": [
+        4640,
+        3568
+      ],
+      "id": "683cba65-1a8d-44d2-9fa2-0089b5a17d46",
+      "name": "Execution Data1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Chat').item.json.chatInput }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a Tool Planner. Return ONLY a JSON array.\n\nMessage: {{ $('Chat').item.json.chatInput }}\n\n## EXTERNAL TICKET STATE (MANDATORY):\nThe planner MUST rely on an external boolean input:\n- inquiry_resolved (provided by the workflow/system)\n\nIf inquiry_resolved = true:\n→ ALWAYS return [\"NoAnswer\"]\n→ Do NOT return any other tools\n→ This rule OVERRIDES all other rules (no intent detection, no tracking rules)\n\n---\n\n## SMART INTENT DETECTION FIRST:\nBefore applying rules, identify the MAIN INTENT:\n\n1. **HOW-TO / LEARNING INTENT:** Customer wants to learn how to do something\n   - Keywords: \"إزاي\"، \"مش عارف\"، \"عايز أعدل\"، \"طريقة\"، \"اعمل إيه\"، \"تعديل\"، \"تغيير\"، \"تحديث\"\n   - IMPORTANT:\n     This ONLY applies if the customer is asking HOW to do something.\n     Examples:\n     - \"إزاي أعمل استرجاع؟\"\n     - \"طريقة عمل pickup؟\"\n\n     ❌ DO NOT use this if the customer is requesting action:\n     - \"برجاء قبول الاسترجاع\"\n     - \"استلام الطرد\"\n     - \"في أقرب وقت\"\n\n2. **PURE TRACKING INTENT:** Just wants shipment status\n   - Keywords: \"فين شحنتي\"، \"وصلت فين\"، \"إيه الحالة\"\n\n3. **COMPLAINT INTENT:** Problem with delivery\n   - Keywords: \"متأخر\"، \"مش واصل\"، \"تأخير\"، \"شكوى\"\n\n---\n\n## FORCED CONTACT REQUEST RULE (HIGHEST PRIORITY):\nIf the customer message contains ANY request to contact the customer for delivery, such as:\n- \"برجاء التواصل مع العميل لتسليم الاوردر\"\n- \"كلموا العميل\"\n- \"تواصلوا مع العميل\"\n- \"اتصلوا بالعميل\"\n- \"العميل مش بيرد\"\n\nTHEN:\n→ ALWAYS return [\"NoAnswer\"]\n→ Do NOT return any other tools\n\n---\n\n## NON-SHIPMENT ISSUE ESCALATION RULE:\nIf the customer reports ANY problem related to:\n- Courier / captain / مندوب\n- Branch staff\n- Operational issue not direct shipment tracking\n\nTHEN:\n→ ALWAYS return [\"NoAnswer\"]\n\n---\n\n## URGENT RETURN / RETURN SHIPMENT REQUEST RULE:\nIf the customer is requesting ACTION on a return shipment or asking to speed it up, such as:\n- برجاء قبول طلب الاسترجاع\n- من فضلك قبول الاسترجاع\n- قبول الاسترجاع في أقرب وقت\n- طرد استرجاع\n- استلام ظرف ورق\n- تسليمه للفرع المختص\n- استعجال الاسترجاع\n- عايز أستعجل الطرد\n- برجاء سرعة التعامل مع طلب الاسترجاع\n- رجاء قبول الاسترجاع وتسليمه للفرع\n\nTHEN:\n→ ALWAYS return [\"UrgentShipment\",\"NoAnswer\"]\n→ This is NOT a how-to question\n\n---\n\n## NEW SMART RULE:\nIf the customer asks about:\n- الفرع الموجود فيه الأوردر\n- الأوردر في أنهي فرع\n- الشحنة مع مين\n\n→ ALWAYS use:\n[\"ShipmentInfo\",\"BranchInfo\"]\n\n---\n\n## COMPLAINT & ESCALATION ENFORCEMENT RULE:\n\nIf the customer expresses ANY:\n- complaint\n- delivery delay\n- urgency\n- frustration\n- repeated follow-up\n- dissatisfaction\n- escalation request\n\nTHEN:\n\n→ Operational tools MUST be executed first if applicable\n→ \"NoAnswer\" MUST ALWAYS be included as the LAST tool\n\nExamples:\n- متأخر\n- لسه موصلش\n- بقاله كتير\n- مستعجل\n- ضروري\n- ليه مفيش حركة\n- محدش بيرد\n- شكوى\n- سوء تعامل\n- عايز أشتكي\n- مش راضي\n\n--\n\n## RULES - PRIMARY TOOLS ONLY:\n- HOW-TO intent → [\"VectorStore\"]\n- Mission/supply query → [\"MissionInfo\",\"NoAnswer\"]\n- Tracking number mentioned → [\"ShipmentInfo\"]\n- Delay complaint → [\"ShipmentInfo\",\"DelayedShipment\",\"NoAnswer\"]\n- Urgent shipment → [\"UrgentShipment\",\"NoAnswer\"]\n- Coverage question → [\"VectorStore\",\"CoveragesInfo\"]\n- Branch location → [\"BranchInfo\"]\n- Pickup/Return process → [\"VectorStore\"]\n- Pricing/Services/General → [\"VectorStore\"]\n- Clear complaint only → [\"NoAnswer\"]\n\n---\n\n## PRIORITY ORDER:\n1. inquiry_resolved = true → [\"NoAnswer\"]\n2. Forced contact request\n3. Non-shipment issue\n4. Urgent return / shipment request\n5. HOW-TO intent\n6. Branch ownership\n7. Normal rules\n8. If uncertain → [\"NoAnswer\"]\n\n---\n\n## FAIL-SAFE RULE:\nIf unclear or conflicting:\n→ ALWAYS return [\"NoAnswer\"]\n\n---\n\nFormat:\n[\"Tool1\",\"Tool2\"]"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        3040,
+        3472
+      ],
+      "id": "6d9d7b50-455d-45ce-ba8f-be0ef8eb27fc",
+      "name": "Planner Agent"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        2512,
+        4208
+      ],
+      "id": "18075063-8e72-46de-926c-6e4248c1bc53",
+      "name": "Postgres Chat Memory",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "toolDescription": "Retrieves detailed information about a specific shipment using the provided shipment code. Use this tool only when the customer asks about a shipment and provides the tracking code. Provides shipment status and expected delivery date. Never disclose sensitive courier details like phone numbers.",
+        "url": "https://platform.turbo.info/api/ai/order-details",
+        "sendQuery": true,
+        "parametersQuery": {
+          "values": [
+            {
+              "name": "orderId",
+              "valueProvider": "fieldValue",
+              "value": "={{ $('Chat').item.json.orderId }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Authorization",
+              "valueProvider": "fieldValue",
+              "value": "=Bearer {{ $('Code in JavaScript1').item.json.token }}"
+            }
+          ]
+        },
+        "optimizeResponse": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        4192,
+        3952
+      ],
+      "id": "4bdf55bb-88b1-4334-b766-335a9ce31806",
+      "name": "ShipmentInfo",
+      "notesInFlow": true,
+      "notes": "ShipmentInfo Executed"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Retrieves details about a supply or return mission based on a provided mission/request number. Use only when the customer specifies a mission ID. Provides mission type, status, and estimated execution date.\n",
+        "url": "https://platform.turbo.info/api/ai/mission-details",
+        "sendQuery": true,
+        "parametersQuery": {
+          "values": [
+            {
+              "name": "missionId",
+              "valueProvider": "fieldValue",
+              "value": "={{ $('Chat').item.json.missionId }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Authorization",
+              "valueProvider": "fieldValue",
+              "value": "=Bearer {{ $('Code in JavaScript1').item.json.token }}"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        4480,
+        3952
+      ],
+      "id": "6276dc0f-fde6-4768-ad46-5ac0812330b6",
+      "name": "MissionInfo"
+    },
+    {
+      "parameters": {
+        "toolDescription": "=Escalates the case to a human customer service agent. Always use VectorStore first to search for an answer. Use NoAnswer in the following cases: (1) No answer found in VectorStore, (2) Customer complaints, (3) Urgent delivery requests, (4) Customer mentions what the courier said, (5) Customer requests to modify their data, (6) Delayed shipments. When triggered, politely inform the customer by saying: “هحول التذكرة لزميلتي وهي هتاخد الإجراءات المناسبة لمساعدتك.” Maintain a polite and natural Egyptian tone when responding. Never promise any specific action or timing when escalating.",
+        "method": "POST",
+        "url": "=https://platform.turbo.info/api/ai/disable-ticket-ai",
+        "sendHeaders": true,
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Authorization",
+              "valueProvider": "fieldValue",
+              "value": "=Bearer {{ $('Code in JavaScript1').item.json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "ticketId",
+              "valueProvider": "fieldValue",
+              "value": "={{ $('Chat').item.json.ticketId }}"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        4672,
+        3952
+      ],
+      "id": "36df7727-c5a4-49c6-8a2f-9ad6e7dab972",
+      "name": "NoAnswer"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Records a shipment as delayed and notifies the relevant departments to follow up. Use this tool only after verifying the shipment’s status with ShipmentInfo and confirming it is delayed. After using this tool, inform the customer: “سيتم تتبع حركة الطرد لحين التسليم وتحويلها لينا.” Always immediately follow this action by using the NoAnswer tool to escalate internally.",
+        "method": "POST",
+        "url": "=https://platform.turbo.info/api/ai/change-order-to-late",
+        "sendHeaders": true,
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Authorization",
+              "valueProvider": "fieldValue",
+              "value": "=Bearer {{ $('Code in JavaScript1').item.json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "ticketId",
+              "valueProvider": "fieldValue",
+              "value": "={{ $('Chat').item.json.ticketId }}"
+            },
+            {
+              "name": "orderId",
+              "valueProvider": "fieldValue",
+              "value": "={{ $('Chat').item.json.orderId }}"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        4512,
+        4128
+      ],
+      "id": "5ac8a684-4eb1-4129-846c-faf75d821278",
+      "name": "DelayedShipment",
+      "notesInFlow": true,
+      "notes": "DelayedShipment Executed"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Registers a request to expedite the delivery of a specific shipment. Use this tool when the customer requests urgent delivery or mentions urgency keywords like “مستعجل”, “النهاردة”, “بكرة”, or “مندوب”. After using this tool, inform the customer: “تم تسجيل طلبك للشحن المستعجل.” Never promise a specific delivery time. Always immediately follow this action by using the NoAnswer tool to escalate internally.",
+        "method": "POST",
+        "url": "=https://platform.turbo.info/api/ai/change-order-to-urgent",
+        "sendHeaders": true,
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Authorization",
+              "valueProvider": "fieldValue",
+              "value": "=Bearer {{ $('Code in JavaScript1').item.json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "orderId",
+              "valueProvider": "fieldValue",
+              "value": "={{ $('Chat').item.json.orderId }}"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        4352,
+        4128
+      ],
+      "id": "403374bf-e586-4c84-b469-b182d0c1d78b",
+      "name": "UrgentShipment"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Provides information about areas covered by delivery services, estimated delivery times, and shipping costs. Use this tool when the customer asks about delivery availability or pricing for a specific area. Prefer searching VectorStore first for general coverage details.",
+        "url": "https://platform.turbo.info/api/ai/available-areas",
+        "sendQuery": true,
+        "parametersQuery": {
+          "values": [
+            {
+              "name": "available-governorates"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Authorization",
+              "valueProvider": "fieldValue",
+              "value": "=Bearer {{ $('Code in JavaScript1').item.json.token }}"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        4192,
+        4128
+      ],
+      "id": "598fa672-3251-41ff-8fee-1b357ce317fd",
+      "name": "CoveragesInfo"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.rerankerCohere",
+      "typeVersion": 1,
+      "position": [
+        3456,
+        4400
+      ],
+      "id": "283fb522-61b8-43c4-a0a8-bd5c3327c196",
+      "name": "Reranker Cohere2",
+      "credentials": {
+        "cohereApi": {
+          "id": "v7pj6fs20ndcyOCq",
+          "name": "Cohere account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        3296,
+        4688
+      ],
+      "id": "d5baa935-fcf4-4de4-9c74-ff3b270e4e20",
+      "name": "Embeddings OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "ABrrjVVx22morxnN",
+          "name": "Turbo Tokens"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Searches the company's knowledge base for information about services, shipping policies, branch coverage, delivery times, and FAQs. Always use VectorStore first before any other tool.",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "topK": 20,
+        "useReranker": true,
+        "options": {
+          "queryName": "match_documents"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        3296,
+        4128
+      ],
+      "id": "68d5ec28-35cd-4912-a9b6-d0786c991902",
+      "name": "VectorStore",
+      "credentials": {
+        "supabaseApi": {
+          "id": "P7EpBsc1m6G1SzwO",
+          "name": "Supabase account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "[\n\t\"state\",\n\t\"cities\"\n]"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        3360,
+        3888
+      ],
+      "id": "3c7e8884-ba43-4f3c-a4a3-452105b1c957",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "o4-mini",
+          "mode": "list",
+          "cachedResultName": "o4-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2816,
+        4416
+      ],
+      "id": "a76dee2f-4380-49cb-ac85-efae0e2861e5",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ABrrjVVx22morxnN",
+          "name": "Turbo Tokens"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "👋 أهلاً بحضرتك",
+        "options": {
+          "allowFileUploads": true,
+          "allowedFilesMimeTypes": ".doc, .docx, .jpeg, .jpg, .mp3, .png, .pdf, .pptx, .rtf, .txt, .wav, .webp, .xls, .xlsx, ",
+          "inputPlaceholder": "أكتب استفسارك أو شكوتك...",
+          "loadPreviousSession": "memory",
+          "subtitle": "أبدأ أستفسارك أو شكوتك، إحنا موجودين 24/7 علشان نساعدك.",
+          "title": "👋 خدمة عملاء تربو"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -320,
+        3568
+      ],
+      "id": "3913ee74-e510-410b-adc0-c74461785935",
+      "name": "Chat",
+      "webhookId": "2cd4efd9-d717-4c3c-bc4e-f11b280f6221"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/ai/ai-login?email=ai_customer_service_user@algoistic.com&password=AI@N8N%232026!Secure",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        368,
+        3536
+      ],
+      "id": "60d7e5ed-af50-436b-b582-79d1f4284e6b",
+      "name": "Login1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "33351fd9-eb84-4046-b5a1-e01ccd8b7797",
+              "name": "token",
+              "value": "={{ $json.token }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        656,
+        3536
+      ],
+      "id": "f1fa4f93-df5b-4c6d-9d80-ed6b667af19e",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const token = $input.first().json.token;\n\nreturn {\n  json: {\n    token: token\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        864,
+        3536
+      ],
+      "id": "d4263a6d-979f-4ee4-be16-1dad2cbe234a",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Provides details about company branches including address, working hours, and available services. Use only when the customer clearly specifies a branch name or location. Prefer searching VectorStore first for general branch info.\n",
+        "url": "https://platform.turbo.info/api/ai/branch-details",
+        "sendQuery": true,
+        "parametersQuery": {
+          "values": [
+            {
+              "name": "id",
+              "valueProvider": "fieldValue",
+              "value": "={{ $('Chat').item.json.branchId }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "=Authorization",
+              "valueProvider": "fieldValue",
+              "value": "=Bearer {{ $('Code in JavaScript1').item.json.token }}"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        4320,
+        3952
+      ],
+      "id": "e26fe3e6-df20-4e76-8a89-7bd77f0c0951",
+      "name": "BranchInfo"
+    }
+  ],
+  "pinData": {
+    "Chat": [
+      {
+        "json": {
+          "action": "sendMessage",
+          "sessionId": 3001872,
+          "ticketId": 3001872,
+          "userId": 93720,
+          "orderId": "37338080",
+          "missionId": null,
+          "branchId": null,
+          "captainId": null,
+          "chatInput": "من فضلك قبول الاسترجاع",
+          "ticket_type": "أخري",
+          "complaint_type": "عام",
+          "image": false,
+          "voice": false,
+          "file": false,
+          "attach": []
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Customer Service Agent L1": {
+      "main": [
+        [
+          {
+            "node": "Execution Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set SessionId3": {
+      "main": [
+        [
+          {
+            "node": "Customer Service Agent L1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Voice1": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Transcribe1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Transform1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Transform ": {
+      "main": [
+        [
+          {
+            "node": "Planner Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Transform 5": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI3": {
+      "main": [
+        [
+          {
+            "node": "OpenAI4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI4": {
+      "main": [
+        [
+          {
+            "node": "OpenAI5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI5": {
+      "main": [
+        [
+          {
+            "node": "Format Transform 5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Image Analyze1": {
+      "main": [
+        [
+          {
+            "node": "Format Transform1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Transcribe1": {
+      "main": [
+        [
+          {
+            "node": "Format Transform ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch5": {
+      "main": [
+        [
+          {
+            "node": "Split Out3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Split Out2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download Voice1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Planner Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items6": {
+      "main": [
+        [
+          {
+            "node": "Planner Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download Image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items7": {
+      "main": [
+        [
+          {
+            "node": "Planner Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download File5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Image1": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Image Analyze1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download File5": {
+      "main": [
+        [
+          {
+            "node": "OpenAI3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Planner Agent": {
+      "main": [
+        [
+          {
+            "node": "Set SessionId3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Planner Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Customer Service Agent L1",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Chat",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ShipmentInfo": {
+      "ai_tool": [
+        [
+          {
+            "node": "Customer Service Agent L1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MissionInfo": {
+      "ai_tool": [
+        [
+          {
+            "node": "Customer Service Agent L1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NoAnswer": {
+      "ai_tool": [
+        [
+          {
+            "node": "Customer Service Agent L1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DelayedShipment": {
+      "ai_tool": [
+        [
+          {
+            "node": "Customer Service Agent L1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UrgentShipment": {
+      "ai_tool": [
+        [
+          {
+            "node": "Customer Service Agent L1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CoveragesInfo": {
+      "ai_tool": [
+        [
+          {
+            "node": "Customer Service Agent L1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reranker Cohere2": {
+      "ai_reranker": [
+        [
+          {
+            "node": "VectorStore",
+            "type": "ai_reranker",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "VectorStore",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VectorStore": {
+      "ai_tool": [
+        [
+          {
+            "node": "Customer Service Agent L1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Planner Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Planner Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Customer Service Agent L1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat": {
+      "main": [
+        [
+          {
+            "node": "Login1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Login1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Switch5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BranchInfo": {
+      "ai_tool": [
+        [
+          {
+            "node": "Customer Service Agent L1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "dafacfc5-4207-4a33-b6f3-91668f5235e8",
+  "meta": {
+    "instanceId": "789898b22df5490ee7fee9adc686abf4348ff76dd7521b6ae2563557f413c71d"
+  },
+  "id": "YDeUuvgMQmcZT8KP",
+  "tags": [
+    {
+      "updatedAt": "2025-01-30T10:42:52.569Z",
+      "createdAt": "2025-01-30T10:42:52.569Z",
+      "id": "7S9APoyeh9hyXzQa",
+      "name": "Customer Service"
+    },
+    {
+      "updatedAt": "2025-02-19T00:32:49.448Z",
+      "createdAt": "2025-02-19T00:32:49.448Z",
+      "id": "8kDzgDBXRmY6JEHm",
+      "name": "turbo"
+    }
+  ]
+}
