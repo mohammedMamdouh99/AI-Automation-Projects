@@ -1,0 +1,540 @@
+{
+  "name": "ShipmentChat",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ShipmentChat",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -192,
+        0
+      ],
+      "id": "63ab5835-0a14-4092-8823-293e88778291",
+      "name": "Webhook",
+      "webhookId": "018cda5a-c586-4ad8-89d9-96200a39254a"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bef78b1c-a527-462c-ad9f-8c5eb32282da",
+              "name": "=message",
+              "value": "={{$json.body.content}}",
+              "type": "string"
+            },
+            {
+              "id": "8adc935b-9f56-4627-8f92-25a821869edf",
+              "name": "sender_type",
+              "value": "={{$json.body.from.type}}",
+              "type": "string"
+            },
+            {
+              "id": "642f7bab-cb12-4869-b640-1c4faa8ec482",
+              "name": "message_id",
+              "value": "={{$json.body.id}}",
+              "type": "string"
+            },
+            {
+              "id": "e76a3106-6f16-4cb2-8114-9e2b3da8fe54",
+              "name": "shipment_id",
+              "value": "={{ $json.body.entity_id }}",
+              "type": "number"
+            },
+            {
+              "id": "5a21c1ca-0d9b-448b-91f2-9721e31f1e86",
+              "name": "user_id",
+              "value": "={{ $json.body.user_id }}",
+              "type": "number"
+            },
+            {
+              "id": "38cc024a-67e1-42ed-98f0-9aed388c7e4a",
+              "name": "type",
+              "value": "={{$json.body.type}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        112,
+        0
+      ],
+      "id": "ac6d22e4-3bb5-49b9-bda2-e3301b5fe1a1",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Message:\n{{ $json.message }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an AI moderation system for customer support, shipment, and ticket chat messages.\n\nYour task is to detect ONLY serious abusive content.\n\nAnalyze the message and return:\n\n- violation (boolean)\n- severity (number from 0 to 10)\n\nFlag a message ONLY if it contains:\n\n- Direct insults toward a person\n- Severe profanity\n- Sexual insults\n- Personal abuse\n- Hate speech\n- Threats of violence\n- Threats of harm\n- Extremely offensive language\n\nExamples of violations:\n\n- كسمك\n- كسم الشركة\n- يا عرص\n- يا معرص\n- يا خول\n- يا شرموطة\n- ابن المتناكة\n- ابن الشرموطة\n- احا عليك\n- هفشخك\n- هكسرك\n- هضربك\n- هنيكك\n- انت حيوان\n- انت زبالة\n- انت وسخ\n\nDO NOT flag:\n\n- Customer complaints\n- Angry customers\n- Delivery complaints\n- Service complaints\n- Refund requests\n- Criticism\n- Sarcasm\n- Frustration\n- Informal Egyptian Arabic\n- Slang\n- Misspellings\n- Typing mistakes\n- Arguments without insults\n\nExamples that are NOT violations:\n\n- بقالي 3 أيام بستنى\n- الطلب متأخر\n- الخدمة سيئة\n- المندوب مش بيرد\n- انتو متأخرين\n- هكدب يعني\n- همفرهولك\n- ليه محدش بيرد\n- انتو قايلين في الإعلان\n- مش فاهم\n- مش مقتنع\n- الكلام ده غلط\n- أنا زعلان\n- أنا متضايق\n- كول ما تأخر\n- انتظر دقيقة\n- فين الشحنة\n- ليه الطلب اتأخر\n\nSeverity Guide:\n\n0 = Normal message\n1-3 = Complaint or frustration\n4-6 = Aggressive tone without clear abuse\n7-8 = Direct insult or offensive language\n9-10 = Severe profanity, sexual insult, or threat\n\nIMPORTANT RULES:\n\n- Be conservative.\n- When unsure, return violation = false.\n- Do not flag complaints.\n- Do not flag criticism.\n- Do not flag customer frustration.\n- Do not flag spelling mistakes.\n- Do not flag informal Arabic expressions.\n- Only flag clearly abusive content.\n\nReturn ONLY valid JSON.\n\nExample:\n\n{\n  \"violation\": false,\n  \"severity\": 1\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        368,
+        16
+      ],
+      "id": "1991d555-8220-4502-b7df-57d509c05e57",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        224
+      ],
+      "id": "1507f45a-bbeb-4f1e-89ad-2f02e95d06e1",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ABrrjVVx22morxnN",
+          "name": "Turbo Tokens"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1920,
+        -144
+      ],
+      "id": "0b2be1b1-133d-4d01-a543-0749a960c9ea",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"violation\": {\n      \"type\": \"boolean\"\n    },\n    \"severity\": {\n      \"type\": \"number\"\n    }\n  },\n  \"required\": [\n    \"violation\",\n    \"severity\"\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        544,
+        224
+      ],
+      "id": "8fa399d5-cb42-4bee-9cd0-f66d250e4810",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "947e6988-be22-414c-b77a-2211ccde65cc",
+              "leftValue": "={{ $json.output.violation }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        704,
+        48
+      ],
+      "id": "1ee2f4a9-0772-4d4e-a406-ea72b043f0e0",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{$node[\"Edit Fields\"].json.sender_type}}",
+                    "rightValue": "Client",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "5515d444-c546-4eba-9418-8ba4ab6c0cad"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "42940030-8980-43cf-9232-6a9d1308529a",
+                    "leftValue": "={{$node[\"Edit Fields\"].json.sender_type}}",
+                    "rightValue": "client",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        912,
+        -64
+      ],
+      "id": "cc6b785c-6b9b-496e-8042-2d14b9199683",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/moderation/messages/flag-review",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"type\": \"{{$node['Edit Fields'].json.type}}\",\n  \"message_id\": {{$node[\"Edit Fields\"].json.message_id}}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1120,
+        -144
+      ],
+      "id": "6b189905-2f09-42aa-bb07-a9d2fe4f10d8",
+      "name": "Cleint Flag"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/moderation/messages/flag-review",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"type\": \"{{$node['Edit Fields'].json.type}}\",\n  \"message_id\": {{$node[\"Edit Fields\"].json.message_id}}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1136,
+        80
+      ],
+      "id": "c1de0dce-a9de-4a61-8cd3-f6962eafc61d",
+      "name": "Captian Flag"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/moderation/messages/hide",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer c75f5e279bd632f67e158a99d0e7429304ba2ba110ae9de41bd2ee163c4163b1"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"type\": \"{{$node['Edit Fields'].json.type}}\",\n  \"message_id\": {{$node[\"Edit Fields\"].json.message_id}}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1344,
+        64
+      ],
+      "id": "d8d9460b-a57f-4352-8476-2c995f038b0c",
+      "name": "Captian Hide"
+    },
+    {
+      "parameters": {
+        "dataToSave": {
+          "values": [
+            {
+              "key": "message_id",
+              "value": "={{$node[\"Edit Fields\"].json.message_id}}"
+            },
+            {
+              "key": "type",
+              "value": "={{$node[\"Edit Fields\"].json.type}}"
+            },
+            {
+              "key": "sender_type",
+              "value": "={{$node[\"Edit Fields\"].json.sender_type}}"
+            },
+            {
+              "key": "shipment_id",
+              "value": "={{$node[\"Edit Fields\"].json.shipment_id}}"
+            },
+            {
+              "key": "message",
+              "value": "={{$node[\"Edit Fields\"].json.message}}"
+            },
+            {
+              "key": "violation",
+              "value": "={{$node[\"AI Agent\"].json.output.violation}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executionData",
+      "typeVersion": 1.1,
+      "position": [
+        1616,
+        -160
+      ],
+      "id": "db802f40-baa3-4be6-a3d4-f3b1d65a6d13",
+      "name": "Execution Data"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Execution Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Cleint Flag",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Cleint Flag",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Captian Flag",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cleint Flag": {
+      "main": [
+        [
+          {
+            "node": "Execution Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Captian Flag": {
+      "main": [
+        [
+          {
+            "node": "Captian Hide",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Captian Hide": {
+      "main": [
+        [
+          {
+            "node": "Execution Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execution Data": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "saveDataSuccessExecution": "all"
+  },
+  "versionId": "463e53be-bd40-4a2d-9fb8-603aeeede455",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "789898b22df5490ee7fee9adc686abf4348ff76dd7521b6ae2563557f413c71d"
+  },
+  "id": "dnL8M1mYp2smjcI6",
+  "tags": []
+}
