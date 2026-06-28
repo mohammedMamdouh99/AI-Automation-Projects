@@ -1,128 +1,172 @@
-# AI Automation Projects
+<div align="center">
 
-This repository showcases real-world AI-powered automation systems built using n8n, APIs, AI agents, and chatbot integrations to reduce manual work and improve operational efficiency.
+# 🤖 AI Automation Projects
 
----
+**Real-world automation systems built with n8n, OpenAI, and AI Agents**
 
-## Project: HR Email Automation System
+[![n8n](https://img.shields.io/badge/Built_with-n8n-EA4B71?style=for-the-badge&logo=n8n&logoColor=white)](https://n8n.io)
+[![OpenAI](https://img.shields.io/badge/Powered_by-OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)](https://openai.com)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-### Overview
-
-Processes HR emails, classifies requests, extracts structured employee data, and generates standardized outputs.
-
-### How It Works
-
-1. Receives incoming HR emails
-2. Classifies requests using AI
-3. Extracts employee information
-4. Stores data in Google Sheets
-5. Generates formatted outputs
-
-### Tech Stack
-
-* n8n
-* OpenAI API
-* Gmail API
-* Google Sheets
+</div>
 
 ---
 
-## Project: Technical Support Chatbot (Telegram Bot)
+## 📌 Overview
 
-### Overview
+This repository contains production-grade AI automation workflows I've built to solve real business problems. Each project is a complete, importable n8n workflow with full documentation.
 
-Handles internal technical support requests using an AI-powered Telegram chatbot.
-
-### How It Works
-
-1. User submits a request through Telegram
-2. Bot collects structured information
-3. AI classifies and processes the request
-4. Data is stored in Google Sheets
-5. Automated responses and logging are generated
-
-### Tech Stack
-
-* n8n
-* OpenAI API
-* Telegram Bot API
-* Google Sheets
+> These systems are currently deployed and handling live operations at **Turbo Eg**.
 
 ---
 
-## Project: AI Logistics News Automation System
-
-### Overview
-
-Collects logistics news from multiple sources, processes content using AI, and generates structured insights and reports.
-
-### How It Works
-
-1. Retrieves logistics news from APIs
-2. Filters relevant articles
-3. Processes content using AI
-4. Generates structured summaries
-5. Sends results for reporting and analysis
-
-### Tech Stack
-
-* n8n
-* OpenAI API
-* HTTP APIs
+## 📂 Projects
 
 ---
 
-## Project: AI Customer Service Automation Platform
+### 1. 🧠 Turbo Customer Service AI Agent
+**File:** `Turbo CS Agent .json`
 
-### Overview
+An enterprise-grade multi-agent customer service platform that handles customer inquiries 24/7 — automatically and intelligently.
 
-An enterprise-grade AI customer service platform built with n8n, OpenAI, and Vector Store technology. The system automatically handles customer inquiries, retrieves shipment information, answers company policy questions, and escalates complex cases when needed.
+**What it does:**
+- Receives customer messages and classifies intent using AI
+- Retrieves shipment status via external APIs
+- Answers policy questions using a RAG knowledge base (Vector Store)
+- Transcribes voice messages and analyzes images
+- Auto-escalates complex cases to human agents
 
-### How It Works
+**Architecture:**
+```
+Customer Message
+      │
+      ▼
+ Intent Classifier (OpenAI)
+      │
+      ├──► Shipment Tracking API
+      ├──► RAG Knowledge Base (Supabase Vector Store)
+      ├──► Voice Transcription
+      ├──► Image Analysis
+      └──► Escalation Workflow → Human Agent
+```
 
-1. Receives customer inquiries through chat channels
-2. AI classifies customer intent
-3. Retrieves information from APIs and Vector Store
-4. Processes voice messages, images, and files
-5. Generates accurate responses automatically
-6. Escalates complex requests to human agents
-
-### Key Features
-
-* Multi-Agent AI Architecture
-* AI Intent Classification
-* Shipment Tracking Integration
-* Branch Information Lookup
-* RAG Knowledge Base (Vector Store)
-* Voice Message Transcription
-* Image Analysis
-* File Processing
-* Automated Escalation Workflows
-* Arabic Customer Service Support
-
-### Tech Stack
-
-* n8n
-* OpenAI API
-* Supabase Vector Store
-* PostgreSQL
-* REST APIs
-* Webhooks
-
-### Impact
-
-* Reduced manual customer service workload
-* Automated ticket handling and routing
-* Improved response consistency
-* Enabled 24/7 customer support
+**Tech Stack:**
+`n8n` `OpenAI API` `Supabase Vector Store` `PostgreSQL` `REST APIs` `Webhooks`
 
 ---
 
-## Author
+### 2. 📧 HR Email Automation System
+**File:** `HR Email Automation .json`
 
-**Mohamed Mamdouh Ismail**
-AI & Automation Specialist
+Eliminates manual HR email processing by automatically classifying incoming requests and extracting structured employee data.
 
-* GitHub: https://github.com/mohammedMamdouh99
-* LinkedIn: https://linkedin.com/in/mohamed-mamdouh-ui
-* Location: Giza, Egypt
+**What it does:**
+- Monitors Gmail inbox for HR-related emails
+- Classifies request type (leave, complaint, onboarding, etc.)
+- Extracts structured employee data from unstructured email content
+- Logs everything to Google Sheets automatically
+
+**Flow:**
+```
+Incoming Email (Gmail)
+      │
+      ▼
+ AI Classification (OpenAI)
+      │
+      ▼
+ Data Extraction → Google Sheets
+```
+
+**Tech Stack:**
+`n8n` `OpenAI API` `Gmail API` `Google Sheets API`
+
+---
+
+### 3. 💬 Technical Support Chatbot (Telegram)
+**File:** `TechnicalSupportTurboBot .json`
+
+An AI-powered Telegram bot that handles internal IT support requests — collecting, classifying, and logging them automatically.
+
+**What it does:**
+- Receives support requests via Telegram
+- Guides users through structured input collection
+- Classifies request type using AI
+- Logs tickets to Google Sheets with full details
+
+**Flow:**
+```
+User Message (Telegram)
+      │
+      ▼
+ Structured Input Collection
+      │
+      ▼
+ AI Classification → Google Sheets Log
+```
+
+**Tech Stack:**
+`n8n` `Telegram Bot API` `OpenAI API` `Google Sheets API`
+
+---
+
+### 4. 📰 AI Logistics News Automation
+**File:** `Logistics News.json`
+
+Automates logistics industry monitoring — collecting, filtering, and summarizing news using AI.
+
+**What it does:**
+- Pulls logistics news from multiple API sources
+- Filters for relevance using AI classification
+- Generates structured summaries and insights
+- Delivers formatted reports automatically
+
+**Flow:**
+```
+News APIs (HTTP)
+      │
+      ▼
+ Relevance Filter (AI)
+      │
+      ▼
+ AI Summary Generation → Structured Report
+```
+
+**Tech Stack:**
+`n8n` `OpenAI API` `HTTP Request` `RSS Feeds`
+
+---
+
+## 🚀 How to Use
+
+1. Download the `.json` file for the workflow you want
+2. Open your n8n instance
+3. Go to **Workflows → Import from File**
+4. Upload the `.json` file
+5. Configure your credentials (API keys, Gmail, Telegram, etc.)
+6. Activate the workflow
+
+---
+
+## 🛠 Prerequisites
+
+- [n8n](https://n8n.io) (self-hosted or cloud)
+- OpenAI API key
+- Relevant API credentials per workflow (Gmail, Telegram, Supabase, etc.)
+
+---
+
+## 👤 Author
+
+**Mohamed Mamdouh Ismail** — AI & Automation Specialist
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat-square&logo=linkedin&logoColor=white)](https://linkedin.com/in/mohamed-mamdouh-ui)
+[![Email](https://img.shields.io/badge/Email-D14836?style=flat-square&logo=gmail&logoColor=white)](mailto:mo.mamdouh.ismail@gmail.com)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/mohammedMamdouh99)
+
+---
+
+<div align="center">
+
+⭐ If these workflows helped you, consider giving the repo a star!
+
+</div>
