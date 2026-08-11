@@ -1,67 +1,67 @@
-# Real-Time AI Shipment Chat Moderation
+# 🚚 Real-Time AI Shipment Chat Moderation
 
-## Overview
+An AI-powered real-time moderation system built with n8n and OpenAI to analyze shipment chat messages as they are received and automatically detect abusive, offensive, or threatening content.
 
-An AI-powered real-time moderation system designed to analyze shipment chat messages as they are received and identify abusive, offensive, or threatening content.
+The system processes **each incoming message independently in real time** without waiting for the conversation to end.
 
-The system processes each incoming message independently without waiting for the conversation to end. Each message is analyzed in real time, evaluated against predefined moderation rules, and routed to the appropriate moderation action.
+---
 
-## Problem
+## 📌 Overview
 
-Shipment conversations can contain inappropriate or abusive messages that require immediate intervention.
+Shipment conversations may contain inappropriate, abusive, or threatening messages that require immediate intervention.
 
-Manual monitoring is difficult to scale and may result in delayed responses or inconsistent moderation decisions.
+Manual monitoring can be difficult to scale and may lead to delayed responses or inconsistent moderation decisions.
 
-## Solution
+This workflow automates the moderation process by analyzing every incoming shipment chat message instantly and triggering the appropriate action based on:
 
-This workflow automates message-level moderation by analyzing each incoming chat message in real time and applying predefined moderation rules.
+- Whether a violation was detected
+- The sender type
+- The severity of the violation
 
-## Workflow
+---
 
-1. Receive an incoming shipment chat message through a webhook.
-2. Normalize the incoming message data.
-3. Analyze the message using AI.
-4. Generate a structured moderation result.
-5. Determine the violation status and severity level.
-6. Trigger the appropriate moderation action.
+## 🎯 Problem
 
-## Key Features
+In a shipment communication environment, messages are continuously exchanged between customers and captains.
 
-- Real-time message-level analysis
-- Independent processing of each incoming message
-- AI-powered content moderation
-- Detection of abusive, offensive, and threatening content
-- Structured moderation output
-- Severity classification
-- Automated moderation actions
+A moderation system needs to:
 
-## Technologies Used
+- Analyze messages immediately as they arrive
+- Detect abusive or inappropriate content
+- Distinguish between customers and captains
+- Apply different moderation actions depending on the sender
+- Store important moderation data
+- Avoid waiting for the entire conversation to finish
 
-- n8n
-- OpenAI API
-- Webhooks
-- AI-based classification
-- REST APIs
+---
 
-## Architecture
+## 💡 Solution
+
+The workflow receives each incoming message through a webhook and sends it to an AI moderation layer.
+
+The AI evaluates the message against predefined moderation rules and returns a structured result.
+
+Based on the result, the workflow automatically routes the message to the correct moderation action.
+
+### Message-level processing
+
+Each message is processed independently:
 
 ```text
-Incoming Chat Message
-        |
-        v
-     Webhook
-        |
-        v
-Message Normalization
-        |
-        v
-    AI Analysis
-        |
-        v
-Structured Output
-        |
-        v
-Violation & Severity Decision
-        |
-        v
-Moderation Action
+Incoming Message
+      ↓
+   AI Analysis
+      ↓
+Violation Detected?
+   ↙          ↘
+ FALSE        TRUE
+  ↓             ↓
+Execution     Sender Type
+  Data        ↙         ↘
+           Client      Captain
+             ↓            ↓
+        Client Flag   Captain Flag
+             ↓            ↓
+        Execution    Captain Hide
+           Data          ↓
+                    Execution Data
