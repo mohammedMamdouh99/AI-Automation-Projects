@@ -1,71 +1,80 @@
 # 🚚 AI Logistics News Bot
 
+### n8n Workflow
+
 An AI-powered Telegram bot for creating, reviewing, editing, and publishing logistics news.
 
-The workflow automates the complete news publishing lifecycle, from receiving a news item to generating the final content and image, previewing it, and publishing it to a Telegram channel.
+The system automates the complete news publishing lifecycle — from receiving a news submission and generating a structured draft to detecting duplicates, generating or reusing an image, previewing the final post, and publishing it to a Telegram channel.
 
 ---
 
 ## 📌 Overview
 
-The AI Logistics News Bot is designed to simplify the process of creating and publishing logistics-related news.
+The AI Logistics News Bot is designed to simplify and standardize the process of preparing logistics-related news for publication.
 
-Instead of manually preparing every news post, the bot provides an interactive Telegram workflow that allows the user to:
+Instead of manually writing, formatting, checking, designing, and publishing every post, the bot provides an interactive workflow that keeps the user in control while automating the repetitive parts of the process.
 
-- Submit a new logistics news item
-- Generate a structured news draft using AI
-- Validate the generated content
-- Detect duplicate news
-- Request additional information when needed
-- Edit and revise the draft
-- Generate or reuse a suitable image
-- Add branding and watermarking
-- Preview the final post
-- Publish the approved post to Telegram
-- Cancel or restart the draft at any stage
+The workflow supports:
+
+- 📝 Creating new logistics news
+- ✏️ Editing and revising existing drafts
+- 🔍 Validating submitted information
+- ♻️ Detecting duplicate or similar news
+- 🖼️ Generating suitable news images
+- ♻️ Reusing existing images when appropriate
+- 💧 Applying branding and watermarking
+- 👀 Previewing the final post
+- 🚀 Publishing approved news to Telegram
+- ❌ Cancelling an active draft
+- 💾 Maintaining draft and publishing state
 
 ---
 
 ## 🎯 Problem
 
-Creating logistics news content manually requires several repetitive steps:
+Publishing logistics news manually involves several repetitive steps:
 
-- Collecting the news
-- Writing and formatting the article
+- Collecting and reviewing the news
+- Writing and formatting the content
 - Checking whether enough information is available
-- Detecting duplicate stories
-- Creating a suitable image
-- Adding branding
+- Verifying that the topic is relevant to logistics
+- Checking for duplicate stories
+- Creating a suitable visual
+- Applying branding
 - Reviewing the final post
 - Publishing it to the Telegram channel
 
-This process can be time-consuming and inconsistent.
+When these steps are performed manually, the process can become time-consuming and inconsistent.
 
-The bot automates these steps while keeping the user in control of the final publishing decision.
+The goal of this workflow is to automate the operational work while keeping the final publishing decision under human control.
 
 ---
 
 ## 💡 Solution
 
-The workflow uses n8n, Telegram, AI models, and image processing to create an end-to-end news publishing pipeline.
+The workflow combines Telegram, n8n, AI processing, image generation, and state management into one interactive publishing system.
 
-Each news item passes through a controlled lifecycle:
+Each news item follows a controlled lifecycle:
 
 ```text
-Incoming Message
-       ↓
+Telegram Input
+      ↓
 Message Routing
-       ↓
-Draft / Edit / Publish / Cancel
-       ↓
-AI Draft Generation
-       ↓
+      ↓
+Create / Edit / Publish / Cancel
+      ↓
+AI News Analysis
+      ↓
 Content Validation
-       ↓
+      ↓
 Duplicate Detection
-       ↓
+      ↓
+Draft State
+      ↓
 Image Generation / Reuse
-       ↓
+      ↓
 Preview
-       ↓
-Publish
+      ↓
+Edit / Cancel / Publish
+      ↓
+Telegram Channel
