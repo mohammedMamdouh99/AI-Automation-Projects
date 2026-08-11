@@ -1,0 +1,1341 @@
+{
+  "name": "AI Bot for Logest",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message",
+          "callback_query"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        3280,
+        5200
+      ],
+      "id": "d1844e62-84ba-48c0-b60f-4319993587cd",
+      "name": "Telegram Trigger - Chat Bot",
+      "webhookId": "14c819b4-5596-4d34-b92e-c6235723b22b",
+      "credentials": {
+        "telegramApi": {
+          "id": "POeP4Hy5cJNBMsE3",
+          "name": "LogisticsNews qassem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $json.chatId }}",
+        "binaryData": true,
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Publish",
+                    "additionalFields": {
+                      "callback_data": "publish"
+                    }
+                  },
+                  {
+                    "text": "✏️ Edit",
+                    "additionalFields": {
+                      "callback_data": "edit"
+                    }
+                  },
+                  {
+                    "text": "❌ Cancel",
+                    "additionalFields": {
+                      "callback_data": "cancel"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "caption": "={{ $json.previewText }}",
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        7488,
+        4880
+      ],
+      "id": "97d1f8f5-3fe8-4a24-8335-87881b8fe1fa",
+      "name": "Send Preview",
+      "webhookId": "730dac13-f455-4889-83e1-d992f2d5f772",
+      "credentials": {
+        "telegramApi": {
+          "id": "POeP4Hy5cJNBMsE3",
+          "name": "LogisticsNews qassem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// =========================\n// 🧠 حالة المحادثة لكل شخص (مخزّنة دائمًا) + قايمة الأخبار المنشورة عمومًا (لمنع التكرار)\nconst staticData = $getWorkflowStaticData('global');\nif (!staticData.chatDrafts) staticData.chatDrafts = {};\nif (!staticData.publishedItems) staticData.publishedItems = [];\n\nconst body = $json;\nconst isCallback = !!body.callback_query;\nconst isMessage = !!body.message && !!body.message.text;\n\nif (!isCallback && !isMessage) {\n  return [{ json: { mode: \"ignore\" } }];\n}\n\nfunction cleanText(t) {\n  return (t || \"\")\n    .replace(/[\\u200B-\\u200F\\uFEFF]/g, \"\")\n    .trim()\n    .replace(/^[.!؟?,\\s]+|[.!؟?,\\s]+$/g, \"\");\n}\n\nlet chatId, mode, text = \"\", callbackData = \"\";\n\nif (isCallback) {\n  const cq = body.callback_query;\n  chatId = String(cq.message.chat.id);\n  callbackData = cq.data || \"\";\n  const draft = staticData.chatDrafts[chatId];\n\n  if (!draft || draft.status !== \"awaiting_confirmation\") {\n    mode = \"ignore\"; // زرار قديم على مسودة اتشالت\n  } else if (callbackData === \"publish\") {\n    mode = \"publish\";\n  } else if (callbackData === \"cancel\") {\n    mode = \"cancel\";\n  } else if (callbackData === \"edit\") {\n    mode = \"ask_edit\";\n    draft.status = \"awaiting_edit_text\";\n  } else {\n    mode = \"ignore\";\n  }\n} else {\n  chatId = String(body.message.chat.id);\n  text = cleanText(body.message.text);\n  const draft = staticData.chatDrafts[chatId];\n\n  if (draft && draft.status === \"awaiting_edit_text\") {\n    mode = \"revise\";\n  } else {\n    // أي نص تاني (حتى لو فيه مسودة معلّقة بانتظار الأزرار) بيتعامل كتاسك جديدة فورًا\n    mode = \"new\";\n  }\n}\n\nreturn [{\n  json: {\n    mode,\n    chatId,\n    text,\n    draft: staticData.chatDrafts[chatId] || null\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3488,
+        5200
+      ],
+      "id": "6feef7ac-149d-473d-9b58-5eee7ffcccba",
+      "name": "Route Message1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "ef6c5014-6d86-437d-8174-aac7e840a16b",
+              "leftValue": "={{ $json.mode }}",
+              "rightValue": "new",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        4016,
+        4880
+      ],
+      "id": "8554b52f-9a90-4248-a6fb-db9cb45c7e91",
+      "name": "Is New1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "113ab2c6-36da-4421-aa82-01b7630d1b37",
+              "leftValue": "={{ $json.mode }}",
+              "rightValue": "revise",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        4016,
+        5040
+      ],
+      "id": "175bbf84-4e17-437b-9e88-a8930f65b6b7",
+      "name": "Is Revise1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "8363e588-1106-4725-bd6c-b9fa113bc5ee",
+              "leftValue": "={{ $json.mode }}",
+              "rightValue": "publish",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        4016,
+        5200
+      ],
+      "id": "b5b59276-06be-4ceb-8cf3-5a9d9e38b93d",
+      "name": "Is Publish1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "8e20a351-35db-42f2-9f32-9f85a13cd76f",
+              "leftValue": "={{ $json.mode }}",
+              "rightValue": "cancel",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        4016,
+        5360
+      ],
+      "id": "f919c592-d0fd-4c3a-b404-a966f65de3a8",
+      "name": "Is Cancel1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "ab4b08b2-415f-4408-86de-060caf110cdc",
+              "leftValue": "={{ $json.mode }}",
+              "rightValue": "ask_edit",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        4016,
+        5520
+      ],
+      "id": "a5b9f578-0082-4d2a-9fb6-f19370342a35",
+      "name": "Is AskEdit1"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "✏️ تمام، اكتب التعديل اللي عايزه:",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        4272,
+        5520
+      ],
+      "id": "77623b53-cc69-4763-b2ad-8a16be80b654",
+      "name": "Send Ask Edit Prompt1",
+      "webhookId": "6a979f39-5ac5-4c79-83eb-4568f462302d",
+      "credentials": {
+        "telegramApi": {
+          "id": "POeP4Hy5cJNBMsE3",
+          "name": "LogisticsNews qassem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nif (!staticData.chatDrafts) staticData.chatDrafts = {};\nconst chatId = $json.chatId;\ndelete staticData.chatDrafts[chatId];\nreturn { json: { chatId } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4272,
+        5360
+      ],
+      "id": "b9b5ae1e-467c-44a3-9a30-3b94c0e7c8f7",
+      "name": "Clear Cancelled Draft1"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "❌ تم إلغاء المسودة. ابعت الخبر الجديد وقت ما تحب.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        4496,
+        5360
+      ],
+      "id": "14631731-29c6-48a1-bec1-219e31b9f714",
+      "name": "Confirm Cancelled1",
+      "webhookId": "59701134-846a-4ac4-95b8-df44ac4e73e7",
+      "credentials": {
+        "telegramApi": {
+          "id": "POeP4Hy5cJNBMsE3",
+          "name": "LogisticsNews qassem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const mode = $json.mode;\nconst chatId = $json.chatId;\nconst text = $json.text;\nconst draft = $json.draft;\n\nlet combinedInput;\n\nif (mode === \"new\") {\n  combinedInput =\n`مهمة جديدة: خبر لوجستي جه من موظف عن طريق الشات.\nالنص/الرابط اللي بعته:\n${text}`;\n} else {\n  // revise\n  combinedInput =\n`فيه مسودة سابقة اتبعتت، والموظف عايز يعدلها.\n\nالمسودة السابقة (JSON):\n${JSON.stringify(draft.lastDraft || {}, null, 2)}\n\nطلب التعديل من الموظف:\n${text}\n\nمهم: المسودة السابقة دي بالفعل معتمدة على معلومات صحيحة، فمسموح لك تعيد الصياغة أو تطوّل/تقصّر أي جزء منها (زي تفصيل أكتر لنفس الفكرة، أو تحسين الأسلوب) من غير ما يُعتبر ده اختراع معلومات جديدة - طالما إنك بتشتغل على نفس الحقائق الموجودة في المسودة السابقة أو المذكورة في طلب التعديل نفسه. الممنوع فقط هو إضافة أرقام أو أحداث أو تفاصيل حقيقية جديدة تمامًا مش موجودة في المسودة السابقة ولا في طلب الموظف.\n\nاكتب نسخة جديدة معدّلة بناءً على طلب التعديل، مع الحفاظ على باقي التفاصيل الصحيحة من المسودة السابقة.`;\n}\n\nconst imageChangeKeywords = [\"صورة\", \"الصورة\", \"صور تاني\", \"image\", \"غير الصوره\", \"غيّر الصورة\"];\nconst needsNewImage = mode === \"new\" ? true : imageChangeKeywords.some(k => text.toLowerCase().includes(k.toLowerCase()));\n\nreturn {\n  json: {\n    chatId,\n    mode,\n    combinedInput,\n    needsNewImage\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4272,
+        4960
+      ],
+      "id": "21bbe1c2-7a83-4b0c-b1b7-4e89d30c4fca",
+      "name": "Prepare Draft Input1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.combinedInput }}",
+        "options": {
+          "systemMessage": "You are a senior logistics intelligence analyst and social media content writer for \"Logistineur\" (لوجيستنير), an Arabic logistics news channel.\n\nAn employee has sent you a raw news item description via chat (in their own words), possibly with edit instructions for a previous draft. Turn it into a professional Arabic post in the channel's usual style, based on what the employee actually told you.\n\nCRITICAL LANGUAGE RULE:\nWrite summary_ar and impact_ar as complete, grammatically correct Arabic. Never mix English words into Arabic sentences except company/product names that have no natural Arabic equivalent.\n\nRELEVANCE GUIDANCE (important - read carefully):\nTreat a story as logistics-relevant if it involves any of: shipping, ports, the Suez Canal, freight, customs, fuel/diesel, trucking, warehousing, maritime routes, or ANY event happening in or near Egypt, the Suez Canal, Red Sea, or major GCC ports (earthquakes, weather, security incidents, infrastructure, government actions, etc.) that could plausibly affect canal/port/shipping operations or safety — even if the source article itself does not explicitly mention shipping.\n\nOnly skip a story (empty output) if it is BOTH unrelated to logistics/shipping AND unrelated to Egypt/Suez/Red Sea/GCC ports — for example, unrelated domestic politics, sports, or entertainment news.\n\nSTRICT LIMIT ON THE \"OPERATIONAL-CAUTION ANGLE\": you may add AT MOST ONE short, generic, standard-practice sentence such as \"port and canal authorities are monitoring the situation as a precaution\" to explain WHY a real event (that IS described in the provided content) matters to logistics. This is NOT permission to invent a different event, different facts, different numbers, storms, warnings, or any other detail that was not actually present in the provided content. Every other sentence in summary_ar and impact_ar must be a faithful paraphrase of facts that are ACTUALLY present in the provided article content or the employee's own message. If you find yourself describing something (a storm, a percentage, a company name, a warning) that you cannot point to in the provided content, you are fabricating — stop and leave the output empty instead.\n\nCRITICAL ANTI-FABRICATION RULE:\nIf you do not have enough specific, concrete information about the actual news event (for example, the fetched article content was empty, blocked, or clearly unrelated, and the employee's own message contains no real details either), you MUST NOT invent a generic or vague story to fill the gap. In that case, set \"title\" to an empty string \"\" and leave the other fields empty too. Do NOT write something generic like \"companies are increasingly investing in smart technology\" as a substitute for real information — that is fabrication and is strictly forbidden.\n\nCRITICAL COPYRIGHT RULE:\nIf article content is provided to you (fetched from a source page), you must summarize and paraphrase it entirely in your own Arabic words. NEVER copy full sentences verbatim from the source. Any short quoted phrase must be under 10 words and used rarely. Your summary_ar and impact_ar must be original writing that captures the meaning, not a translation or copy of the source text.\n\nCRITICAL LINK RULE:\nCopy the link exactly as the employee wrote it, character for character, if they provided a real one. If the employee did not mention a link, or mentioned a news item with no source, leave the value completely empty \"\". NEVER invent, guess, or fabricate a link, and never use placeholder domains such as example.com, test.com, domain.com, placeholder, or similar.\n\nReturn ONLY valid JSON in this exact format, nothing else:\n\n{\n\"title\": \"عنوان احترافي بالعربي\",\n\"summary_ar\": \"ملخص قصير بالعربي\",\n\"impact_ar\": \"التأثير التشغيلي على قطاع الشحن/اللوجستيات بالعربي\",\n\"category\": \"Shipping/Freight/Fuel/Ports/Supply Chain/Logistics/Railways/Aviation/Other\",\n\"link\": \"الرابط الحقيقي أو فراغ\",\n\"main_subject\": \"The single most important visual subject of the photo IN ENGLISH, specific to this exact story - the one thing that should dominate and fill most of the frame. Example: 'a modern Egyptian passenger train'. Must be understandable purely visually, no text/signage needed.\",\n\"secondary_subject\": \"A smaller supporting visual element IN ENGLISH that reinforces the story without dominating the frame. Example: 'a wheelchair passenger being assisted by railway staff'. Must be understandable purely visually, no text/signage needed. Use an empty string if not needed.\",\n\"background\": \"A short description IN ENGLISH of the setting/background only. Example: 'an Egyptian railway station platform'. Must be understandable purely visually, no text/signage needed.\"\n}\n\nNo markdown. No explanations. No arrays.\n\n==================================================\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        4496,
+        4880
+      ],
+      "id": "df4bbb5f-9a7f-449e-8994-50cf0d83602d",
+      "name": "Draft Agent1",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4-turbo",
+          "mode": "list",
+          "cachedResultName": "gpt-4-turbo"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        4512,
+        5088
+      ],
+      "id": "47901a1d-f05a-4db0-8c52-bca3695ef424",
+      "name": "OpenAI Chat Model - Draft1",
+      "credentials": {
+        "openAiApi": {
+          "id": "ABrrjVVx22morxnN",
+          "name": "Turbo Tokens"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let raw = $json.output || \"\";\nraw = raw.replace(/```json/g, \"\").replace(/```/g, \"\").trim();\n\nlet obj;\ntry {\n  obj = JSON.parse(raw);\n} catch (e) {\n  obj = { title: \"خطأ في التحليل\", summary_ar: raw.slice(0, 200), impact_ar: \"\", category: \"Logistics\", link: \"\" };\n}\n\n// حماية من الروابط الوهمية\nconst fakeLinkPatterns = [\"example.com\", \"example.org\", \"placeholder\", \"test.com\", \"yoursite.com\", \"yourwebsite.com\", \"domain.com\", \"sample.com\"];\nif (obj.link && fakeLinkPatterns.some(p => obj.link.toLowerCase().includes(p))) {\n  obj.link = \"\";\n}\n\n// ✅ لو الموديل نسي يطلع اللينك رغم إن الموظف بعته فعليًا، ندوّر عليه بنفسنا في النص الأصلي\nif (!obj.link) {\n  const originalText = $('Prepare Draft Input1').item.json.combinedInput || \"\";\n  const urlMatch = originalText.match(/(https?:\\/\\/[^\\s\"'<>]+)/i);\n  if (urlMatch) {\n    obj.link = urlMatch[1].replace(/[.,)\\]]+$/, \"\"); // شيل أي علامة ترقيم زايدة في الآخر\n  }\n}\n\nreturn {\n  json: {\n    chatId: $('Prepare Draft Input1').item.json.chatId,\n    mode: $('Prepare Draft Input1').item.json.mode,\n    needsNewImage: $('Prepare Draft Input1').item.json.needsNewImage,\n    draftObj: obj\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4864,
+        4944
+      ],
+      "id": "d15f9d75-1425-4007-bcee-600fac3bdadb",
+      "name": "Parse Draft1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nif (!staticData.publishedItems) staticData.publishedItems = [];\n\nconst obj = $json.draftObj;\nconst link = (obj.link || \"\").trim();\nconst title = (obj.title || \"\");\n\nfunction getKeywordSet(t) {\n  return new Set(\n    (t || \"\").toLowerCase().replace(/[^\\u0600-\\u06FFa-z0-9\\s]/g, \"\").split(/\\s+/).filter(w => w.length > 2)\n  );\n}\nfunction similarity(setA, setB) {\n  const inter = [...setA].filter(w => setB.has(w)).length;\n  const uni = new Set([...setA, ...setB]).size;\n  return uni === 0 ? 0 : inter / uni;\n}\n\nconst set = getKeywordSet(title);\n\nconst isDuplicate = staticData.publishedItems.some(p => {\n  if (link && p.link && p.link === link) return true;\n  const prevSet = new Set(p.titleWords || []);\n  return similarity(set, prevSet) > 0.45;\n});\n\nreturn {\n  json: {\n    ...$json,\n    isDuplicate\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5296,
+        4848
+      ],
+      "id": "5144b7af-e0e9-4472-95a7-63bd61ad576d",
+      "name": "Check Duplicate1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "7a4903c5-733b-4d8e-86ed-0227f531a69a",
+              "leftValue": "={{ $json.isDuplicate }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        5504,
+        4832
+      ],
+      "id": "5053a6da-f768-41cc-8843-a81d258d0883",
+      "name": "Is Duplicate1"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "⚠️ هذا الخبر منشور بالفعل.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5920,
+        4768
+      ],
+      "id": "2b05e58b-26f2-486f-b0d7-6bbb98aed680",
+      "name": "Send Duplicate Notice1",
+      "webhookId": "aa5d62ec-1b5a-4ce0-9ded-00b9a85d962e",
+      "credentials": {
+        "telegramApi": {
+          "id": "POeP4Hy5cJNBMsE3",
+          "name": "LogisticsNews qassem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "cbdb1a75-d2b3-46d4-bb4e-ffbd936f4b31",
+              "leftValue": "={{ $json.needsNewImage }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        5792,
+        5056
+      ],
+      "id": "42bbd76e-7d61-45a1-99e5-ec523966ef12",
+      "name": "Is Needs New Image1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const mainSubject = ($json.draftObj.main_subject || \"\").trim();\nconst secondarySubject = ($json.draftObj.secondary_subject || \"\").trim();\nconst background = ($json.draftObj.background || \"\").trim();\n\nconst fallbackSubject = \"a busy commercial seaport with container ships and cranes\";\n\nlet prompt;\n\nif (mainSubject.length > 5) {\n  prompt =\n    `Create a realistic editorial news photo. ` +\n    `Primary subject (must occupy most of the frame and be the dominant element): ${mainSubject}. `;\n\n  if (secondarySubject.length > 3) {\n    prompt += `Secondary supporting subject (smaller, in the background or to the side - must NOT be larger or more prominent than the primary subject): ${secondarySubject}. `;\n  }\n\n  if (background.length > 3) {\n    prompt += `Setting/background: ${background}. `;\n  }\n\n  prompt +=\n    `Modern news editorial photography style, corporate blue color theme, high resolution, realistic photography. ` +\n    `Leave clear empty negative space in the upper third of the image for a headline overlay. ` +\n    `Square 1:1 aspect ratio. ` +\n    `ABSOLUTELY CRITICAL: this image must contain ZERO text, letters, numbers, signs, labels, banners, or writing of any kind, in any language, anywhere in the frame - not on signage, screens, clothing, vehicles, or backgrounds. If the scene would naturally include a sign or label, render it as a blank, unmarked surface instead. ` +\n    `No logos, no watermarks, no recognizable real people, not a painting, not an illustration, not a 3D render.`;\n} else {\n  // بديل احتياطي لو الذكاء الاصطناعي مكتبش موضوع أساسي لأي سبب\n  prompt =\n    `Modern news editorial photography style, corporate blue color theme, high resolution, realistic photography, ${fallbackSubject}. ` +\n    `Leave clear empty negative space in the upper third of the image for a headline overlay. ` +\n    `Square 1:1 aspect ratio. No text of any kind inside the image, no logos, no watermarks, no recognizable real people, not a painting, not an illustration, not a 3D render.`;\n}\n\nreturn {\n  json: {\n    ...$json,\n    imagePrompt: prompt\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6192,
+        4976
+      ],
+      "id": "7719ff3c-5a8b-40e8-8c63-3d3fe402aea8",
+      "name": "Build Image Prompt Chat1"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "model": "gpt-image-1",
+        "prompt": "={{ $json.imagePrompt }}",
+        "options": {
+          "size": "1024x1024"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        6416,
+        4976
+      ],
+      "id": "56e5b605-2c73-4b12-8b5e-1796acd04a24",
+      "name": "Generate AI Image Chat1",
+      "credentials": {
+        "openAiApi": {
+          "id": "ABrrjVVx22morxnN",
+          "name": "Turbo Tokens"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "e97920ad-8ee2-4d88-ab22-9841f3cf8ce0",
+              "leftValue": "={{ $binary.data ? true : false }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        6624,
+        4976
+      ],
+      "id": "82073d9a-74aa-4716-af63-1599b355bf93",
+      "name": "Image Generated OK Chat1"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of items) {\n  item.binary = item.binary || {};\n  item.binary.logo = {\n    data: \"iVBORw0KGgoAAAANSUhEUgAAASkAAABmCAYAAACX4GePAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA3lpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDEwLjAtYzAwMCA3OS5kMjBlNDY2MzAsIDIwMjUvMTIvMDktMDI6MTE6MjMgICAgICAgICI+IDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+IDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6Njc4M2U4NTAtYjg1My00N2MxLThhNDEtYTc1YjYxN2ZkNTYxIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjJFMjRCOUZBNjAxMzExRjFCQzdGOUZENDBGQUJFQzg5IiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjJFMjRCOUY5NjAxMzExRjFCQzdGOUZENDBGQUJFQzg5IiB4bXA6Q3JlYXRvclRvb2w9IkFkb2JlIFBob3Rvc2hvcCAyNy41IChNYWNpbnRvc2gpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6Njc4M2U4NTAtYjg1My00N2MxLThhNDEtYTc1YjYxN2ZkNTYxIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjY3ODNlODUwLWI4NTMtNDdjMS04YTQxLWE3NWI2MTdmZDU2MSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Pmup16oAABfRSURBVHja7F0PkGRFee/dWzCcAr4TFA6DyRw5DUS0nCNERSngbZIqtWIqmbU0iVIBZ0tNovmjs6kYSSWVOBNNxRLzZ4YgSJLKsYMJ0fIUZyJEoxHcUSOieLhTAgfKcex4wIH3x5t07/ve7be93f2635+Z92a/X9V3NzvT8703/bp//XX39309NRwOGYFAIBixd6rG//W59NjO4cIoLz1DtU8gECIIqsz/rY/r8tP0BAgEQgTq47w4kRSBQDBZUVWY5hFJbSrTee9Uh4uX8XU8qmxCCm2oPu7bIJIa/dy+AyOTO1GJ8nunlmB0ixr9luF6BEJciMVyj0hq8xFU+NDLTkQVlOvA95paogreb8J1OkRUhATttab4pEQktTkIijkR1XqCCrGRqNYIKgQRFYGlvFhe4u2pRCS1OQjKjqjUBLWRqDYSFBEVIavF8gqR1OYhKDNRmQkKE1VTQ1BEVIQ48CLXqka4MUMklS36IDYQnrwD6b0oggpRtWx4Hdr1I1igbNGW6kRSk4CAdGZXCciMFi87r3w/XSwoiJBAiIPqqgU/gkGPSGr8RKUjKPFdQVLzkRYYYzssiHAe9BEIzKJNMUsLfinrZQQiqfESlZ6g7Iiqt6p357AfQYREUIQsSIqBS4JPJDWZRBVNUGaiCglqEEGERFAslSgBbxO11S7/t83c1l4zwxSlahlLqEGVN4RGzK3h5gaC0u8IEkHFe0Y+bLNXFDtdPSTtXKzxBWlUKjDwtVJspyvMbp2zwYikCKjxiMbYNXaOoIH5vEybKixW/S46fKMNZNUe0/02pd3dHgxOvRR0r0S4I9jPBoikCITUOv1iTGfFPuzGtmGNcBQWuc5FZQAWTivhNTqG9SYxUM4yckEYU6T/3qk6lyGIv2n1FrNNxK+LoD3F9aYuge/QMmzN+yMIWykb/JiakYHoLNHC+hwjPynr9ZksUCG9IxhgAiIp56guKqn5EAWOs51MiEIQsZ0DbxOmryyBM7LKSpsf5VrcdMEJqpJ6sGPwUEsZrXUUR2/2CDuPn6O6SNv68YEollcXt9Ow/IPfWHP4RjNBH+lrIiN6jGL3nCyoSgYNizmECEyqXjai0ItyLp5dQCCifAPcPWZBFmCtKUnHDKeCK4mmggHZNGPE4TVZgTEzAVO8KjSs9NwDsnI7KIreZPdUWp0SRE8H/BODjPgdSacP6dTFLsV9dDfsmgZkFtdqq7IgpKQPO4Nd8EtilutQXizyFhaY+w5kLw9NarpABKWL9C+luK5RiRFsOXl6wwyg8a2ZskV2iFLK1nCyuhDkFEWUQZn26pFOO4c7VkktGCD7Ma2rGqxdDSHjakc7NVvz3WJFPExh8klqoy9IVmsJ1YzIpGh6mwm8iGsWloGvSFOb17owkVYvJcIK73VgcF+oaRaxG2hKOjCSovsifj9GGpdNSFLRBJXOSByMYGXNw/U3kd7Q07ob0/N5EGPtqATfzVddxCesOQvSUO+a6S1Pf4OntwgsD67ZAKfK2YhrVhx/U3/kxF84kgoabtVqFEq+c1LNiASLozeow+aGtRj79cJ65DrG2rrOxulI/Gl7NVfuGcGUUGzTb3MgrIZhulmVrJtdQEyDDUQZEJVpbapE07100R7h9nElIndOdRPoDQ9w6Fl7TQfrV3VEbr0Ez6kT0/LJqo7TIaxgSjZnmJZ1I+LfKqhudxldAILPFlIk7R7t7kWZm3unWpbWlO9Iaq7+NaG/ScuhAxdH79o0z25wWJuCVKV76SXI+hhmD22BZdEfWx3bByLjhXB8EpAH75WgPhfQWt08qr+KkVSC3+cBudklLRSEFxBzSdNPGo7T0LEi/7F7QeNatqzMnjbOyDyClxy3k8O0wH7E1ChvekMC8jQ+RR4imoF0fV9Tlmm37PUk5TncdylCZ5K68C2nta7XYKmlyllbk+3G2D0sOTwjXV1sfF47h1NEUuowgCQ7QN1xHxWdI3Qz8q4mZJFsUHir5y2iYMQkVRQ/qUYezE4CYaQENabDOBktnMfOatmgdk8ozKCaBkHlM6NFnxFJMX2CLbKmCEWYTgvfpSjXmuKmI24TSZE1RSguBpF5loKF8LrlGYjlHK9pEkkZrKk+9QUCy+861MAyeqJcwMNaBw7B0JuUpLK1pnoZmbJF0zuqKcNgwuqiZcwyoA7vKhpRtWnh3P54p35GZux8BrqLpndUjX1+guqiH+GQaYo/LRJR9YikmJNLQvodJ7DU5lIe5YuiN+7GRM85kDaIbWun+ByzquPk0zy7AHkdUfUYWVIFJanAmuqlPNfuSUGag02mtxHTumlHxIrpF16DXbBWTuvYxd2gG5Htk1mmavEVh3QOcrRrOSCScsMCy2qESK+xF0VvEFAcWDfzMayYlsPz6Er3Pp+QqLKqY9tpXsPh1Oooa6w9ollDIXb1JoGk+pk+gKCx70j4cIqity1ZqbssO/latoQgir8Va8qQjKiyqmNmeXrvwGKzJ4qo9N7p9vU6kVO9opOUKpXwHFgCg1RGiSBd7Czo7ac2+uRPb1fTyduOVsx8RP3rpwzBd+PUR1Z1bGNBth12pXVEFR0+E79uWGoL5qM48JRN0gnG+jP3Zlfn8WuHPFYsAmntT2IN0mtUlOsHxdHbgKj26gmLNMgmaQrNqGryEKlzGwWZKyro2tjyaFg+Xx/EG0MdMwunzR3OazQbTx12j+8LUreUQZJkZ2CO624LRFL2D6kMD9obaXS26KxjcGTLWcocTDxmcsvXvefn2a0RVSulAGT37KlBxlBGAcajJqg4u31CX3BCh2cRytAZa4ZHloMEhEHKWrFetW2Ux2xP1LMLpqG7xkBQ4WlLXcqCMB6CciepNX2+0ZluvZ9Lc1MT1fqO1stBW6BnZ5feeRHVA5FUhmZqJ2J9op+A8NTOdGpHPCKqfA1W9Oyi66qSB1eCST0tJhwFmhYpZ7sJLbL1jd3sKUxElS9rmp6d+qSljrRxMdZdOjZRC+drR2bXLPNh2y3iRk8Zw2ljz/Lwh/mRry0QQdGzszuWrKLx62oQSSXfQaqCeI4R6PMpNPI42FHE0WkCCYqeXWA9mQb2Qv7emVxsDwcmaSVBkq9uBsnLPMvRmAiK5S7x3OZ6dsH0tRbhM9Ut6u+dHhvjB9vHQxgh6wkIqm/l+Wsf0xV6W7doqsfysptIz069XluF02SaFk6dRc09NqbpniCo9I5UcptnR/tazZ7wJNYvwBJB5dNPbvKfXeBxHh4q6jlkithW1J88MwFNt+U8Ku+dmlU09vWNPIyZ2jvFpMZOBDVOi2ozPbtgjbaEQnn8HOVfm3gXhG5K5mcjVo6bjdOHjY1cHaFPBJW/qd9kPrvA9WYZLYf4CdboCt1mx7+7Fyych1LOPMhz4/ShvhriEaVns8fu5XPqN7nPLtipq7P8HFJKLgjIvPUtI+AL6fNByBzP5bJ/Qkh4KYVsmrNFr4p8Z0HQW1kil88c9UeCAi/icu+EWIsrCXzDBjAN7hW9GmZyvv7QPeEDtWZlleiQUIIBZ0zQb5mVSMozuBqUpbLtSSCo4ia9IxD0uJTLf1M1TA6mqQoIZEkRiKQIhNHhGVxOomogkiIQ8oytVAVEUgQCgUAkRSAQCERSBAKBSIpASBHCF2glxSwaBCIpwghQiejUqteswCdXe4bTgZ5JzYFIipAviEDURc2Jzk2U1iQ8lLJZcDIOCdlPIYpC1MlruXyEyxdZEE5zF5fr4TrbE9yr8Ax/G5dPcXmYy1NcfsDls1zeyYLkfHHxQi5/xOV2Lo9yOcTlAS4f5/LbXJ6fQPeFXN7HAofYA1ye5HI/l1u4XMnl7AS6f47LH3LZA/e7H+r7b7lcznS7ssLjnKSwUh2uRxN91kTvL4GoyhVJOha/4W1cTo/QIyIt5rh8kcuRoR7/x+X3uDzT4R5P5VLj8p2hGd/lcg2XZzvofi6Xv+TyQITub3L5HS4nO+j+KS7Xcnk4QvfXuVzFZYuD7nNB9z6D3kNc9nC5XP4+dfRiiyeRT03z/goIJi2vgL93SWrYNQ1JnWnQIQjnw1yODu3xH1x+0uL+zuHyqaEbPs2lZKH7Z7n8j6Puf7N8zhdz+ZqD3uNcruOy1UL3q7jc7aD7SS4LMJCcIKll+HCUjW0Rrusl7KDLoIuIamOHDd8X5FQGWcmQoIT+Chc/gY6ozlqXGvSKhqTO1Xz/FC43RXSSQ2Cp7IPXIb4Alozu3gQxfl7S9Si00e8iEX8/IpX7Xy7bDbrPA6tOh6e5PMjlccVnt0ZYli9DHOCKmyKI6mK4rzh437hJKrxmyaED1BQNegi6Jp2E4pbxoO7wa28E084VGDxcCKtpMRX1pGuUHUnqPREd46NcLgGr5QKYMj0lfT6t0Cve+3tU7vtc3g6d9Oe5vBIsikvg71dweavUgW/E1gOSrWDJmdDlcj6X39V8/heGqennhsnwBxrd27j0pGmisBoPW+oV5V47TpLyHAjKdI+lgk5bcOc23b8Pv3sUZWykZjkNG0pTy5qjhdS0IKmaYU1KRVIv5vKY4T5vVKyzXMjlICpzJOw4klwB05TQqnkNl8ugU36Fyz3Qhu+B+rgN9Myi7x2H78m632DRoW+BsmJ9607F508AOWK9M1zeIZX7BpePc7mZy8e4/AOQb4vLv8L7eyRL8EGw9OT7vgaVuR/WvMJZlC1E3XnjIqm4ltckWUi1iM6GH2hpBGVsn0NZMVDUYKpXQ1N5GctARr5ElhVNA9XVS7i2VnEkqUbEOsil0vrPO6BzyiO/annhevR5B6ya/ZLVdyf8L/S9GaZhL+fy7wbdZwOhReFWtEh+AUzDDkhlPiLpvojLl9Hn/8nlLMt2cIW0CP7HEsGfA4v32LLcBdbVZxxI6pjY4HAhgBoquwKjnRdRbgkaU0ealsnX9EDfCvqejywAGWEDHSr0dqAjLaHPa5pRWXVNXEY3ndRd1wc9y5YEFV6XRXTIasZl6haWU/gs6pYN2Yf6XdZYV/KO3aI0yi5HWG2uJNUzdIZ9YGmF7eIOQ9kHFLq/hT7/Z7CSQvwLkNYFIGKXazeXPuwwflDqzLIV9bQDSWGi+IChzoX8KbLihrBjJ++Amp7vHvTd26U6n1eQ+/2wrvZjEPz59ww7f9fZ+kmFJ1b0V3OLB9kyq5CD2dOUa8D/ixYHLIRnpLVB/wCkj/5m8HoB3jf5p3TgO224v7p0tJEH916BkzQa8N5igkNKS8gnqRdRri5lVCxp/J+8CJ+gNMqojrT34Jn0pfsM9VWY3YlA4rSWXajN9KUjlsJMq7OrByoE0kD1VE3Rx+qnmTm9S+hfdSb4IelwVsR7TyL/wy9zeQ/4Bn0J6uFvuJwH93OSIj87xsu4/ITieoe57ObydvCVEmWOgM+XeG6Xwe/AeLb090uQ46vIfPmY9Ln4/ge4XKKph0fZ+pTNL0V/v4LLyehv4SP2IfC/Em3g01x+ict7ubyLy/nQvv6cyzHpOufZOL5VoTE1oJJx46/D/wuoXAsaJ/5+M+L02Qp07HnFOWEN1JEalmSBjzIKE9pX0XvhkdS7EKG04AihGnSWOCQl/3amPHE5IE/c0esK4vWl+llG99pPsUwVCKSO6gunoi0rvNoXQYeHjiYrKcg2THe7AEQU6ushnV3pTDlPut+Sw9HpJpzK1HnAD4BT4Y/gPfH/t4BstoLz4hT6zkkRXu7HodMzcOR8JThYCvwmly9wuRHqYUrSLRsNz9MQ1Lu5XAt/C8fNl8Pr58DzvAruY51LpIEQj6Pfj8u/BRxSm0Awh9DnR9Dr06RBQL7vo+DEeg+XP+HyfS53gJwN3xWfXQOkeDm+zxmHkIuW4sDBOny+gMo1FId3Ni1GXR/KtSIsEeZ4YGgPGmNZIoAB6pC40fqJTlO2L4dPw6lYkmApozIVwwDFDDm1Q8KP+q0N6XkwiRB1CMmrpyg3YMlxM3QagYPw/z4YpEQn/S2wAKIwNFhoBxX3Hdb/lOG7TEE0DLzKrwWSERbab3D5OiIDgS0gJvzYIhpFlHkEBrPDEfd51PD5FLIItyAr6xwun+DyAhjEvsblbomkjk9bdg6mmWL10eemclGYgxE5nEJ2Uo4zG2iS1jcl8VK+jsma2gyHjLYRQamOSE9yEorrOXpPKt47AMHKK6jTHoepj3jvFMV3VJ3xcfR6C7KO3sDlQZjSdIDQRUd8s4Yo5KnOgwoyuA1evxemkucgonM5sOBhVH6LwtIU9/ZnXF7F5e+ke5uSQlhEfX0H/b3PktRfDFPa5yD+kDlp/7Rlh2KaEbqEPh8Yytk0ujmIZ2ohqyorDGB0nlLINkOAbppoRJBaz6IjplXGBj1HC7ePpr4hQfkSUXkJTsB2RV8TSyasyNehTipG/F8GgvlFxXd+oHjvIfT6WWjq9DNcPgbXFh3+m1z+CdZgBH4oWTwyKd0lWWJTiNhOVpCCyXp6RPp7SSLXsxQE3gQyU1lGeEr3DbCAQoi4v6ctSGoGfg+2xKaksvdOOzSIqmJBlqE1ibamXDVBw2YZEUYb9PsWHdOT7qWaIlG2Iup9LoIYkpYZaKaobUX5NugZOExpB4rF+TJqO90RkpTqO6+H9bUWCvjdDgHHu2EBWsadivc+h14LPfehTnsRTGk+D2tUl8L74vO9bP2C82clvSLo+TMSOYRt9v1crgN5P1s7KUeH26W/9wAJhngj3Ot2mEqeCYdanAGvzwRiOpfL1WABhfikdCCr0P1tzfRyiEjqmGJqe1yyLG/D7gBNhZSlbeIO8oUJ//akMBW53Ipmy34o/d2E73QUfjJNtI26iPx9ovTq3i+h+1qEa9WRG4HsSR16UHfg9bLldW19pTqKrXof1Wtdir1Lq0wH+Srh64dOpjigt4zqrhOxJb5o6VHuWTr3yc6iJn8vnQvCBQrfIbz1/1IUaHufppzOmfMlyMHxKAQlvwiCgT8Kfks3gYOk+Puv4H6uRlvxj4Mvkaz7cik8RzhmXqkod6XkUiC7TZyn8JL/NXAHCHEA4uyWwJHyLpCvgHwVAqePSEHYqnCh30dlDoJf1ingCnIDlHkN+EIJ+RV478OSJ/1pLCJupyI18GXJ98iL8D0KfZZMZOIpyEwVh9ZRhEPEJamwszWl39RROCvWFL+nkwJJlZHeGrpWReGJXob7rUii0utSpqTwgF9UXLtiCFWqKMRz9Fj3FDrCQS6sj4plbKApLKamaecPAdEwCCS+V1Puek1YjJB3S2QmPLV/HbzKfXCAvAJevx6cK7EP1DWGjA0fUsTqXQ9OoVdCpzf5U12t0b0F/Lri4rChjW1FITdHwXH0DiDSh8B59KvgaT8E8voEyvAgyPjVo8qCUJJGbZLgwa4orB0cGLyE4u2yDAzOqzf+iqEDxCWpk8GSiUNSooM9z3Ddk7j8o8b6OoxElRrmBrAyTGFkt8YkknpEWhXh1f5fMfQeg2wFpmfxQgi1ccVT2Ll0FMGwdQuP6M0ivmJ6s2xIvbKkSLEy6cHUi4YMB7YkdYbh89OlKYVMUs/n8m3pczHqv8Di2s/i8tcOaWCOwb2cZqH7DIgvtMUTYJ09w0L3dojZs8WAy7ssc0qd70iCIp/VW4YZ5pNaAYupjtZ4NkPnirIkm4Zp9aKBpJpS8rrahNZRWbFe1kxAUqdblHsjrLccBwvnInh/J7oPERD8TsfkcUJeBx3zCYOlIKZCv+qoV5DCm7h8yTC9+yGQ6mWOumcgM0PPkAhwBYKZf8FR96lgdZkSAe6HNbsL5e/PsHQRug/U0O5Yw9JTfFJRQuEfOlcEvNs2C9v0Pcl7vT9h9ejD9r/OoTNrP7KbwZ3gKng2TyNP6rvBPeAG2F074qj7k+BVLX7fq9n6o98HsGu3W7NTGOWAuRtcDoTui6Ud74fBi3sRPLhdcAw84b8Hui8CdwrsZtEF3XsddT8BDqj3ge4LJc/9B2BH8BZIVbze32HVnCKMAmXkQe2jjjivcbUYTHh9hD5TOuJeiKn3rdCRDlKTmwwQSbGxHctUAd+jAaNTbrDV6SUgKIE3gT8SkRSRFIGQSxBJMTrSikAgEIikCAQCgUiKQCAQSREIY8AhqgIiKQIhr/iRIi8TgUiKQMgNDlAVEEkRCHnGcaoCIikCgSwpApEUgRATj1EVMPI4JxAIhFHh/wUYABPjyHhNwYr0AAAAAElFTkSuQmCC\",\n    mimeType: \"image/png\",\n    fileName: \"logo.png\",\n    fileExtension: \"png\"\n  };\n}\nreturn items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6848,
+        4880
+      ],
+      "id": "7f59bac7-ac2b-40ee-98d8-f326d3cb29c1",
+      "name": "Add Logo Binary Chat1"
+    },
+    {
+      "parameters": {
+        "operation": "composite",
+        "dataPropertyNameComposite": "logo",
+        "positionX": 364,
+        "positionY": 880,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.editImage",
+      "typeVersion": 1,
+      "position": [
+        7072,
+        4880
+      ],
+      "id": "70f24d84-17fe-4f06-8795-8f282f53b87e",
+      "name": "Add Watermark Chat1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $json.draftObj || $('Parse Draft1').item.json.draftObj;\nconst title = d.title || \"\";\nconst summary = d.summary_ar || \"\";\nconst impact = d.impact_ar || \"\";\nconst link = d.link || \"\";\n\nlet text = `📰 ${title}\\n\\n📌 ${summary}\\n\\n⚡ ${impact}`;\nif (link) text += `\\n\\n🔗 ${link}`;\n\nreturn {\n  json: {\n    chatId: $('Parse Draft1').item.json.chatId,\n    previewText: text,\n    draftObj: d\n  },\n  binary: $input.item.binary\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        7296,
+        4880
+      ],
+      "id": "09c53333-12c4-4084-b7ac-49318e1f452b",
+      "name": "Build Preview Caption1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $json.draftObj;\nconst oldFileId = $('Route Message1').item.json.draft ? $('Route Message1').item.json.draft.fileId : null;\n\nconst title = d.title || \"\";\nconst summary = d.summary_ar || \"\";\nconst impact = d.impact_ar || \"\";\nconst link = d.link || \"\";\n\nlet text = `📰 ${title}\\n\\n📌 ${summary}\\n\\n⚡ ${impact}`;\nif (link) text += `\\n\\n🔗 ${link}`;\n\nreturn {\n  json: {\n    chatId: $json.chatId,\n    previewText: text,\n    draftObj: d,\n    fileId: oldFileId\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6192,
+        5136
+      ],
+      "id": "f547ca90-8d90-442c-a315-81a6cb250d7d",
+      "name": "Reuse Existing Image1"
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $json.chatId }}",
+        "file": "={{ $json.fileId }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Publish",
+                    "additionalFields": {
+                      "callback_data": "publish"
+                    }
+                  },
+                  {
+                    "text": "✏️ Edit",
+                    "additionalFields": {
+                      "callback_data": "edit"
+                    }
+                  },
+                  {
+                    "text": "❌ Cancel",
+                    "additionalFields": {
+                      "callback_data": "cancel"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "caption": "={{ $json.previewText }}",
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        6416,
+        5136
+      ],
+      "id": "d1b15938-61ab-4478-b3ea-d1ec2faef2c6",
+      "name": "Send Preview Reused1",
+      "webhookId": "b1b99aca-5b91-4e9f-9339-5d74dd323d53",
+      "credentials": {
+        "telegramApi": {
+          "id": "POeP4Hy5cJNBMsE3",
+          "name": "LogisticsNews qassem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nif (!staticData.chatDrafts) staticData.chatDrafts = {};\n\nconst chatId = $('Reuse Existing Image1').item.json.chatId;\nconst draftObj = $('Reuse Existing Image1').item.json.draftObj;\nconst previewText = $('Reuse Existing Image1').item.json.previewText;\nconst fileId = $('Reuse Existing Image1').item.json.fileId;\nconst oldImagePrompt = staticData.chatDrafts[chatId] ? staticData.chatDrafts[chatId].imagePrompt : \"\";\n\nstaticData.chatDrafts[chatId] = {\n  status: \"awaiting_confirmation\",\n  fileId,\n  imagePrompt: oldImagePrompt,\n  previewText,\n  lastDraft: draftObj,\n  updatedAt: Date.now()\n};\n\nreturn { json: { ok: true, chatId, fileId } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6624,
+        5136
+      ],
+      "id": "db9111de-c517-4f71-be93-882093b14c19",
+      "name": "Save Draft State Reused1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $json.draftObj || {};\nconst title = d.title || \"\";\nconst summary = d.summary_ar || \"\";\nconst impact = d.impact_ar || \"\";\nconst link = d.link || \"\";\n\nlet text = `📰 ${title} (بدون صورة - فشل التوليد)\\n\\n📌 ${summary}\\n\\n⚡ ${impact}`;\nif (link) text += `\\n\\n🔗 ${link}`;\n\nreturn {\n  json: {\n    chatId: $('Parse Draft1').item.json.chatId,\n    previewText: text,\n    draftObj: d\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6848,
+        5136
+      ],
+      "id": "0c278699-0f01-473a-9c04-6e03085b20c8",
+      "name": "Build Text-Only Preview1"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.previewText }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Publish",
+                    "additionalFields": {
+                      "callback_data": "publish"
+                    }
+                  },
+                  {
+                    "text": "❌ Cancel",
+                    "additionalFields": {
+                      "callback_data": "cancel"
+                    }
+                  },
+                  {
+                    "text": "✏️ Edit",
+                    "additionalFields": {
+                      "callback_data": "edit"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        7072,
+        5136
+      ],
+      "id": "b91b86f7-553a-4674-bc38-eabb9fdc6f7e",
+      "name": "Send Text-Only Preview1",
+      "webhookId": "e85474d9-dd47-457d-b781-810f209258d0",
+      "credentials": {
+        "telegramApi": {
+          "id": "POeP4Hy5cJNBMsE3",
+          "name": "LogisticsNews qassem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nif (!staticData.chatDrafts) staticData.chatDrafts = {};\n\nconst chatId = $('Build Text-Only Preview1').item.json.chatId;\nconst draftObj = $('Build Text-Only Preview1').item.json.draftObj;\nconst previewText = $('Build Text-Only Preview1').item.json.previewText;\n\nstaticData.chatDrafts[chatId] = {\n  status: \"awaiting_confirmation\",\n  fileId: null,\n  previewText,\n  lastDraft: draftObj,\n  updatedAt: Date.now()\n};\n\nreturn { json: { ok: true, chatId } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        7296,
+        5136
+      ],
+      "id": "ea0fd7b9-359b-4484-843d-0b84e99b72fb",
+      "name": "Save Text-Only State1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const chatId = $json.chatId;\nconst draft = $json.draft;\n\nreturn {\n  json: {\n    fromChatId: chatId,\n    fileId: draft && draft.fileId ? draft.fileId : null,\n    caption: draft && draft.previewText ? draft.previewText : \"\",\n    link: draft && draft.lastDraft ? (draft.lastDraft.link || \"\") : \"\",\n    title: draft && draft.lastDraft ? (draft.lastDraft.title || \"\") : \"\"\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4272,
+        5200
+      ],
+      "id": "f94b3ff8-14a0-4892-8c45-5ca3fcd800a1",
+      "name": "Prepare Publish1"
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "=@Logistineur",
+        "file": "={{ $json.fileId }}",
+        "additionalFields": {
+          "caption": "={{ $json.caption }}",
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        4496,
+        5200
+      ],
+      "id": "eda01099-4777-4518-848f-ef0f6250c245",
+      "name": "Publish To Channel1",
+      "webhookId": "87eca083-2fd3-4f75-adc5-a5732a9d24f4",
+      "credentials": {
+        "telegramApi": {
+          "id": "POeP4Hy5cJNBMsE3",
+          "name": "LogisticsNews qassem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nif (!staticData.publishedItems) staticData.publishedItems = [];\n\nconst link = $('Prepare Publish1').item.json.link;\nconst title = $('Prepare Publish1').item.json.title;\n\nfunction getKeywordSet(t) {\n  return [...new Set((t || \"\").toLowerCase().replace(/[^\\u0600-\\u06FFa-z0-9\\s]/g, \"\").split(/\\s+/).filter(w => w.length > 2))];\n}\n\nstaticData.publishedItems.push({\n  link: (link || \"\").trim(),\n  titleWords: getKeywordSet(title),\n  ts: Date.now()\n});\n\n// نحافظ على آخر 500 خبر بس عشان الذاكرة متكبرش لانهائيًا\nif (staticData.publishedItems.length > 500) {\n  staticData.publishedItems = staticData.publishedItems.slice(-500);\n}\n\nreturn { json: { ok: true } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4720,
+        5200
+      ],
+      "id": "c79cf005-c843-4ed9-b420-604352c67a37",
+      "name": "Record Published1"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Prepare Publish1').item.json.fromChatId }}",
+        "text": "✅ تم نشر الخبر على القناة، تمام كده.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        4944,
+        5200
+      ],
+      "id": "836925b1-8a32-4c1b-b109-c6cbdd43e85d",
+      "name": "Confirm Published1",
+      "webhookId": "d3a6ff00-3d82-4b0f-873b-cc4f743bfa06",
+      "credentials": {
+        "telegramApi": {
+          "id": "POeP4Hy5cJNBMsE3",
+          "name": "LogisticsNews qassem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nif (!staticData.chatDrafts) staticData.chatDrafts = {};\nconst chatId = $('Prepare Publish1').item.json.fromChatId;\ndelete staticData.chatDrafts[chatId];\nreturn { json: { ok: true } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5152,
+        5200
+      ],
+      "id": "c7325fdf-fd44-4477-8915-d24dea3845d3",
+      "name": "Clear Draft State1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "23dda871-b658-40a9-91bd-e2e7c445e0ba",
+              "leftValue": "={{ $json.draftObj.title }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        5056,
+        4928
+      ],
+      "id": "e109955c-c142-4149-a0d8-2c8d381d4130",
+      "name": "Has Enough Info1"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "⚠️ مقدرش أوصل لمحتوى كافي عن الرابط ده (ممكن الموقع بيحجب الزيارات الآلية). ابعت تفاصيل الخبر يدويًا (العنوان والملخص) وأنا أظبطهملك.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5360,
+        5024
+      ],
+      "id": "f1443e19-ac35-400e-99e9-10d5d01f281a",
+      "name": "Notify Insufficient Info1",
+      "webhookId": "384da95d-1610-418a-9674-3b8b673f9f74",
+      "credentials": {
+        "telegramApi": {
+          "id": "POeP4Hy5cJNBMsE3",
+          "name": "LogisticsNews qassem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\n\nif (!staticData.chatDrafts) {\n  staticData.chatDrafts = {};\n}\n\n// البيانات الأساسية\nconst chatId = $('Build Preview Caption1').item.json.chatId;\nconst draftObj = $('Build Preview Caption1').item.json.draftObj;\nconst previewText = $('Build Preview Caption1').item.json.previewText;\nconst imagePrompt = $('Build Image Prompt Chat1').item.json.imagePrompt;\n\n// استجابة Telegram\nconst telegramResponse = $json;\n\n// استخراج file_id مهما كان شكل الريسبونس\nlet fileId = null;\n\nif (telegramResponse?.result?.photo?.length) {\n  fileId =\n    telegramResponse.result.photo[\n      telegramResponse.result.photo.length - 1\n    ].file_id;\n}\n\nelse if (telegramResponse?.photo?.length) {\n  fileId =\n    telegramResponse.photo[\n      telegramResponse.photo.length - 1\n    ].file_id;\n}\n\nelse if (telegramResponse?.result?.document?.file_id) {\n  fileId = telegramResponse.result.document.file_id;\n}\n\nelse if (telegramResponse?.document?.file_id) {\n  fileId = telegramResponse.document.file_id;\n}\n\n// لو معرفش يجيب file_id\nif (!fileId) {\n  throw new Error(\n    \"Telegram file_id not found.\\n\\nTelegram Response:\\n\" +\n    JSON.stringify(telegramResponse, null, 2)\n  );\n}\n\n// حفظ الـ Draft\nstaticData.chatDrafts[chatId] = {\n  status: \"awaiting_confirmation\",\n  fileId: fileId,\n  imagePrompt,\n  previewText,\n  lastDraft: draftObj,\n  updatedAt: Date.now()\n};\n\nreturn {\n  json: {\n    ok: true,\n    chatId,\n    fileId,\n    telegramResponse\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        7728,
+        4880
+      ],
+      "id": "6316f34a-4c53-426e-927a-7caebe21374f",
+      "name": "Save Draft State"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger - Chat Bot": {
+      "main": [
+        [
+          {
+            "node": "Route Message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Message1": {
+      "main": [
+        [
+          {
+            "node": "Is New1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is Revise1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is Publish1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is Cancel1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is AskEdit1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is AskEdit1": {
+      "main": [
+        [
+          {
+            "node": "Send Ask Edit Prompt1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Cancel1": {
+      "main": [
+        [
+          {
+            "node": "Clear Cancelled Draft1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear Cancelled Draft1": {
+      "main": [
+        [
+          {
+            "node": "Confirm Cancelled1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is New1": {
+      "main": [
+        [
+          {
+            "node": "Prepare Draft Input1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Revise1": {
+      "main": [
+        [
+          {
+            "node": "Prepare Draft Input1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Draft Input1": {
+      "main": [
+        [
+          {
+            "node": "Draft Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft Agent1": {
+      "main": [
+        [
+          {
+            "node": "Parse Draft1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Draft1": {
+      "main": [
+        [
+          {
+            "node": "Has Enough Info1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Duplicate1": {
+      "main": [
+        [
+          {
+            "node": "Is Duplicate1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Duplicate1": {
+      "main": [
+        [
+          {
+            "node": "Send Duplicate Notice1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is Needs New Image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Needs New Image1": {
+      "main": [
+        [
+          {
+            "node": "Build Image Prompt Chat1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reuse Existing Image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Image Prompt Chat1": {
+      "main": [
+        [
+          {
+            "node": "Generate AI Image Chat1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate AI Image Chat1": {
+      "main": [
+        [
+          {
+            "node": "Image Generated OK Chat1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Generated OK Chat1": {
+      "main": [
+        [
+          {
+            "node": "Add Logo Binary Chat1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Text-Only Preview1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Logo Binary Chat1": {
+      "main": [
+        [
+          {
+            "node": "Add Watermark Chat1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Watermark Chat1": {
+      "main": [
+        [
+          {
+            "node": "Build Preview Caption1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Preview Caption1": {
+      "main": [
+        [
+          {
+            "node": "Send Preview",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reuse Existing Image1": {
+      "main": [
+        [
+          {
+            "node": "Send Preview Reused1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Preview Reused1": {
+      "main": [
+        [
+          {
+            "node": "Save Draft State Reused1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Text-Only Preview1": {
+      "main": [
+        [
+          {
+            "node": "Send Text-Only Preview1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Text-Only Preview1": {
+      "main": [
+        [
+          {
+            "node": "Save Text-Only State1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Publish1": {
+      "main": [
+        [
+          {
+            "node": "Prepare Publish1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Publish1": {
+      "main": [
+        [
+          {
+            "node": "Publish To Channel1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publish To Channel1": {
+      "main": [
+        [
+          {
+            "node": "Record Published1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Published1": {
+      "main": [
+        [
+          {
+            "node": "Confirm Published1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirm Published1": {
+      "main": [
+        [
+          {
+            "node": "Clear Draft State1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Enough Info1": {
+      "main": [
+        [
+          {
+            "node": "Check Duplicate1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify Insufficient Info1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model - Draft1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Draft Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Preview": {
+      "main": [
+        [
+          {
+            "node": "Save Draft State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "894dae36-8434-44b5-8988-af9c6d298097",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "789898b22df5490ee7fee9adc686abf4348ff76dd7521b6ae2563557f413c71d"
+  },
+  "id": "AGQMVwYTlIrGuHQG",
+  "tags": []
+}
