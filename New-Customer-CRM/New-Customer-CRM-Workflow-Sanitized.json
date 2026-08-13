@@ -1,0 +1,1559 @@
+{
+  "name": "New Customer CRM",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "NewCustomer",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        864,
+        2736
+      ],
+      "id": "ed0518af-b4bc-4d4f-ba63-06ecbcc16cda",
+      "name": "Webhook"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        6304,
+        3440
+      ],
+      "id": "1a1adc14-5e36-4ce7-af81-3d5635bd0e83",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "<API_KEY>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "One-Time Setup"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $('Create Card (Under 300)2').first().json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "7280"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2224,
+        3136
+      ],
+      "id": "ddcc0403-33cc-4488-989d-f0dd1ce66d10",
+      "name": "Checklist 1 Create (Under300)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// تجهيز items الـ checklist \"One-Time Setup\"\nconst checklistId = $json.data.checklist_id;\nconst cardId = $('Create Card (Under 300)2').first().json.data.id;\nconst userCode = '7280';\n\nconst items = [\n  \"Intro Call Completed\",\n  \"Business Information & Documents Verified\",\n  \"WhatsApp group created (TL & Manager as Admins)\",\n  \"Account Setup & Portal Access Completed\",\n  \"System Integration Confirmed (If Applicable)\",\n  \"Shipping Guide & SLA Explained\"\n];\n\nreturn items.map(name => ({\n  json: {\n    checklist_id: checklistId,\n    card_id: cardId,\n    user_code: userCode,\n    name\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2496,
+        3136
+      ],
+      "id": "ea97545d-1c3b-4c5d-95a8-b83fac8cebca",
+      "name": "Prepare Items 1 (Under300)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/items/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "<API_KEY>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "checklist_id",
+              "value": "={{ $json.checklist_id }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $json.card_id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "={{ $json.user_code }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2752,
+        3136
+      ],
+      "id": "d329c1f9-9dc0-4fb6-b779-d8d8ee1f7f80",
+      "name": "Add Items 1 (Under300)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// إعادة الفلو لعنصر واحد بس قبل ما يكمل على الـ checklist اللي بعده\nreturn [{\n  json: {\n    card_id: $('Create Card (Under 300)2').first().json.data.id,\n    user_code: '7280'\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3008,
+        3136
+      ],
+      "id": "40cd4488-4770-441d-997c-cce1858a1209",
+      "name": "Continue 1 (Under300)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "<API_KEY>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "Daily Follow-up"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $('Create Card (Under 300)2').first().json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "7280"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3264,
+        3136
+      ],
+      "id": "259db4f0-ec7c-4c9c-94f7-694650d2e4f6",
+      "name": "Checklist 2 Create (Under300)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// تجهيز items الـ checklist \"Daily Follow-up\"\nconst checklistId = $json.data.checklist_id;\nconst cardId = $('Create Card (Under 300)2').first().json.data.id;\nconst userCode = '7280';\n\nconst items = [\n  \"Daily Client Follow-up Completed\",\n  \"Shipments Tracked as per SLA\",\n  \"Pending Requirements Followed Up\",\n  \"Open Tickets Reviewed\",\n  \"CRM Card Updated\"\n];\n\nreturn items.map(name => ({\n  json: {\n    checklist_id: checklistId,\n    card_id: cardId,\n    user_code: userCode,\n    name\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3536,
+        3136
+      ],
+      "id": "175bc45c-cd33-41ba-bcbd-0ce5fc5d46a6",
+      "name": "Prepare Items 2 (Under300)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/items/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "<API_KEY>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "checklist_id",
+              "value": "={{ $json.checklist_id }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $json.card_id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "={{ $json.user_code }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3792,
+        3136
+      ],
+      "id": "5846dd41-7eb9-434d-9a01-69db598e1b5b",
+      "name": "Add Items 2 (Under300)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// إعادة الفلو لعنصر واحد بس قبل ما يكمل على الـ checklist اللي بعده\nreturn [{\n  json: {\n    card_id: $('Create Card (Under 300)2').first().json.data.id,\n    user_code: '7280'\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4048,
+        3136
+      ],
+      "id": "01142a3c-84c2-45c0-a668-1cff70652f69",
+      "name": "Continue 2 (Under300)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "<API_KEY>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "Weekly Review"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $('Create Card (Under 300)2').first().json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "7280"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        4304,
+        3136
+      ],
+      "id": "36487998-868d-4368-9fa5-a21382f84bff",
+      "name": "Checklist 3 Create (Under300)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// تجهيز items الـ checklist \"Weekly Review\"\nconst checklistId = $json.data.checklist_id;\nconst cardId = $('Create Card (Under 300)2').first().json.data.id;\nconst userCode = '7280';\n\nconst items = [\n  \"Client operating as agreed\",\n  \"Pickup & Delivery committed to agreed schedule\",\n  \"No recurring operational issues\",\n  \"Action plan updated for pending issues (if any)\"\n];\n\nreturn items.map(name => ({\n  json: {\n    checklist_id: checklistId,\n    card_id: cardId,\n    user_code: userCode,\n    name\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4576,
+        3136
+      ],
+      "id": "7e06e722-7dd1-47c4-b590-3c0a1080d80a",
+      "name": "Prepare Items 3 (Under300)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/items/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "<API_KEY>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "checklist_id",
+              "value": "={{ $json.checklist_id }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $json.card_id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "={{ $json.user_code }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        4832,
+        3136
+      ],
+      "id": "bb370d21-88ed-4c7f-81fb-8192901a4add",
+      "name": "Add Items 3 (Under300)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// إعادة الفلو لعنصر واحد بس قبل ما يكمل على الـ checklist اللي بعده\nreturn [{\n  json: {\n    card_id: $('Create Card (Under 300)2').first().json.data.id,\n    user_code: '7280'\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5088,
+        3136
+      ],
+      "id": "86a55202-d963-4418-8b81-11edf02e0524",
+      "name": "Continue 3 (Under300)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "<API_KEY>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "Handover"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $('Create Card (Under 300)2').first().json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "7280"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        5344,
+        3136
+      ],
+      "id": "e1dbf685-3191-4871-8e93-142066c4d8e2",
+      "name": "Checklist 4 Create (Under300)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// تجهيز items الـ checklist \"Handover\"\nconst checklistId = $json.data.checklist_id;\nconst cardId = $('Create Card (Under 300)2').first().json.data.id;\nconst userCode = '7280';\n\nconst items = [\n  \"Onboarding completed successfully\",\n  \"Handover email sent to CS\",\n  \"Card closed\"\n];\n\nreturn items.map(name => ({\n  json: {\n    checklist_id: checklistId,\n    card_id: cardId,\n    user_code: userCode,\n    name\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5616,
+        3136
+      ],
+      "id": "b50191bd-5e8a-4f60-a6ae-c7028b2632d3",
+      "name": "Prepare Items 4 (Under300)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/items/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "<API_KEY>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "checklist_id",
+              "value": "={{ $json.checklist_id }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $json.card_id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "={{ $json.user_code }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        5872,
+        3136
+      ],
+      "id": "23a03f05-47d6-44b7-80f8-f80087954e0c",
+      "name": "Add Items 4 (Under300)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "<API_KEY>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "One-Time Setup"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $('Create Card (Over 300)2').first().json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "={{ $('Round Robin: 300+1').first().json.selected_member }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2224,
+        3424
+      ],
+      "id": "4686cb69-30ba-4d29-aa23-c4a13ac21615",
+      "name": "Checklist 1 Create (Over300)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// تجهيز items الـ checklist \"One-Time Setup\"\nconst checklistId = $json.data.checklist_id;\nconst cardId = $('Create Card (Over 300)2').first().json.data.id;\nconst userCode = $('Round Robin: 300+1').first().json.selected_member;\n\nconst items = [\n  \"Intro Call Completed\",\n  \"Business Information & Documents Verified\",\n  \"WhatsApp group created (TL & Manager as Admins)\",\n  \"Account Setup & Portal Access Completed\",\n  \"System Integration Confirmed (If Applicable)\",\n  \"Shipping Guide & SLA Explained\"\n];\n\nreturn items.map(name => ({\n  json: {\n    checklist_id: checklistId,\n    card_id: cardId,\n    user_code: userCode,\n    name\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2496,
+        3424
+      ],
+      "id": "4dfc312e-b2fc-4fbc-86c8-221c0a20ab39",
+      "name": "Prepare Items 1 (Over300)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/items/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "<API_KEY>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "checklist_id",
+              "value": "={{ $json.checklist_id }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $json.card_id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "={{ $json.user_code }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2752,
+        3424
+      ],
+      "id": "c55a0646-581b-4c87-986c-2541fa7884f7",
+      "name": "Add Items 1 (Over300)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// إعادة الفلو لعنصر واحد بس قبل ما يكمل على الـ checklist اللي بعده\nreturn [{\n  json: {\n    card_id: $('Create Card (Over 300)2').first().json.data.id,\n    user_code: $('Round Robin: 300+1').first().json.selected_member\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3008,
+        3424
+      ],
+      "id": "0dbb4bee-dd71-422d-b1b9-d2186b665d26",
+      "name": "Continue 1 (Over300)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "<API_KEY>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "Daily Follow-up"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $('Create Card (Over 300)2').first().json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "={{ $('Round Robin: 300+1').first().json.selected_member }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3264,
+        3424
+      ],
+      "id": "2c049c05-ce3f-4e3d-9ca2-62f111f2436a",
+      "name": "Checklist 2 Create (Over300)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// تجهيز items الـ checklist \"Daily Follow-up\"\nconst checklistId = $json.data.checklist_id;\nconst cardId = $('Create Card (Over 300)2').first().json.data.id;\nconst userCode = $('Round Robin: 300+1').first().json.selected_member;\n\nconst items = [\n  \"Daily Client Follow-up Completed\",\n  \"Shipments Tracked as per SLA\",\n  \"Pending Requirements Followed Up\",\n  \"Open Tickets Reviewed\",\n  \"CRM Card Updated\"\n];\n\nreturn items.map(name => ({\n  json: {\n    checklist_id: checklistId,\n    card_id: cardId,\n    user_code: userCode,\n    name\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3536,
+        3424
+      ],
+      "id": "fb73ba7c-3845-49a3-aa09-474b74e4c2b9",
+      "name": "Prepare Items 2 (Over300)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/items/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "<API_KEY>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "checklist_id",
+              "value": "={{ $json.checklist_id }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $json.card_id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "={{ $json.user_code }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3792,
+        3424
+      ],
+      "id": "362733dd-341b-4b2c-a70a-39678c256be3",
+      "name": "Add Items 2 (Over300)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// إعادة الفلو لعنصر واحد بس قبل ما يكمل على الـ checklist اللي بعده\nreturn [{\n  json: {\n    card_id: $('Create Card (Over 300)2').first().json.data.id,\n    user_code: $('Round Robin: 300+1').first().json.selected_member\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4048,
+        3424
+      ],
+      "id": "438f54e2-3c64-4b36-be4d-b65475ea0a55",
+      "name": "Continue 2 (Over300)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "<API_KEY>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "Weekly Review"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $('Create Card (Over 300)2').first().json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "={{ $('Round Robin: 300+1').first().json.selected_member }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        4304,
+        3424
+      ],
+      "id": "4e794d1d-cc92-4df0-af2a-93664d30ff17",
+      "name": "Checklist 3 Create (Over300)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// تجهيز items الـ checklist \"Weekly Review\"\nconst checklistId = $json.data.checklist_id;\nconst cardId = $('Create Card (Over 300)2').first().json.data.id;\nconst userCode = $('Round Robin: 300+1').first().json.selected_member;\n\nconst items = [\n  \"Client operating as agreed\",\n  \"Pickup & Delivery committed to agreed schedule\",\n  \"No recurring operational issues\",\n  \"Action plan updated for pending issues (if any)\"\n];\n\nreturn items.map(name => ({\n  json: {\n    checklist_id: checklistId,\n    card_id: cardId,\n    user_code: userCode,\n    name\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4576,
+        3424
+      ],
+      "id": "84fa6696-82da-443a-af4a-2bcafc4122da",
+      "name": "Prepare Items 3 (Over300)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/items/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "<API_KEY>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "checklist_id",
+              "value": "={{ $json.checklist_id }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $json.card_id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "={{ $json.user_code }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        4832,
+        3424
+      ],
+      "id": "0f297d09-980e-4f3f-bd30-b43210483bde",
+      "name": "Add Items 3 (Over300)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// إعادة الفلو لعنصر واحد بس قبل ما يكمل على الـ checklist اللي بعده\nreturn [{\n  json: {\n    card_id: $('Create Card (Over 300)2').first().json.data.id,\n    user_code: $('Round Robin: 300+1').first().json.selected_member\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5088,
+        3424
+      ],
+      "id": "dd53f104-bfde-4bf7-8fe2-1b10f72c987b",
+      "name": "Continue 3 (Over300)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "<API_KEY>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "Handover"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $('Create Card (Over 300)2').first().json.data.id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "={{ $('Round Robin: 300+1').first().json.selected_member }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        5344,
+        3424
+      ],
+      "id": "34974d82-3cb9-4fca-afa7-bf13e46d21ee",
+      "name": "Checklist 4 Create (Over300)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// تجهيز items الـ checklist \"Handover\"\nconst checklistId = $json.data.checklist_id;\nconst cardId = $('Create Card (Over 300)2').first().json.data.id;\nconst userCode = $('Round Robin: 300+1').first().json.selected_member;\n\nconst items = [\n  \"Onboarding completed successfully\",\n  \"Handover email sent to CS\",\n  \"Card closed\"\n];\n\nreturn items.map(name => ({\n  json: {\n    checklist_id: checklistId,\n    card_id: cardId,\n    user_code: userCode,\n    name\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5616,
+        3424
+      ],
+      "id": "c8d45ee3-0a56-41bf-84da-ebdfdd6a5bdc",
+      "name": "Prepare Items 4 (Over300)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-checklists/items/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "<API_KEY>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "checklist_id",
+              "value": "={{ $json.checklist_id }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "card_id",
+              "value": "={{ $json.card_id }}"
+            },
+            {
+              "name": "user_code",
+              "value": "={{ $json.user_code }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        5872,
+        3424
+      ],
+      "id": "bca92266-90f4-4ee6-b00f-2de1b6b97964",
+      "name": "Add Items 4 (Over300)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "cond1",
+              "leftValue": "={{ Number($json.body.average_monthly_shipments) }}",
+              "rightValue": 300,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1328,
+        3312
+      ],
+      "id": "44ae252f-6532-4f50-a8e9-3b09a8c4ef3d",
+      "name": "IF: Shipments < 301"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-cards/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "<API_KEY>"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "=عميل جديد | {{ $json.body.name }} ({{ $json.body.company_name }})"
+            },
+            {
+              "name": "board_id",
+              "value": "104"
+            },
+            {
+              "name": "list_id",
+              "value": "1697"
+            },
+            {
+              "name": "description",
+              "value": "=رقم العميل | {{ $json.body.id }}\nالاسم | {{ $json.body.name }}\nاسم الشركة | {{ $json.body.company_name }}\nرقم الموبايل | {{ $json.body.phone }}\nالمحافظة | {{ $json.body.government }}\nعدد الشحنات الشهرية | {{ $json.body.average_monthly_shipments }}\n"
+            },
+            {
+              "name": "user_code",
+              "value": "7280"
+            },
+            {
+              "name": "members[]",
+              "value": "7280"
+            },
+            {
+              "name": "start_date",
+              "value": "={{ $now.format('yyyy-MM-dd') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1920,
+        3136
+      ],
+      "id": "a04c1e20-3769-4561-adb7-358cfe7c7e42",
+      "name": "Create Card (Under 300)2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://platform.turbo.info/api/v1/task-cards/store",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "<API_KEY>"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "=عميل جديد | {{ $json.body.name }} ({{ $json.body.company_name }})"
+            },
+            {
+              "name": "board_id",
+              "value": "104"
+            },
+            {
+              "name": "list_id",
+              "value": "1697"
+            },
+            {
+              "name": "description",
+              "value": "=رقم العميل | {{ $json.body.id }}\nالاسم | {{ $json.body.name }}\nاسم الشركة | {{ $json.body.company_name }}\nرقم الموبايل | {{ $json.body.phone }}\nالمحافظة | {{ $json.body.government }}\nعدد الشحنات الشهرية | {{ $json.body.average_monthly_shipments }}\n"
+            },
+            {
+              "name": "user_code",
+              "value": "={{ $json.selected_member }}"
+            },
+            {
+              "name": "members[]",
+              "value": "={{ $json.selected_member }}"
+            },
+            {
+              "name": "start_date",
+              "value": "={{ $now.format('yyyy-MM-dd') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1872,
+        3424
+      ],
+      "id": "9f932e89-f947-467f-8f3d-bbabc9776fc1",
+      "name": "Create Card (Over 300)2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Round Robin بين عضوين لحالة الشحنات > 300\nconst MEMBER_A = '26155';\nconst MEMBER_B = '34303';\nconst staticData = $getWorkflowStaticData('global');\nif (staticData.lastMember === MEMBER_A) {\n  staticData.lastMember = MEMBER_B;\n} else {\n  staticData.lastMember = MEMBER_A;\n}\nreturn [{ json: { ...$input.first().json, selected_member: staticData.lastMember } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1632,
+        3424
+      ],
+      "id": "c7c592e1-62e5-4efe-b9ab-bcb791b08f98",
+      "name": "Round Robin: 300+1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "IF: Shipments < 301",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checklist 1 Create (Under300)": {
+      "main": [
+        [
+          {
+            "node": "Prepare Items 1 (Under300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Items 1 (Under300)": {
+      "main": [
+        [
+          {
+            "node": "Add Items 1 (Under300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Items 1 (Under300)": {
+      "main": [
+        [
+          {
+            "node": "Continue 1 (Under300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Continue 1 (Under300)": {
+      "main": [
+        [
+          {
+            "node": "Checklist 2 Create (Under300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checklist 2 Create (Under300)": {
+      "main": [
+        [
+          {
+            "node": "Prepare Items 2 (Under300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Items 2 (Under300)": {
+      "main": [
+        [
+          {
+            "node": "Add Items 2 (Under300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Items 2 (Under300)": {
+      "main": [
+        [
+          {
+            "node": "Continue 2 (Under300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Continue 2 (Under300)": {
+      "main": [
+        [
+          {
+            "node": "Checklist 3 Create (Under300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checklist 3 Create (Under300)": {
+      "main": [
+        [
+          {
+            "node": "Prepare Items 3 (Under300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Items 3 (Under300)": {
+      "main": [
+        [
+          {
+            "node": "Add Items 3 (Under300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Items 3 (Under300)": {
+      "main": [
+        [
+          {
+            "node": "Continue 3 (Under300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Continue 3 (Under300)": {
+      "main": [
+        [
+          {
+            "node": "Checklist 4 Create (Under300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checklist 4 Create (Under300)": {
+      "main": [
+        [
+          {
+            "node": "Prepare Items 4 (Under300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Items 4 (Under300)": {
+      "main": [
+        [
+          {
+            "node": "Add Items 4 (Under300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checklist 1 Create (Over300)": {
+      "main": [
+        [
+          {
+            "node": "Prepare Items 1 (Over300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Items 1 (Over300)": {
+      "main": [
+        [
+          {
+            "node": "Add Items 1 (Over300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Items 1 (Over300)": {
+      "main": [
+        [
+          {
+            "node": "Continue 1 (Over300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Continue 1 (Over300)": {
+      "main": [
+        [
+          {
+            "node": "Checklist 2 Create (Over300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checklist 2 Create (Over300)": {
+      "main": [
+        [
+          {
+            "node": "Prepare Items 2 (Over300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Items 2 (Over300)": {
+      "main": [
+        [
+          {
+            "node": "Add Items 2 (Over300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Items 2 (Over300)": {
+      "main": [
+        [
+          {
+            "node": "Continue 2 (Over300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Continue 2 (Over300)": {
+      "main": [
+        [
+          {
+            "node": "Checklist 3 Create (Over300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checklist 3 Create (Over300)": {
+      "main": [
+        [
+          {
+            "node": "Prepare Items 3 (Over300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Items 3 (Over300)": {
+      "main": [
+        [
+          {
+            "node": "Add Items 3 (Over300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Items 3 (Over300)": {
+      "main": [
+        [
+          {
+            "node": "Continue 3 (Over300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Continue 3 (Over300)": {
+      "main": [
+        [
+          {
+            "node": "Checklist 4 Create (Over300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checklist 4 Create (Over300)": {
+      "main": [
+        [
+          {
+            "node": "Prepare Items 4 (Over300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Items 4 (Over300)": {
+      "main": [
+        [
+          {
+            "node": "Add Items 4 (Over300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Items 4 (Under300)": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Items 4 (Over300)": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Shipments < 301": {
+      "main": [
+        [
+          {
+            "node": "Create Card (Under 300)2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Round Robin: 300+1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Card (Under 300)2": {
+      "main": [
+        [
+          {
+            "node": "Checklist 1 Create (Under300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Card (Over 300)2": {
+      "main": [
+        [
+          {
+            "node": "Checklist 1 Create (Over300)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Round Robin: 300+1": {
+      "main": [
+        [
+          {
+            "node": "Create Card (Over 300)2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "3802cd6e-ab5f-4d8b-b267-61c197e3d88f",
+  "meta": {},
+  "id": "jj53Cy2MOSc5Xcrc",
+  "tags": []
+}
