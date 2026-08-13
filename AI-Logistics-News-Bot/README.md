@@ -30,6 +30,12 @@ The workflow supports:
 
 ---
 
+## 🔄 Workflow
+
+![AI Logistics News Bot Workflow](Workflow.png)
+
+---
+
 ## 🎯 Problem
 
 Publishing logistics news manually involves several repetitive steps:
