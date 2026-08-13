@@ -2,9 +2,10 @@
 
 ## Overview
 
-The AI Customer Service Ticket Agent is an n8n workflow that processes
-customer service tickets through authentication, multimodal input
-processing, AI planning, controlled tool execution, and escalation handling.
+The AI Customer Service Ticket Agent is an n8n workflow for processing
+customer service tickets through authentication, input routing,
+multimodal processing, AI planning, controlled tool execution,
+knowledge retrieval, and escalation handling.
 
 ## High-Level Flow
 
