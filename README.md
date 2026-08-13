@@ -2,55 +2,54 @@
 
 # 🤖 AI Automation Projects
 
-**Real-world AI automation systems built with n8n, OpenAI, AI Agents, and business APIs**
+### Building practical AI systems that automate real business operations
 
-[![n8n](https://img.shields.io/badge/Built_with-n8n-EA4B71?style=for-the-badge&logo=n8n&logoColor=white)](https://n8n.io)
-[![OpenAI](https://img.shields.io/badge/Powered_by-OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)](https://openai.com)
-[![Automation](https://img.shields.io/badge/Focus-AI%20%26%20Automation-0A66C2?style=for-the-badge)](#)
+[![n8n](https://img.shields.io/badge/n8n-EA4B71?style=for-the-badge&logo=n8n&logoColor=white)](https://n8n.io)
+[![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)](https://openai.com)
+[![AI Agents](https://img.shields.io/badge/AI%20Agents-0A66C2?style=for-the-badge)](#)
+[![Automation](https://img.shields.io/badge/Automation-111827?style=for-the-badge)](#)
 
 </div>
 
 ---
 
-## 📌 Overview
+## 👋 About
 
-This repository contains real-world AI automation systems built with **n8n, OpenAI, APIs, webhooks, and business platforms**.
+This repository showcases real-world **AI and automation systems** built with **n8n, OpenAI, AI Agents, APIs, webhooks, and business platforms**.
 
-The projects focus on applying AI and automation to real operational workflows, including customer service, HR, CRM, content automation, moderation, and ticket processing.
+The projects focus on turning repetitive business processes into reliable automated workflows — combining AI reasoning, business logic, API integrations, structured data, and human-in-the-loop processes.
 
-Each project includes its own workflow export, architecture diagram, and technical documentation.
-
-> These systems were built to support real operational workflows and business processes at **Turbo Eg**.
+> Built around real operational use cases at **Turbo Eg**.
 
 ---
 
-# 📂 Projects
+# 🚀 Featured Projects
 
-## 1. 🤖 AI Customer Service Ticket Agent
+### 🤖 01 — AI Customer Service Ticket Agent
 
-[**View Project →**](./AI-Customer-Service-Ticket-Agent)
+An AI-powered customer service system for processing customer requests through a controlled AI agent architecture.
 
-An AI-powered customer service system that processes customer requests through a controlled AI agent architecture.
+**Highlights**
 
-**Highlights:**
-- Multimodal customer input
+- Multimodal input processing
 - AI Planner
 - Controlled tool execution
 - RAG / Vector Store
-- Shipment & operational information
+- Shipment information retrieval
 - Escalation handling
 
 **Stack:** `n8n` `OpenAI` `AI Agents` `RAG` `Vector Store` `REST APIs`
 
+👉 [**View Project →**](./AI-Customer-Service-Ticket-Agent)
+
 ---
 
-## 2. 🚚 Real-Time AI Shipment Chat Moderation
+### 🚚 02 — Real-Time AI Shipment Chat Moderation
 
-[**View Project →**](./Shipment-Chat-Moderation)
+A real-time moderation system that analyzes shipment chat messages individually and applies sender-specific moderation actions.
 
-A real-time AI moderation system that analyzes shipment chat messages independently as they are received.
+**Highlights**
 
-**Highlights:**
 - Real-time webhook processing
 - AI moderation
 - Violation detection
@@ -60,15 +59,16 @@ A real-time AI moderation system that analyzes shipment chat messages independen
 
 **Stack:** `n8n` `OpenAI` `Webhooks` `AI Moderation`
 
+👉 [**View Project →**](./Shipment-Chat-Moderation)
+
 ---
 
-## 3. 📧 HR Email Automation
+### 📧 03 — HR Email Automation
 
-[**View Project →**](./HR-Email-Automation)
+An AI-powered HR workflow that transforms incoming emails into structured operational tasks.
 
-An AI-powered HR email processing system that converts incoming HR requests into structured operational tasks.
+**Highlights**
 
-**Highlights:**
 - Gmail monitoring
 - AI request classification
 - Structured data extraction
@@ -78,139 +78,112 @@ An AI-powered HR email processing system that converts incoming HR requests into
 
 **Stack:** `n8n` `Gmail` `OpenAI` `Google Sheets` `Turbo API`
 
+👉 [**View Project →**](./HR-Email-Automation)
+
 ---
 
-## 4. 📰 AI Logistics News Bot
-
-[**View Project →**](./AI-Logistics-News-Bot)
+### 📰 04 — AI Logistics News Bot
 
 An AI-powered Telegram workflow for creating, reviewing, editing, and publishing logistics news.
 
-**Highlights:**
-- News creation
-- AI content analysis
+**Highlights**
+
+- AI news analysis
 - Duplicate detection
-- Image generation / reuse
 - Draft management
-- Human approval before publishing
+- Image generation / reuse
+- Human review
+- Telegram publishing
 
 **Stack:** `n8n` `Telegram` `OpenAI` `RSS` `Image Generation`
 
+👉 [**View Project →**](./AI-Logistics-News-Bot)
+
 ---
 
-## 5. 🎫 Customer Service Ticket Quality & Classification
+### 🎫 05 — Customer Service Ticket Quality & Classification
 
-[**View Project →**](./Customer-Service-Ticket-Quality)
+An AI workflow for evaluating customer service quality and classifying customer service tickets.
 
-An AI-powered workflow that evaluates customer service quality and classifies customer service tickets.
+**Highlights**
 
-**Highlights:**
-- Ticket processing
-- AI quality evaluation
-- Quality scoring
+- Quality evaluation
+- AI scoring
 - Ticket classification
 - Structured AI output
 - Google Sheets logging
+- Webhook processing
 
 **Stack:** `n8n` `OpenAI` `AI Agents` `Google Sheets` `Webhooks`
 
+👉 [**View Project →**](./Customer-Service-Ticket-Quality)
+
 ---
 
-## 6. 👤 New Customer CRM Automation
+### 👤 06 — New Customer CRM Automation
 
-[**View Project →**](./New-Customer-CRM)
+An automated customer onboarding workflow that routes new customers, assigns them to the appropriate team, and creates structured CRM tasks.
 
-An automated customer onboarding workflow that creates and structures new customer records in the Turbo CRM system.
+**Highlights**
 
-**Highlights:**
-- Webhook-based customer intake
+- Webhook-based intake
 - Shipment-based routing
 - Round Robin assignment
 - CRM card creation
-- Automated onboarding checklists
-- Checklist item generation
+- Automated checklists
+- Turbo API integration
 
 **Stack:** `n8n` `Turbo API` `Webhooks` `JavaScript` `REST APIs`
 
+👉 [**View Project →**](./New-Customer-CRM)
+
 ---
 
-# 🧠 AI & Automation Capabilities
+# 🧠 What I Build
 
-### AI Agents & Decision Making
+### AI Agents & Automation
 
-- AI Agents
-- AI Planning
-- Controlled tool execution
-- AI classification
-- Structured AI outputs
-
-### Multimodal AI
-
-- Text processing
-- Image analysis
-- Voice transcription
-- File processing
+`AI Agents` `AI Planning` `Tool Calling` `AI Classification` `Structured Output`
 
 ### Knowledge & RAG
 
-- Vector Stores
-- RAG
-- Knowledge retrieval
-- AI-powered policy responses
+`RAG` `Vector Stores` `Knowledge Retrieval`
+
+### Multimodal AI
+
+`Text` `Images` `Voice` `Files`
 
 ### Business Automation
 
-- Customer service
-- HR automation
-- CRM automation
-- Ticket processing
-- Content automation
-- Real-time moderation
+`Customer Service` `HR` `CRM` `Ticketing` `Content Automation` `Moderation`
 
 ### Integrations
 
-- Gmail
-- Telegram
-- Google Sheets
-- REST APIs
-- Webhooks
-- Turbo APIs
+`REST APIs` `Webhooks` `Gmail` `Telegram` `Google Sheets` `Turbo APIs`
 
 ---
 
-# 🛠️ Technology Stack
+# 🛠️ Core Stack
+
+| Category | Technologies |
+|---|---|
+| Automation | `n8n` |
+| AI | `OpenAI` · `AI Agents` · `LLMs` |
+| Knowledge | `RAG` · `Vector Stores` |
+| Integrations | `REST APIs` · `Webhooks` |
+| Platforms | `Gmail` · `Telegram` · `Google Sheets` |
+| Processing | `JavaScript` · `Multimodal AI` |
+
+---
+
+# 📁 Repository Structure
 
 ```text
-n8n
-OpenAI
-AI Agents
-RAG / Vector Stores
-REST APIs
-Webhooks
-Gmail
-Telegram
----
-
-# 👤 Author
-
-**Mohamed Mamdouh Ismail**
-
-**AI & Automation Specialist**
-
-Building practical AI automation systems that connect AI capabilities with real business operations.
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat-square&logo=linkedin&logoColor=white)](https://linkedin.com/in/mohamed-mamdouh-ui)
-
-[![Email](https://img.shields.io/badge/Email-D14836?style=flat-square&logo=gmail&logoColor=white)](mailto:mohammeddo7aa@gmail.com)
-
-[![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/mohammedMamdouh99)
-
----
-
-<div align="center">
-
-⭐ **Building practical AI automation systems for real business problems.**
-
-</div>
-Google Sheets
-JavaScript
+AI-Automation-Projects/
+│
+├── AI-Customer-Service-Ticket-Agent/
+├── AI-Logistics-News-Bot/
+├── Customer-Service-Ticket-Quality/
+├── HR-Email-Automation/
+├── Shipment-Chat-Moderation/
+└── New-Customer-CRM/
