@@ -1,26 +1,36 @@
 # 📧 HR Email Automation
 
+### n8n Workflow
+
 An AI-powered HR email processing workflow built with **n8n, Gmail, OpenAI, Google Sheets, and Turbo**.
 
-The system monitors incoming HR emails, validates and classifies requests using AI, routes them to the appropriate automated process, and creates structured tasks for internal operations.
+The system monitors incoming HR emails, validates and classifies requests using AI, routes them to the appropriate automated HR process, creates structured tasks, generates standardized responses, and stores selected structured data for reporting.
 
 ---
 
 ## 📌 Overview
 
-HR teams receive different types of requests through email, often containing unstructured information that requires manual review, classification, and follow-up.
+HR teams receive different types of requests through email, often containing unstructured information that requires manual review, classification, data extraction, task creation, and follow-up.
 
 This automation transforms the email-based process into a structured workflow by:
 
-- Monitoring incoming HR emails
-- Identifying new HR requests
-- Filtering relevant emails
-- Classifying requests using AI
-- Extracting structured information
-- Routing requests to the correct process
-- Creating tasks in the internal task management system
-- Generating standardized email responses
-- Storing selected structured data for reporting
+- 📥 Monitoring incoming HR emails
+- 🔍 Identifying new HR requests
+- 🛡️ Filtering relevant Turbo-related emails
+- 🤖 Classifying requests using AI
+- 📋 Extracting structured information
+- 🔀 Routing requests to the appropriate HR process
+- 📝 Creating tasks in the Turbo platform
+- ☑️ Creating process-specific checklists
+- 📊 Storing selected structured data in Google Sheets
+- ✉️ Generating standardized email responses
+- 🌍 Supporting Arabic and English email responses
+
+---
+
+## 🔄 Workflow
+
+![HR Email Automation Workflow](Workflow.png)
 
 ---
 
@@ -34,8 +44,9 @@ Processing HR requests manually can lead to:
 - Manual data extraction
 - Inconsistent communication
 - Difficulty tracking different HR request types
+- Repeated manual checklist preparation
 
-The automation reduces these manual steps and standardizes the process.
+The automation reduces these manual steps and standardizes the processing of HR requests.
 
 ---
 
@@ -43,16 +54,14 @@ The automation reduces these manual steps and standardizes the process.
 
 The workflow acts as an AI-powered processing layer between the HR mailbox and internal operational systems.
 
-Each incoming request follows an automated pipeline:
+Each incoming request follows a controlled pipeline:
 
 ```text
 Incoming HR Email
         ↓
-Email Validation
+New Email Validation
         ↓
-New Request Check
-        ↓
-Turbo Email Filter
+Turbo Email Validation
         ↓
 AI Classification
         ↓
@@ -60,6 +69,10 @@ Request-Specific Routing
         ↓
 Data Extraction
         ↓
-Task Creation / Google Sheets
+Turbo Task Creation
         ↓
-Automated Email Response
+Process Checklists
+        ↓
+Email Response Generation
+        ↓
+Confirmation Email
