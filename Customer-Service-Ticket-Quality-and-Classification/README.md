@@ -1,43 +1,77 @@
 # Customer Service Ticket Quality & Classification
 
-An AI-powered customer service quality evaluation and ticket classification
-workflow built with n8n.
+AI-powered customer service ticket evaluation and classification workflow
+built with n8n.
 
-## Overview
+The workflow processes customer service tickets through two parallel AI
+pipelines:
 
-This workflow processes customer service tickets and performs two AI-driven
-tasks in parallel:
+- Customer Service Quality Evaluation
+- Customer Ticket Classification
 
-1. Evaluates the quality of the customer service agent's communication.
-2. Classifies the customer service ticket based on the customer's actual need.
-
-The workflow receives ticket data through a webhook, prepares and analyzes
-the ticket conversation, then sends the processed data to two independent
-AI agents.
+Both pipelines process the same ticket conversation and store their results
+for reporting and analysis.
 
 ---
 
-## Workflow Architecture
+## Workflow
 
-The workflow follows two parallel AI processing branches:
+![Customer Service Ticket Quality & Classification Workflow](Workflow.png)
+
+---
+
+## Overview
+
+The workflow receives customer service ticket data through a webhook,
+extracts and prepares the ticket information, processes the conversation,
+and sends it to two independent AI agents.
+
+### Quality Evaluation
+
+Evaluates the customer service agent's communication across five criteria:
+
+- Greeting
+- Misspellings
+- Punctuation
+- Slang
+- Thanks
+
+The evaluation is converted into a numerical score and stored in Google
+Sheets.
+
+### Ticket Classification
+
+Determines the customer's actual reason for contacting customer service.
+
+The AI classifies the ticket into one of the supported main categories:
+
+- شكوى
+- استفسار
+- شكر
+- مقترح
+
+It then selects the appropriate sub-category from the predefined
+classification list.
+
+---
+
+## Architecture
 
 ```text
-                         Webhook
-                            ↓
-                       Edit Fields
-                            ↓
-                  Code in JavaScript
-                       /          \
-                      /            \
-                     ↓              ↓
-             Quality Agent    Ticket Classification Agent
-                     ↓              ↓
-             Score Calculator   Classification Parser
-                     ↓              ↓
-              Google Sheets     Google Sheets
-                     \              /
-                      \            /
-                       ↓          ↓
-                    Respond to Webhook
-                            ↓
-                    Execution Data
+Webhook
+   ↓
+Edit Fields
+   ↓
+Code in JavaScript
+   ├──────────────────────────────┐
+   ↓                              ↓
+Quality Agent          Ticket Classification Agent
+   ↓                              ↓
+Score Calculator       Classification Parser
+   ↓                              ↓
+Google Sheets          Google Sheets
+   └──────────────┬───────────────┘
+                  ↓
+          Respond to Webhook
+                  ↓
+           Execution Data
