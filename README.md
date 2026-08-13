@@ -125,7 +125,16 @@ Automated customer onboarding workflow that routes new customers, assigns them t
 ---
 
 # 📁 Repository Structure
----
+
+```text
+AI-Automation-Projects/
+│
+├── AI-Customer-Service-Ticket-Agent/
+├── AI-Logistics-News-Bot/
+├── Customer-Service-Ticket-Quality/
+├── HR-Email-Automation/
+├── Shipment-Chat-Moderation/
+└── New-Customer-CRM/---
 
 # 👤 Author
 
