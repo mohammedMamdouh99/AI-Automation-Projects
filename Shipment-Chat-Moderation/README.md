@@ -1,6 +1,8 @@
 # 🚚 Real-Time AI Shipment Chat Moderation
 
-An AI-powered real-time moderation system built with n8n and OpenAI to analyze shipment chat messages as they are received and automatically detect abusive, offensive, or threatening content.
+### n8n Workflow
+
+An AI-powered real-time moderation system built with **n8n and OpenAI** to analyze shipment chat messages as they are received and automatically detect abusive, offensive, or threatening content.
 
 The system processes **each incoming message independently in real time** without waiting for the conversation to end.
 
@@ -17,6 +19,14 @@ This workflow automates the moderation process by analyzing every incoming shipm
 - Whether a violation was detected
 - The sender type
 - The severity of the violation
+
+---
+
+## 🔄 Workflow
+
+<p align="center">
+  <img src="./Workflow.png" alt="Real-Time AI Shipment Chat Moderation Workflow" width="100%">
+</p>
 
 ---
 
@@ -43,7 +53,7 @@ The AI evaluates the message against predefined moderation rules and returns a s
 
 Based on the result, the workflow automatically routes the message to the correct moderation action.
 
-### Message-level processing
+### Message-Level Processing
 
 Each message is processed independently:
 
@@ -65,3 +75,5 @@ Execution     Sender Type
         Execution    Captain Hide
            Data          ↓
                     Execution Data
+                           ↓
+                   Webhook Response
