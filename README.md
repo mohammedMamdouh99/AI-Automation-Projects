@@ -17,26 +17,19 @@
 
 This repository showcases real-world **AI and automation systems** built with **n8n, OpenAI, AI Agents, APIs, webhooks, and business platforms**.
 
-The projects focus on turning repetitive business processes into reliable automated workflows — combining AI reasoning, business logic, API integrations, structured data, and human-in-the-loop processes.
+The projects focus on turning repetitive business processes into reliable automated workflows by combining AI reasoning, business logic, API integrations, structured data, and human-in-the-loop processes.
 
 > Built around real operational use cases at **Turbo Eg**.
 
 ---
 
-# 🚀 Featured Projects
+# 🚀 Projects
 
 ### 🤖 01 — AI Customer Service Ticket Agent
 
-An AI-powered customer service system for processing customer requests through a controlled AI agent architecture.
+AI-powered customer service ticket processing through a controlled AI agent architecture.
 
-**Highlights**
-
-- Multimodal input processing
-- AI Planner
-- Controlled tool execution
-- RAG / Vector Store
-- Shipment information retrieval
-- Escalation handling
+**Highlights:** Multimodal input · AI Planner · Tool execution · RAG · Shipment information · Escalation
 
 **Stack:** `n8n` `OpenAI` `AI Agents` `RAG` `Vector Store` `REST APIs`
 
@@ -46,16 +39,9 @@ An AI-powered customer service system for processing customer requests through a
 
 ### 🚚 02 — Real-Time AI Shipment Chat Moderation
 
-A real-time moderation system that analyzes shipment chat messages individually and applies sender-specific moderation actions.
+Real-time AI moderation system for analyzing shipment chat messages and applying sender-specific moderation actions.
 
-**Highlights**
-
-- Real-time webhook processing
-- AI moderation
-- Violation detection
-- Severity classification
-- Client / Captain routing
-- Automated moderation actions
+**Highlights:** Real-time processing · AI moderation · Violation detection · Client/Captain routing
 
 **Stack:** `n8n` `OpenAI` `Webhooks` `AI Moderation`
 
@@ -65,16 +51,9 @@ A real-time moderation system that analyzes shipment chat messages individually 
 
 ### 📧 03 — HR Email Automation
 
-An AI-powered HR workflow that transforms incoming emails into structured operational tasks.
+AI-powered HR email processing workflow that converts incoming requests into structured operational tasks.
 
-**Highlights**
-
-- Gmail monitoring
-- AI request classification
-- Structured data extraction
-- Turbo task creation
-- Process-specific checklists
-- Automated email responses
+**Highlights:** Gmail monitoring · AI classification · Data extraction · Turbo tasks · Checklists · Automated responses
 
 **Stack:** `n8n` `Gmail` `OpenAI` `Google Sheets` `Turbo API`
 
@@ -84,16 +63,9 @@ An AI-powered HR workflow that transforms incoming emails into structured operat
 
 ### 📰 04 — AI Logistics News Bot
 
-An AI-powered Telegram workflow for creating, reviewing, editing, and publishing logistics news.
+AI-powered Telegram workflow for creating, reviewing, editing, and publishing logistics news.
 
-**Highlights**
-
-- AI news analysis
-- Duplicate detection
-- Draft management
-- Image generation / reuse
-- Human review
-- Telegram publishing
+**Highlights:** AI analysis · Duplicate detection · Draft management · Image generation · Human review · Telegram publishing
 
 **Stack:** `n8n` `Telegram` `OpenAI` `RSS` `Image Generation`
 
@@ -103,16 +75,9 @@ An AI-powered Telegram workflow for creating, reviewing, editing, and publishing
 
 ### 🎫 05 — Customer Service Ticket Quality & Classification
 
-An AI workflow for evaluating customer service quality and classifying customer service tickets.
+AI workflow for evaluating customer service quality and classifying customer service tickets.
 
-**Highlights**
-
-- Quality evaluation
-- AI scoring
-- Ticket classification
-- Structured AI output
-- Google Sheets logging
-- Webhook processing
+**Highlights:** Quality evaluation · AI scoring · Ticket classification · Structured output · Google Sheets
 
 **Stack:** `n8n` `OpenAI` `AI Agents` `Google Sheets` `Webhooks`
 
@@ -122,16 +87,9 @@ An AI workflow for evaluating customer service quality and classifying customer 
 
 ### 👤 06 — New Customer CRM Automation
 
-An automated customer onboarding workflow that routes new customers, assigns them to the appropriate team, and creates structured CRM tasks.
+Automated customer onboarding workflow that routes new customers, assigns them to the appropriate team, and creates structured CRM tasks.
 
-**Highlights**
-
-- Webhook-based intake
-- Shipment-based routing
-- Round Robin assignment
-- CRM card creation
-- Automated checklists
-- Turbo API integration
+**Highlights:** Webhook intake · Shipment-based routing · Round Robin assignment · CRM cards · Checklists
 
 **Stack:** `n8n` `Turbo API` `Webhooks` `JavaScript` `REST APIs`
 
@@ -139,31 +97,21 @@ An automated customer onboarding workflow that routes new customers, assigns the
 
 ---
 
-# 🧠 What I Build
+# 🧠 Capabilities
 
-### AI Agents & Automation
-
-`AI Agents` `AI Planning` `Tool Calling` `AI Classification` `Structured Output`
-
-### Knowledge & RAG
-
-`RAG` `Vector Stores` `Knowledge Retrieval`
-
-### Multimodal AI
-
-`Text` `Images` `Voice` `Files`
-
-### Business Automation
-
-`Customer Service` `HR` `CRM` `Ticketing` `Content Automation` `Moderation`
-
-### Integrations
-
-`REST APIs` `Webhooks` `Gmail` `Telegram` `Google Sheets` `Turbo APIs`
+- AI Agents & AI Planning
+- Controlled Tool Execution
+- AI Classification & Structured Output
+- RAG & Vector Store Knowledge Retrieval
+- Multimodal AI — Text, Image, Voice & Files
+- Webhook-driven Automation
+- REST API Integrations
+- Business Process Automation
+- Human-in-the-Loop Workflows
 
 ---
 
-# 🛠️ Core Stack
+# 🛠️ Technology Stack
 
 | Category | Technologies |
 |---|---|
