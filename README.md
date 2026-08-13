@@ -134,7 +134,11 @@ AI-Automation-Projects/
 ├── Customer-Service-Ticket-Quality/
 ├── HR-Email-Automation/
 ├── Shipment-Chat-Moderation/
-└── New-Customer-CRM/---
+└── New-Customer-CRM/
+```
+
+Each project contains its own workflow documentation and sanitized workflow assets.
+
 ---
 
 # 👤 Author
