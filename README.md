@@ -61,22 +61,22 @@ An AI-powered customer service ticket processing system designed to handle custo
 Customer Input
       │
       ▼
- Authentication & Preparation
+Authentication & Preparation
       │
       ▼
- Input Routing
+Input Routing
       │
       ▼
- Multimodal Processing
+Multimodal Processing
       │
       ▼
- AI Enabled Decision
+AI Enabled Decision
       │
       ▼
- AI Planner
+AI Planner
       │
       ▼
- Customer Service Agent L1
+Customer Service Agent L1
       │
       ├──► Vector Store / Knowledge Retrieval
       ├──► Shipment Information
@@ -88,7 +88,7 @@ Customer Input
       └──► Fallback / No Answer
       │
       ▼
- Escalation Handling
+Escalation Handling
       │
       ▼
- Execution Data / Response
+Execution Data / Response
