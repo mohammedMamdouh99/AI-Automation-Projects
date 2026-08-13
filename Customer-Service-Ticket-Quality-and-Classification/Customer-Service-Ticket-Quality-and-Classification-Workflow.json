@@ -1,0 +1,695 @@
+{
+  "name": "Activated Turbo Quality CS",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "488fe2b3-62e0-4c69-90f9-11b70ce1a73e",
+              "name": "id",
+              "value": "={{ $json.body.ticket.id }}",
+              "type": "string"
+            },
+            {
+              "id": "4e6d8c72-5f21-4c44-8f31-354108f91113",
+              "name": "creator_id",
+              "value": "={{ $json.body.ticket.creator_id }}",
+              "type": "string"
+            },
+            {
+              "id": "347ed6e7-beec-4ebe-a84d-0a391dd4c582",
+              "name": "user_rate",
+              "value": "={{ $json.body.ticket.rate }}",
+              "type": "string"
+            },
+            {
+              "id": "2550b7fd-2a2e-4fea-b25c-c929fb40f878",
+              "name": "created_at",
+              "value": "={{ $json.body.ticket.created_at }}",
+              "type": "string"
+            },
+            {
+              "id": "f23bd5fa-b736-4ce7-b3e6-5cc09bbc3a8d",
+              "name": "updated_at",
+              "value": "={{ $json.body.ticket.updated_at }}",
+              "type": "string"
+            },
+            {
+              "id": "10e278af-5eee-4d76-a4c0-d7007fbcaf0a",
+              "name": "creator_name",
+              "value": "={{ $json.body.ticket.creator }}",
+              "type": "string"
+            },
+            {
+              "id": "1e180505-74cf-4165-9ca7-2ff14a55a1bc",
+              "name": "assign_date",
+              "value": "={{ $json.body.ticket.assign_date }}",
+              "type": "string"
+            },
+            {
+              "id": "71d1a89a-8c6d-440f-8cde-95edbb672e1b",
+              "name": "close_date",
+              "value": "={{ $json.body.ticket.close_date }}",
+              "type": "string"
+            },
+            {
+              "id": "e2324f5e-af3f-429d-af7b-e79ffc76a129",
+              "name": "main_question",
+              "value": "={{ $json.body.ticket.description }}",
+              "type": "string"
+            },
+            {
+              "id": "20dd5885-75a1-40f7-9985-deac577ddf1a",
+              "name": "assigned_user_id",
+              "value": "={{ $json.body.ticket.assigned_user_id }}",
+              "type": "string"
+            },
+            {
+              "id": "b8653947-0f5e-4e21-baaa-e62e59509b06",
+              "name": "assigned_user",
+              "value": "={{ $json.body.ticket.assigned_user }}",
+              "type": "string"
+            },
+            {
+              "id": "b8913274-bcb2-4680-ac9b-99b89678d314",
+              "name": "conversation",
+              "value": "={{ $json.body.ticket.messages   .map(m => m.content)   .join(\"\\n\") }}",
+              "type": "string"
+            },
+            {
+              "id": "37940c04-0f57-46f6-a1e2-3acc6824866e",
+              "name": "messages",
+              "value": "={{ $json.body.ticket.messages }}",
+              "type": "string"
+            },
+            {
+              "id": "74dd3d5d-ae61-4e92-8c7a-407969504dcf",
+              "name": "complaint_type",
+              "value": "={{ $json.body.ticket.complaint_type }}",
+              "type": "string"
+            },
+            {
+              "id": "4440d146-550f-4f12-9486-90da94c70997",
+              "name": "complaint_type_title",
+              "value": "={{ $json.body.ticket.complaint_type_title }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        304,
+        112
+      ],
+      "id": "b25a0bd3-6a3c-4be2-9bd1-fe611c0aafa7",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1536,
+        112
+      ],
+      "id": "c6cf570c-b81e-402a-86ea-4bbd9b64542f",
+      "name": "Respond to Webhook2"
+    },
+    {
+      "parameters": {
+        "dataToSave": {
+          "values": [
+            {
+              "key": "ticket_number",
+              "value": "={{ $json.ticket_number }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executionData",
+      "typeVersion": 1,
+      "position": [
+        1728,
+        112
+      ],
+      "id": "cd06f5e5-d49e-4a2f-9594-2cd3f02f7de3",
+      "name": "Execution Data1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "<GOOGLE_SHEET_ID>",
+          "mode": "list",
+          "cachedResultName": "Customer Services Tickets Evaluations",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/<GOOGLE_SHEET_ID>/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "الورقة1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/<GOOGLE_SHEET_ID>/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "current_date": "={{ $now }}",
+            "ticket_number": "={{ $('Edit Fields').item.json.id }}",
+            "total_ticket_score": "={{ $json.output.total_score }}",
+            "ticket_created_at": "={{ $json.output.ticket_created_at }}",
+            "employee_name": "={{ $json.output.employee_name }}",
+            "Complete_Greeting_and_Agent_name_identification": "={{ $json.output.breakdown.Complete_Greeting.score }}",
+            "Misspellings": "={{ $json.output.breakdown.Misspellings.score }}",
+            "Punctuation": "={{ $json.output.breakdown.Punctuation.score }}",
+            "Slang_Words": "={{ $json.output.breakdown.Slang_Words.score }}",
+            "Thanks_customer_for_Contacting": "={{ $json.output.breakdown.Thanks_Customer.score }}",
+            "السبب": "={{ $json.output.breakdown.Misspellings.reason }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "current_date",
+              "displayName": "current_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ticket_number",
+              "displayName": "ticket_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_ticket_score",
+              "displayName": "total_ticket_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ticket_created_at",
+              "displayName": "ticket_created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "employee_name",
+              "displayName": "employee_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Complete_Greeting_and_Agent_name_identification",
+              "displayName": "Complete_Greeting_and_Agent_name_identification",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Misspellings",
+              "displayName": "Misspellings",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "السبب",
+              "displayName": "السبب",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Punctuation",
+              "displayName": "Punctuation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Slang_Words",
+              "displayName": "Slang_Words",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Thanks_customer_for_Contacting",
+              "displayName": "Thanks_customer_for_Contacting",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1344,
+        112
+      ],
+      "id": "af1ba507-bdea-4c50-8b33-33bdcd3904b9",
+      "name": "Append row in sheet"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Ticket Id: {{ $json.id }}\nCreator Id: {{ $json.creator_id }}\nCreator Name: {{ $json.creator_name }}\nUser rate: {{ $json.user_rate == 0 ? \"No rate yet\" : $json.user_rate }}\nTicket created date:{{ $json.created_at }}\nLast update ticket date: {{ $json.updated_at }}\nFirst assign ticket to agent date: {{ $json.assign_date }}\nAssigned Agent ID: {{ $json.assigned_user_id }}\nAssigned Agent ID: {{ $json.assigned_user }}\nClose ticket date: {{ $json.close_date }}\nTicket Description: {{ $json.main_question }}\nCurrent date: {{ $now }}\nis_transferred: {{ $json.is_transferred }}\nis_bot_greeting: {{ $json.is_bot_greeting }}\nConversation: {{ $json.conversation }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "==You are a Customer Service Quality Auditor.\n\nCRITICAL RULES:\n- The conversation contains [AGENT] and [CUSTOMER] tags.\n- Evaluate ONLY [AGENT] messages. Completely ignore [CUSTOMER] messages.\n- Agents write in Egyptian Arabic dialect — judge based on MEANING not exact words.\n- Return ONLY raw JSON. No markdown, no extra text.\n- For every criteria, provide a \"reason\" in Arabic explaining WHY you gave that label.\n\n--------------------------------\n\nTRANSFERRED TICKET RULE (VERY IMPORTANT):\n\nIf the input contains: is_transferred: true\n→ Set greeting = \"full\" automatically\n→ Set greeting_reason = \"التذكرة محولة من موظف آخر، لا يُشترط التحية من البداية\"\n→ Do NOT evaluate greeting at all\n\nBOT GREETING RULE (VERY IMPORTANT):\n\nIf the input contains: is_bot_greeting: true\n→ Set greeting = \"full\" automatically\n→ Set greeting_reason = \"التذكرة استقبلها النظام تلقائياً، والموظف تولى المتابعة لاحقاً\"\n→ Do NOT evaluate greeting at all\n\n--------------------------------\n\nEVALUATE THESE 5 CRITERIA:\n\n--------------------------------\n\n1. GREETING\nDid the agent open with any welcoming or engaging sentence?\nSKIP this if is_transferred = true OR is_bot_greeting = true (set \"full\" automatically)\n\nJudge based on the FIRST [AGENT] message that is clearly directed to the customer.\nIgnore short internal operational messages.\n\n- \"full\" → ANY of these exist in the first real agent message:\n\n    WARM OPENING:\n    - \"أهلاً\" / \"مرحباً\" / \"يا هلا\" / \"حياك\" / \"يسعدنا\"\n    - \"مساء النور\" / \"صباح الخير\" / \"صباح النور\" / \"مساء الخير\"\n    - \"مع حضرتك فريق...\" / \"كيف يمكنني مساعدتك\"\n    - \"من قسم خدمة العملاء\" / أي جملة ترحيب بأي شكل\n\n    TRANSFER OPENING (also = \"full\"):\n    - أي جملة فيها كلمة \"تحويل\" بأي صيغة\n    - \"هحول\" / \"بحول\" / \"سنقوم بتحويل\" / \"تم تحويل\"\n\n    ACKNOWLEDGMENT OPENING (also = \"full\"):\n    - \"تم تسجيل\" / \"هسجل\" بأي صيغة\n\n    APOLOGY OPENING (also = \"full\"):\n    - \"نأسف\" / \"نعتذر\" / \"آسفين\"\n    - أي اعتذار في أول رسالة = تحية كاملة\n\n- \"none\" → agent started directly with raw information only\n\nReason examples:\n- full: \"الموظف فتح بجملة 'صباح الخير، مع حضرتك آية من قسم خدمة العملاء'\"\n- full: \"الموظف بدأ باعتذار 'نأسف جداً على التأخير'\"\n- full (transferred): \"التذكرة محولة من موظف آخر، لا يُشترط التحية من البداية\"\n- full (bot): \"التذكرة استقبلها النظام تلقائياً، والموظف تولى المتابعة لاحقاً\"\n- none: \"الموظف بدأ مباشرة بالمعلومات بدون أي تحية\"\n\n--------------------------------\n\n2. MISSPELLINGS\nAre there noticeable spelling mistakes in the agent's Arabic messages?\n\n⚠️ CRITICAL: Evaluate ONLY [AGENT] messages spelling.\n- NEVER penalize the agent for [CUSTOMER] spelling mistakes\n- Only words written by [AGENT] count for this criteria\n\nVERY IMPORTANT — DO NOT PENALIZE THESE (completely normal in Egyptian Arabic):\n\n    ❌ Missing or wrong hamza (أ / إ / ء / ئ / ؤ) → ALWAYS ACCEPTABLE\n    ❌ Missing tashkeel/diacritics (ً ُ ِ َ ّ ْ) → ALWAYS ACCEPTABLE\n    ❌ Replacing ة with ه or vice versa:\n       - \"مشكله\" instead of \"مشكلة\" → ACCEPTABLE\n       - \"خدمه\" instead of \"خدمة\" → ACCEPTABLE\n       - Any ة/ه confusion → ALWAYS ACCEPTABLE, never penalize\n    ❌ Geographic names and area names → NEVER penalize:\n       - \"الهضبي الوسطى\" / \"المعادي\" / \"مدينة نصر\" / any area name → ACCEPTABLE\n       - Unusual or unfamiliar place names → ALWAYS ACCEPTABLE\n    ❌ Dialect spelling: \"دلوقتي\" / \"مش\" / \"عندك\" / \"بتاعك\" / \"انشالله\"\n    ❌ Franco-Arabic writing\n    ❌ Dialect variations in spelling\n    ❌ Brand names, product names, technical terms → NEVER penalize\n\nMark \"bad\" ONLY for these serious errors in [AGENT] messages:\n    ✅ Missing letters that completely change the word: \"تسيل\" instead of \"تسليم\"\n    ✅ Switching letters that change meaning: \"ض\" and \"ظ\" consistently wrong\n    ✅ Words written so wrong they become impossible to understand\n    ✅ Consistent clear errors across multiple messages\n\n- \"good\" → no significant errors (all above exceptions = always good)\n- \"bad\" → serious errors only, affecting understanding — score = 0\n\nReason examples:\n- good: \"لا توجد أخطاء إملائية واضحة، وأخطاء الهمزة والتاء المربوطة مقبولة تماماً\"\n- good: \"أسماء المناطق الجغرافية لا تُعد أخطاء إملائية\"\n- bad: \"الموظف كتب 'تسيل' بدلاً من 'تسليم' وهذا خطأ واضح يؤثر على المعنى\"\n\n--------------------------------\n\n3. PUNCTUATION\nDoes the agent have serious punctuation errors?\nBE LENIENT — only mark \"bad\" for clear and repeated errors.\n\n⚠️ Evaluate ONLY [AGENT] messages. Ignore [CUSTOMER] messages completely.\n\n- \"good\" → punctuation is fine, OR only minor issues exist\n- \"bad\" → clear and repeated punctuation errors that affect readability\n\nIMPORTANT LENIENCY RULES:\n- Extra spaces between words → \"good\" (ignore)\n- Missing space after comma → \"good\" (ignore)\n- Short messages with no punctuation → \"good\" (ignore)\n- Long messages with no punctuation AND hard to read → \"bad\"\n- Only mark \"bad\" if errors are obvious and repeated across multiple messages\n\nReason examples:\n- good: \"لا توجد أخطاء ترقيم واضحة، الرسائل مفهومة وواضحة\"\n- bad: \"رسائل طويلة متعددة بدون أي علامات ترقيم مما يجعلها صعبة القراءة\"\n\n--------------------------------\n\n4. SLANG\nDid the agent use unprofessional informal language?\n\n⚠️ Evaluate ONLY [AGENT] messages. Ignore [CUSTOMER] messages completely.\n\nSlang examples → mark \"exists\":\n    - \"اوك\" / \"اوكيه\" / \"يلا\" / \"بص\" / \"بصي\"\n    - \"ماشي بقى\" / \"خلاص بقى\"\n    - \"هههه\" / \"ههه\" / 😂 / 🤣\nAcceptable Egyptian dialect (NOT slang):\n    - \"تمام\" / \"حسناً\" / \"من فضلك\" / \"دلوقتي\" / \"مش\" / \"برجاء\"\n    - \"ماشي\" alone without \"بقى\" is acceptable\n- \"none\" → no slang, professional throughout\n- \"minor\" → one or two mild informal words\n- \"exists\" → clear slang used\n\nReason examples:\n- none: \"الموظف استخدم لغة مهنية طوال المحادثة\"\n- minor: \"الموظف استخدم كلمة 'اوك' مرة واحدة فقط\"\n- exists: \"الموظف استخدم كلمة 'بص' و'يلا' في أكثر من رسالة\"\n\n--------------------------------\n\n5. THANKS\nDid the agent send any closing appreciation message?\n\n⚠️ Evaluate ONLY [AGENT] messages. Ignore [CUSTOMER] messages completely.\n\n- \"yes\" → ANY of these exist in [AGENT] messages:\n    - \"شكراً لتواصلك\" / \"نشكرك\" / \"جزاكم الله\"\n    - \"سعداء بخدمتك\" / \"نتمنى لك يوم سعيد\"\n    - \"برجاء تقييم موظف خدمة العملاء\" ← وحدها = \"yes\"\n    - أي جملة إغلاق فيها تقدير أو شكر ضمني\n- \"no\" → agent ended with zero appreciation\n\nNOTE: \"برجاء تقييم موظف خدمة العملاء،سعداء بخدمتك، نتمنى لك يوم سعيد\"\n= \"yes\" always, no exceptions.\n\nReason examples:\n- yes: \"الموظف أرسل جملة 'برجاء تقييم موظف خدمة العملاء، سعداء بخدمتك'\"\n- no: \"الموظف أغلق التذكرة بدون أي جملة شكر أو تقدير للعميل\"\n\n--------------------------------\n\nReturn ONLY this JSON — no markdown, no extra text:\n\n{\n  \"greeting\": \"\",\n  \"greeting_reason\": \"\",\n  \"misspellings\": \"\",\n  \"misspellings_reason\": \"\",\n  \"punctuation\": \"\",\n  \"punctuation_reason\": \"\",\n  \"slang\": \"\",\n  \"slang_reason\": \"\",\n  \"thanks\": \"\",\n  \"thanks_reason\": \"\"\n}\n\nCRITICAL:\n- 10 fields exactly\n- Every label field MUST have a value from the allowed labels\n- Every reason field MUST be a short Arabic explanation (1-2 sentences max)\n- If is_transferred = true → greeting = \"full\" automatically\n- If is_bot_greeting = true → greeting = \"full\" automatically\n- Any \"تحويل\" or \"تم تسجيل\" or \"نأسف\" in first agent message → greeting = \"full\"\n- Hamza errors → ALWAYS \"good\"\n- ة/ه confusion → ALWAYS \"good\"\n- Geographic/area names → ALWAYS \"good\"\n- Tashkeel missing → ALWAYS \"good\"\n- Customer spelling mistakes → NEVER count against agent\n- misspellings \"bad\" = score 0, serious errors only\n- \"برجاء تقييم موظف خدمة العملاء\" always = thanks \"yes\"\n- Punctuation: be lenient, only \"bad\" for serious repeated errors in AGENT messages"
+        }
+      },
+      "id": "575ad306-8719-4103-bc21-351c388615c0",
+      "name": "Quality Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        784,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================================\n// SCORE CALCULATOR — النسخة النهائية\n// Greeting + Punctuation = 5 دايماً بغض النظر عن التقييم\n// ============================================================\n\nlet raw = $json.output;\nlet ai = {};\n\nif (typeof raw === 'string') {\n  try {\n    const cleaned = raw.replace(/```json|```/gi, '').trim();\n    ai = JSON.parse(cleaned);\n  } catch { ai = {}; }\n} else if (typeof raw === 'object' && raw !== null) {\n  ai = raw;\n}\n\nconst required = ['greeting', 'misspellings', 'punctuation', 'slang', 'thanks'];\nconst missing = required.filter(f => !ai[f]);\nif (missing.length > 2) {\n  return [{\n    json: {\n      output: {\n        error: true,\n        error_reason: 'AI response incomplete',\n        missing_fields: missing,\n        raw_output: raw,\n      }\n    }\n  }];\n}\n\nconst val = (v) => v ? v.toString().toLowerCase().trim() : '';\n\nconst scores = {\n  greeting:     { full: 5, partial: 5, none: 5 },  // دايماً 5\n  misspellings: { good: 10, bad: 0 },\n  punctuation:  { good: 5, bad: 5 },               // دايماً 5\n  slang:        { none: 5, minor: 3, exists: 0 },\n  thanks:       { yes: 5, no: 0 },\n};\n\nconst getScore = (map, key) => {\n  if (!key || !map) return 0;\n  if (map[key] !== undefined) return map[key];\n  return 0;\n};\n\nconst greeting_score     = getScore(scores.greeting,     val(ai.greeting));\nconst misspellings_score = getScore(scores.misspellings, val(ai.misspellings));\nconst punctuation_score  = getScore(scores.punctuation,  val(ai.punctuation));\nconst slang_score        = getScore(scores.slang,        val(ai.slang));\nconst thanks_score       = getScore(scores.thanks,       val(ai.thanks));\n\nconst total = greeting_score + misspellings_score + punctuation_score + slang_score + thanks_score;\nconst MAX = 30;\nconst percentage = Math.round((total / MAX) * 100);\n\nlet performance = 'Poor';\nif (percentage >= 85) performance = 'Excellent';\nelse if (percentage >= 70) performance = 'Good';\nelse if (percentage >= 50) performance = 'Average';\n\nconst ticket = $node[\"Code in JavaScript\"].json;\n\nreturn [{\n  json: {\n    output: {\n      current_date: new Date().toISOString(),\n      ticket_number: ticket.id ?? 'N/A',\n      ticket_created_at: ticket.created_at ?? 'N/A',\n      employee_name: ticket.assigned_user || 'Unknown',\n      employee_id: ticket.assigned_user_id || 'N/A',\n      is_transferred: ticket.is_transferred || false,\n      is_bot_greeting: ticket.is_bot_greeting || false,\n\n      total_score: total,\n      max_score: MAX,\n      percentage: percentage,\n      performance: performance,\n\n      breakdown: {\n        Complete_Greeting: {\n          score: greeting_score,\n          max: 5,\n          label: ai.greeting,\n          reason: ai.greeting_reason || '',\n          note: 'الدرجة ثابتة 5 بغض النظر عن التقييم',\n        },\n        Misspellings: {\n          score: misspellings_score,\n          max: 10,\n          label: ai.misspellings,\n          reason: ai.misspellings_reason || '',\n          note: misspellings_score === 0 ? 'خُصم 10 نقاط بسبب أخطاء إملائية واضحة' : '',\n        },\n        Punctuation: {\n          score: punctuation_score,\n          max: 5,\n          label: ai.punctuation,\n          reason: ai.punctuation_reason || '',\n          note: 'الدرجة ثابتة 5 بغض النظر عن التقييم',\n        },\n        Slang_Words: {\n          score: slang_score,\n          max: 5,\n          label: ai.slang,\n          reason: ai.slang_reason || '',\n        },\n        Thanks_Customer: {\n          score: thanks_score,\n          max: 5,\n          label: ai.thanks,\n          reason: ai.thanks_reason || '',\n        },\n      }\n    }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        112
+      ],
+      "id": "f0d02f19-86d9-4012-88ab-3589bd896846",
+      "name": "Score Calculator Node"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "csevaluations",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        96,
+        112
+      ],
+      "id": "4046900d-bf12-4618-b16c-5f228b1622de",
+      "name": "Webhook1",
+      "webhookId": "eae4811a-2e29-422b-9293-c0493a9d8d3b"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "o4-mini",
+          "mode": "list",
+          "cachedResultName": "o4-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        816,
+        352
+      ],
+      "id": "a6b7d6d7-dcb0-45b4-8041-4a59ca54f844",
+      "name": "OpenAI Chat Model"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================================\n// CODE NODE v10 — النسخة النهائية المضمونة\n// بيستخدم user.is_client لتمييز العميل والموظف بدقة 100%\n// مكانه: بعد Edit Fields مباشرة\n// ============================================================\n\nconst rawMessages = $json.messages;\nconst messages = typeof rawMessages === 'string'\n  ? JSON.parse(rawMessages)\n  : (rawMessages || []);\n\n// ============================================================\n// تمييز الرسايل باستخدام is_client\n// ============================================================\nconst taggedMessages = messages\n  .filter(m => m.content !== null || m.file !== null)\n  .map(m => {\n    const user = m.user || {};\n    const isClient = user.is_client === true;\n    const isAI = (user.name || '').toLowerCase().includes('ai') ||\n                 (user.name || '').toLowerCase().includes('customer service') ||\n                 (user.first_name || '').toLowerCase() === 'ai';\n\n    m._isAgent = !isClient;\n    m._isAI = isAI;\n    m._isInternalNote = false;\n    return m;\n  });\n\n// ============================================================\n// كشف البوت — لو أول رسالة AGENT جت في أقل من 120 ثانية\n// أو لو المرسل اسمه AI\n// ============================================================\nconst firstCustomerMsg = taggedMessages.find(m => !m._isAgent);\nconst firstAgentMsg = taggedMessages.find(m => m._isAgent && !m._isAI);\n\nlet is_bot_greeting = false;\n\nif (firstCustomerMsg && firstAgentMsg) {\n  const customerTime = new Date(firstCustomerMsg.created_at);\n  const agentTime = new Date(firstAgentMsg.created_at);\n  const diffSeconds = (agentTime - customerTime) / 1000;\n  if (diffSeconds < 120) is_bot_greeting = true;\n}\n\n// لو أول رسالة AGENT هي AI → bot greeting\nconst firstMsg = taggedMessages.find(m => m._isAgent);\nif (firstMsg && firstMsg._isAI) is_bot_greeting = true;\n\n// ============================================================\n// كشف التذكرة المحولة\n// ============================================================\nlet isTransferredByDate = false;\nconst createdAt = $json.created_at;\nconst assignDate = $json.assign_date;\n\nif (createdAt && assignDate) {\n  const diffMinutes = Math.abs(new Date(assignDate) - new Date(createdAt)) / 60000;\n  if (diffMinutes > 5) isTransferredByDate = true;\n}\n\nconst transferKeywords = [\n  'هحول التذكرة', 'بحول التذكرة',\n  'هيتم تحويل', 'سيتم تحويل',\n  'هحولها', 'بحولها', 'تم تحويل',\n];\n\nconst firstRealAgentMsg = taggedMessages.find(m => m._isAgent && !m._isAI);\nconst isTransferredByKeyword = firstRealAgentMsg\n  ? transferKeywords.some(k => (firstRealAgentMsg.content || '').includes(k))\n  : false;\n\nconst is_transferred = isTransferredByDate || isTransferredByKeyword;\n\n// ============================================================\n// بناء الـ conversation\n// بنشيل رسايل الـ AI من الـ conversation\n// عشان الـ AI يقيم الموظف البشري بس\n// ============================================================\nconst conversation = taggedMessages\n  .filter(m => !m._isAI)\n  .map(m => {\n    const role = m._isAgent ? '[AGENT]' : '[CUSTOMER]';\n    const time = m.created_at ? `(${m.created_at})` : '';\n    const content = m.content || '';\n    const file = m.file ? '[FILE/SCREENSHOT]' : '';\n    return `${role} ${time}: ${content} ${file}`.trim();\n  })\n  .join('\\n');\n\n// ============================================================\n// OUTPUT\n// ============================================================\nreturn [{\n  json: {\n    id: $json.id,\n    creator_id: $json.creator_id,\n    creator_name: $json.creator_name,\n    assigned_user: $json.assigned_user,\n    assigned_user_id: $json.assigned_user_id,\n    created_at: $json.created_at,\n    updated_at: $json.updated_at,\n    assign_date: $json.assign_date,\n    close_date: $json.close_date,\n    complaint_type: $json.complaint_type,\n    complaint_type_title: $json.complaint_type_title,\n    main_question: $json.main_question,\n    user_rate: $json.user_rate,\n    is_transferred,\n    is_bot_greeting,\n    conversation,\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        512,
+        112
+      ],
+      "id": "19fc34bd-d222-46bb-b2f1-cda8e6934549",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "<GOOGLE_SHEET_ID>",
+          "mode": "list",
+          "cachedResultName": "تصنيف التيكتات",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/<GOOGLE_SHEET_ID>/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/<GOOGLE_SHEET_ID>/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "current_date": "={{ $now }}",
+            "ticket_number": "={{ $json.classification.ticket_id }}",
+            "ticket Type": "={{ $json.classification.original_type }}",
+            " AI ticket Type": "={{ $json.classification.ticket_classification }}",
+            " AI reason": "={{ $json.classification.classification_reason }}",
+            "complaint_type_title": "={{ $json.classification.original_type_title }}",
+            "AI classification title": "={{ $json.classification.ai_classification_title }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "current_date",
+              "displayName": "current_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ticket_number",
+              "displayName": "ticket_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ticket Type",
+              "displayName": "ticket Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "complaint_type_title",
+              "displayName": "complaint_type_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": " AI ticket Type",
+              "displayName": " AI ticket Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "AI classification title",
+              "displayName": "AI classification title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": " AI reason",
+              "displayName": " AI reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1280,
+        560
+      ],
+      "id": "78e3fd8c-8369-453f-b582-5a8cbd85d7dc",
+      "name": "Append row in classification sheet"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "o4-mini",
+          "mode": "list",
+          "cachedResultName": "o4-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        880,
+        784
+      ],
+      "id": "ee529242-36cb-4506-83b4-d93e58b77a4a",
+      "name": "OpenAI Chat Model1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Ticket Id: {{ $json.id }}\nTicket Description: {{ $json.main_question }}\nConversation:\n{{ $json.conversation }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a Customer Service Ticket Classifier for a logistics/delivery company.\n\nYou will receive a support ticket's ID, description, and the full conversation\nbetween [CUSTOMER] and [AGENT] (Egyptian Arabic dialect).\n\nYour job has TWO parts:\n\nSTEP 1 — Pick the MAIN category (exactly one), based on what the CUSTOMER\nactually needed (not how the agent responded):\n\n- \"شكوى\" -> Customer is complaining about a problem, delay, damage, or\n  something that went wrong.\n- \"استفسار\" -> Customer is only asking a question / requesting info, no\n  complaint.\n- \"شكر\" -> Customer is thanking / praising the service.\n- \"مقترح\" -> Customer is suggesting an improvement or idea.\n\nSTEP 2 — Pick the exact SUB-CATEGORY (title) from the list that belongs to\nthe main category you picked in STEP 1. You MUST choose one value EXACTLY\nas written below, do not invent new titles, do not translate, do not modify\nspelling.\n\nIf main category = \"شكوى\", pick ONE of these exact titles:\nأخرى\nإفادة وهمية\nالمهمة غير قابلة للإنشاء\nالموظف المسؤول عن الفرع\nتاخير الاستلام\nتأخير التسليم\nتأخير تحويل التوريد\nتبديل في التسليم\nتلف الطرد\nجزء من الطرد مفقود\nحجم المركبة/المعدة غير مناسب\nخارج التغطية\nخطأ في الحسابات المالية\nخطأ في تفاصيل المهمة\nطرد مفقود\nعدم الاستجابة من الفرع\nعدم الاستلام\nكابتن الاستلام\nمرتجع على الراسل غير مستحق\nمشكلة مع الكابتن\n\nIf main category = \"استفسار\", pick ONE of these exact titles:\nأخرى\nبخصوص التشغيل\nسيستم التطبيق\nسيستم الويب\n\nIf main category = \"شكر\", the title is always:\nشكر\n\nIf main category = \"مقترح\", the title is always:\nمقترح\n\nRULES:\n- Base your decision on the CUSTOMER's messages and overall context, not on\n  the agent's tone.\n- The sub-category title MUST belong to the main category you chose — never\n  mix a \"شكوى\" title with an \"استفسار\" main category, etc.\n- If nothing matches well, use \"أخرى\" as the title (only valid under شكوى or\n  استفسار).\n- Return ONLY raw JSON. No markdown, no code fences, no extra text.\n- The reason must be a short Arabic explanation (1-2 sentences).\n- Always include the ticket_id exactly as given to you, without modifying it.\n\nReturn ONLY this JSON, with no other text before or after it:\n{\n  \"ticket_id\": \"\",\n  \"ticket_classification\": \"\",\n  \"classification_title\": \"\",\n  \"classification_reason\": \"\"\n}"
+        }
+      },
+      "id": "4dfc270e-3107-420b-902c-1539a8319b25",
+      "name": "Ticket Classification Agent1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        656,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================================\n// CLASSIFICATION PARSER — normalizes the Ticket Classification Agent output\n// وبيجيب معاه التصنيف الأساسي (الأصلي) من نظام الشركة عشان المقارنة\n// ============================================================\n\nlet raw = $json.output;\nlet ai = {};\n\nif (typeof raw === 'string') {\n  try {\n    const cleaned = raw.replace(/```json|```/gi, '').trim();\n    ai = JSON.parse(cleaned);\n  } catch {\n    ai = {};\n  }\n} else if (typeof raw === 'object' && raw !== null) {\n  ai = raw;\n}\n\n// الفئات الرئيسية المسموح بيها\nconst allowedMain = ['شكوى', 'استفسار', 'شكر', 'مقترح'];\n\n// الفئات الفرعية المسموح بيها لكل فئة رئيسية (نفس ليستة الشركة بالظبط)\nconst allowedTitles = {\n  'شكوى': [\n    'أخرى', 'إفادة وهمية', 'المهمة غير قابلة للإنشاء', 'الموظف المسؤول عن الفرع',\n    'تاخير الاستلام', 'تأخير التسليم', 'تأخير تحويل التوريد', 'تبديل في التسليم',\n    'تلف الطرد', 'جزء من الطرد مفقود', 'حجم المركبة/المعدة غير مناسب',\n    'خارج التغطية', 'خطأ في الحسابات المالية', 'خطأ في تفاصيل المهمة',\n    'طرد مفقود', 'عدم الاستجابة من الفرع', 'عدم الاستلام', 'كابتن الاستلام',\n    'مرتجع على الراسل غير مستحق', 'مشكلة مع الكابتن'\n  ],\n  'استفسار': ['أخرى', 'بخصوص التشغيل', 'سيستم التطبيق', 'سيستم الويب'],\n  'شكر': ['شكر'],\n  'مقترح': ['مقترح']\n};\n\n// STEP 1: تحقق من الفئة الرئيسية\nlet classification = (ai.ticket_classification || '').toString().trim();\nif (!allowedMain.includes(classification)) {\n  classification = classification || 'غير محدد';\n}\n\n// STEP 2: تحقق من الفئة الفرعية (لازم تكون تابعة للفئة الرئيسية اللي اتحددت)\nlet classificationTitle = (ai.classification_title || '').toString().trim();\nconst validTitlesForMain = allowedTitles[classification] || [];\nif (!validTitlesForMain.includes(classificationTitle)) {\n  classificationTitle = classificationTitle || 'غير محدد';\n}\n\n// نجيب بيانات المصدر الأصلي (نفس الفرع، الـ node ده أب لل Ticket Classification Agent)\nconst source = $('Code in JavaScript').item.json;\n\n// نجيب الـ ticket_id من رد الـ AI، ولو مش موجود نرجع للمصدر الأساسي\nconst ticketIdFromAI = (ai.ticket_id || '').toString().trim();\nconst ticket_id = ticketIdFromAI || source.id;\n\nreturn [{\n  json: {\n    classification: {\n      ticket_id: ticket_id,\n      original_type: source.complaint_type || 'N/A',\n      original_type_title: source.complaint_type_title || 'N/A',\n      ticket_classification: classification,\n      ai_classification_title: classificationTitle,\n      classification_reason: ai.classification_reason || ''\n    }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1072,
+        576
+      ],
+      "id": "d4a15c61-6770-4c50-8d75-75826d76e3ec",
+      "name": "Classification Parser Node"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook2": {
+      "main": [
+        [
+          {
+            "node": "Execution Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Quality Agent": {
+      "main": [
+        [
+          {
+            "node": "Score Calculator Node",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Calculator Node": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Quality Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Quality Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Ticket Classification Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Ticket Classification Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ticket Classification Agent1": {
+      "main": [
+        [
+          {
+            "node": "Classification Parser Node",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in classification sheet": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classification Parser Node": {
+      "main": [
+        [
+          {
+            "node": "Append row in classification sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "6a0723cf-2291-456e-a6bf-8f5e31d16bac",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "Sa0BUe1Hj2PIERs5",
+  "tags": []
+}
